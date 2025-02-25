@@ -1,1 +1,4 @@
-# browser-rpg-server
+```
+npm install
+npm run start
+```

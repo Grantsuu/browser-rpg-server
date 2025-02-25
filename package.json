@@ -1,0 +1,13 @@
+{
+  "name": "browser-rpg-server",
+  "scripts": {
+    "start": "vercel dev",
+    "deploy": "vercel"
+  },
+  "dependencies": {
+    "hono": "^4.7.2"
+  },
+  "devDependencies": {
+    "vercel": "^32.4.1"
+  }
+}
