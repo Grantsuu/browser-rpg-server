@@ -1,17 +1,16 @@
 {
-    "name": "browser-rpg-server",
-    "version": "1.0.0",
-    "main": "api/index.js",
+    "name": "hono-vercel",
+    "type": "module",
     "scripts": {
-        "dev": "node api/index.js",
-        "deploy": "vercel --prod"
+        "dev": "tsx watch api/index.ts"
     },
-    "keywords": [],
-    "author": "",
-    "license": "ISC",
-    "description": "",
     "dependencies": {
-        "express": "^4.21.2",
+        "@hono/node-server": "^1.13.8",
+        "hono": "^4.7.4",
         "vercel": "^41.3.2"
+    },
+    "devDependencies": {
+        "@types/node": "^20.11.17",
+        "tsx": "^4.7.1"
     }
 }
