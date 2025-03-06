@@ -1,5 +1,8 @@
 ```
 npm install
-npm run start
+npm run dev
 ```
-push
+
+```
+open http://localhost:3000
+```
