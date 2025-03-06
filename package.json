@@ -1,15 +1,17 @@
 {
     "name": "browser-rpg-server",
-    "type": "module",
+    "version": "1.0.0",
+    "main": "api/index.js",
     "scripts": {
-        "dev": "tsx watch src/index.ts"
+        "dev": "node api/index.js",
+        "deploy": "vercel --prod"
     },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "description": "",
     "dependencies": {
-        "@hono/node-server": "^1.13.8",
-        "hono": "^4.7.4"
-    },
-    "devDependencies": {
-        "@types/node": "^20.11.17",
-        "tsx": "^4.7.1"
+        "express": "^4.21.2",
+        "vercel": "^41.3.2"
     }
 }
