@@ -1,6 +1,6 @@
 import { Hono } from "hono";
-import { supabase } from '../supabase.ts';
-import { type ClientItem, type SupabaseShopItem } from "../constants/interfaces.ts";
+import { supabase } from '../lib/supabase.ts';
+import { type ClientItem, type SupabaseShopItem } from "../types/types.ts";
 
 const shop = new Hono();
 

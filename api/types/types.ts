@@ -1,4 +1,4 @@
-export interface ClientItem {
+export type ClientItem = {
     id: number
     image: {
         base64: string,
@@ -11,7 +11,7 @@ export interface ClientItem {
     amount?: number
 }
 
-export interface SupabaseItem {
+export type SupabaseItem = {
     id: number,
     category: { name: string },
     description: string,
@@ -20,6 +20,6 @@ export interface SupabaseItem {
     value: number
 }
 
-export interface SupabaseShopItem {
+export type SupabaseShopItem = {
     item: SupabaseItem;
 }
