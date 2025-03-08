@@ -8,6 +8,12 @@ import shop from './routes/shop.ts';
 
 const app = new Hono()
 
+app.use(cors());
+app.use(authorization);
+
+app.route('/shop', shop)
+app.route('/inventory', inventory);
+
 app.onError((err, c) => {
     if (err instanceof HTTPException) {
         return err.getResponse()
@@ -15,12 +21,6 @@ app.onError((err, c) => {
     c.status(500);
     return c.json(err);
 })
-
-app.use(cors());
-app.use(authorization);
-
-app.route('/shop', shop)
-app.route('/inventory', inventory);
 
 serve({
     fetch: app.fetch,
