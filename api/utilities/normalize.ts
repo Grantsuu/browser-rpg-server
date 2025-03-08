@@ -1,4 +1,4 @@
-import type { ClientItem, SupabaseInventoryItem, SupabaseShopItem } from "../types/types.ts";
+import type { ClientItem, SupabaseInventoryItem, SupabaseShopItem } from "../types/types.js";
 
 export const supabaseShopItemsToClientItems = (supabaseShopItems: SupabaseShopItem[]) => {
     const items: ClientItem[] = [];

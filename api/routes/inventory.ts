@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
-import { getInventoryByUserId } from "../controllers/inventory.ts";
-import { supabaseInventoryItemsToClientItems } from "../utilities/normalize.ts";
+import { getInventoryByUserId } from "../controllers/inventory.js";
+import { supabaseInventoryItemsToClientItems } from "../utilities/normalize.js";
 
 type Variables = {
     user: { user: User };

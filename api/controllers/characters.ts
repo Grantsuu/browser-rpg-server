@@ -1,5 +1,5 @@
 import { HTTPException } from 'hono/http-exception';
-import { supabase } from '../lib/supabase.ts';
+import { supabase } from '../lib/supabase.js';
 
 export const getCharacterIdByUserId = async (userId: string) => {
     const { data, error } = await supabase

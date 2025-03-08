@@ -1,7 +1,7 @@
 import { HTTPException } from 'hono/http-exception';
-import { supabase } from '../lib/supabase.ts';
-import { type SupabaseInventoryItem } from "../types/types.ts";
-import { getCharacterIdByUserId } from "./characters.ts";
+import { supabase } from '../lib/supabase.js';
+import { type SupabaseInventoryItem } from "../types/types.js";
+import { getCharacterIdByUserId } from "./characters.js";
 
 
 export const getInventoryByUserId = async (userId: string) => {
