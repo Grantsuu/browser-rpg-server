@@ -1,5 +1,5 @@
 {
-    "name": "hono-vercel",
+    "name": "browser-rpg-server",
     "type": "module",
     "scripts": {
         "dev": "tsx watch api/index.ts"
