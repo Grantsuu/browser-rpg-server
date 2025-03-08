@@ -19,11 +19,8 @@ app.onError((err, c) => {
 app.use(cors());
 app.use(authorization);
 
-app.get('/', (c) => {
-    return c.text('Hello Hono!')
-})
-app.route('/inventory', inventory);
 app.route('/shop', shop)
+app.route('/inventory', inventory);
 
 serve({
     fetch: app.fetch,

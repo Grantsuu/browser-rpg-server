@@ -11,7 +11,7 @@ shop.get('/', async (c) => {
         .from('shop_inventory')
         .select(`
             item:items(
-                ids,
+                id,
                 name,
                 category:lk_item_categories(name),
                 value,
