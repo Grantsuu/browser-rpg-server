@@ -5,6 +5,7 @@ import { serve } from '@hono/node-server';
 import { authorization } from './middleware/authorization.js';
 import inventory from './routes/inventory.js';
 import shop from './routes/shop.js';
+import crafting from './routes/crafting.js';
 
 const app = new Hono()
 
@@ -18,6 +19,7 @@ app.route('/shop', shop)
 // Inventory
 app.route('/inventory', inventory);
 // Crafting
+app.route('/crafting', crafting);
 
 // Error handling
 app.onError((err, c) => {
