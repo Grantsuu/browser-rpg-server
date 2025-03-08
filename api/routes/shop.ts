@@ -1,6 +1,8 @@
 import { Hono } from "hono";
+import { HTTPException } from 'hono/http-exception';
 import { supabase } from '../lib/supabase.ts';
-import { type ClientItem, type SupabaseShopItem } from "../types/types.ts";
+import { type SupabaseShopItem } from "../types/types.ts";
+import { supabaseShopItemsToClientItems } from "../utilities/normalize.ts";
 
 const shop = new Hono();
 
@@ -20,27 +22,11 @@ shop.get('/', async (c) => {
         .overrideTypes<SupabaseShopItem[]>();
 
     if (error) {
-        c.status(500);
-        return c.json(error);
+        console.log(error);
+        throw new HTTPException(500, { message: 'unable to retrieve shop inventory' })
     }
 
-    // Normalize items from Supabase into ones the UI will consume
-    const items: ClientItem[] = [];
-    data.map((item) => {
-        items.push({
-            id: item.item.id,
-            image: {
-                base64: item.item.image.base64,
-                type: item.item.image.type
-            },
-            name: item.item.name,
-            category: item.item.category.name,
-            value: item.item.value,
-            description: item.item.description,
-        });
-    })
-
-    return c.json(items);
+    return c.json(supabaseShopItemsToClientItems(data));
 })
 
 export default shop;

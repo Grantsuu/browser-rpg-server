@@ -20,6 +20,11 @@ export type SupabaseItem = {
     value: number
 }
 
+export type SupabaseInventoryItem = {
+    amount: number,
+    item: SupabaseItem
+}
+
 export type SupabaseShopItem = {
     item: SupabaseItem;
 }
