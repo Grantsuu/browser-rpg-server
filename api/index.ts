@@ -8,12 +8,18 @@ import shop from './routes/shop.js';
 
 const app = new Hono()
 
+// CORS Policy
 app.use(cors());
+// Authorization middleware
 app.use(authorization);
 
+// Shop
 app.route('/shop', shop)
+// Inventory
 app.route('/inventory', inventory);
+// Crafting
 
+// Error handling
 app.onError((err, c) => {
     if (err instanceof HTTPException) {
         return err.getResponse()

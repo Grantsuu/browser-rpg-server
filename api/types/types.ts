@@ -1,9 +1,11 @@
+type Image = {
+    base64: string,
+    type: string
+}
+
 export type ClientItem = {
     id: number
-    image: {
-        base64: string,
-        type: string
-    },
+    image: Image,
     name: string,
     category: string,
     value: number,
@@ -11,11 +13,16 @@ export type ClientItem = {
     amount?: number
 }
 
+export type ClientRecipe = {
+    item: ClientItem
+    ingredients: ClientItem[]
+}
+
 export type SupabaseItem = {
     id: number,
     category: { name: string },
     description: string,
-    image: { base64: string, type: string },
+    image: Image,
     name: string,
     value: number
 }
@@ -27,4 +34,10 @@ export type SupabaseInventoryItem = {
 
 export type SupabaseShopItem = {
     item: SupabaseItem;
+}
+
+export type SupabaseRecipe = {
+    item: SupabaseItem,
+    ingredient: SupabaseItem,
+    amount: number,
 }
