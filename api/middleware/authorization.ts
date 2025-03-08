@@ -1,28 +1,21 @@
 import { createMiddleware } from 'hono/factory';
+import { HTTPException } from 'hono/http-exception';
 import { supabase } from '../lib/supabase.ts';
 
 export const authorization = createMiddleware(async (c, next) => {
-    try {
-        const authHeader = c.req.header('Authorization');
-        console.log(authHeader);
-        // Authorization request header
-        if (!authHeader) {
-            c.status(401);
-            c.set('error', 'Unauthorized, no authorization header in request.');
-            throw new Error('Unauthorized, no authorization header in request.');
-        }
-        // Check for malformed auth header
-        const jwt = authHeader.split('Bearer ');
-        if (jwt.length < 1) {
-            c.status(401);
-            throw new Error('Unauthorized, malformed authorization header.');
-        }
 
-        return c.json(jwt[1]);
-        // const { data, error } = await supabase.auth.getUser(c.req.header('Authorization')?.split('Bearer ')[1]);
-    } catch {
+    const jwt = c.req.header('Authorization')?.replace('Bearer ', '');
 
+    if (!jwt) {
+        throw new HTTPException(401, { message: 'Authorization header missing or malformed.' });
     }
+
+    const { data, error } = await supabase.auth.getUser(jwt);
+    if (error) {
+        throw new HTTPException(500, { message: error.message });
+    }
+
+    c.set('user', data);
 
     await next();
 });
