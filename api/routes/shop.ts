@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { HTTPException } from 'hono/http-exception';
 import { supabase } from '../lib/supabase.js';
 import { type SupabaseShopItem } from "../types/types.js";
-import { supabaseShopItemsToClientItems } from "../utilities/functions.ts";
+import { supabaseShopItemsToClientItems } from "../utilities/functions.js";
 
 const shop = new Hono();
 
