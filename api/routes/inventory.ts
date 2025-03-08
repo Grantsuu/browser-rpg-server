@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
 import { getInventoryByUserId } from "../controllers/inventory.js";
-import { supabaseInventoryItemsToClientItems } from "../utilities/functions.ts";
+import { supabaseInventoryItemsToClientItems } from "../utilities/functions.js";
 
 type Variables = {
     user: { user: User };
