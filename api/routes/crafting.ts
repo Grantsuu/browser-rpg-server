@@ -25,6 +25,7 @@ crafting.get('/', async (c) => {
 });
 
 // Post Craft
+// TODO: This really should take an item id as the only parameter and then lookup the recipe based on the id instead of taking it as a payload
 crafting.post('/', async (c) => {
     try {
         const body = await c.req.json();
