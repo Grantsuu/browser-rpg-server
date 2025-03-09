@@ -1,4 +1,4 @@
-import type { ClientItem, SupabaseInventoryItem, SupabaseShopItem } from "../types/types.js";
+import type { ClientItem, ClientRecipe, SupabaseInventoryItem, SupabaseRecipe, SupabaseShopItem } from "../types/types.js";
 
 export const supabaseShopItemsToClientItems = (supabaseShopItems: SupabaseShopItem[]) => {
     const items: ClientItem[] = [];
@@ -36,3 +36,56 @@ export const supabaseInventoryItemsToClientItems = (supabaseInventoryItems: Supa
     })
     return inventory;
 };
+
+export const combineRecipeRows = (recipeRows: SupabaseRecipe[]) => {
+    const recipes: ClientRecipe[] = [];
+    recipeRows.map((recipe) => {
+        // Look for a recipe with an item id that matches the current recipe being processed
+        const recipeFound = recipes.find((r) => r.item.id === recipe.item.id);
+        // If the recipe is found, then we just add the ingredients of the current recipe being processed
+        if (recipeFound) {
+            recipeFound.ingredients.push(
+                {
+                    id: recipe.ingredient.id,
+                    image: {
+                        base64: recipe.ingredient.image.base64,
+                        type: recipe.ingredient.image.type
+                    },
+                    name: recipe.ingredient.name,
+                    category: recipe.ingredient.category.name,
+                    value: recipe.ingredient.value,
+                    description: recipe.ingredient.description,
+                    amount: recipe.amount
+                }
+            );
+        } else {
+            // Otherwise, add a new recipe to the list
+            recipes.push({
+                item: {
+                    id: recipe.item.id,
+                    image: {
+                        base64: recipe.item.image.base64,
+                        type: recipe.item.image.type
+                    },
+                    name: recipe.item.name,
+                    category: recipe.item.category.name,
+                    value: recipe.item.value,
+                    description: recipe.item.description
+                },
+                ingredients: [{
+                    id: recipe.ingredient.id,
+                    image: {
+                        base64: recipe.ingredient.image.base64,
+                        type: recipe.ingredient.image.type
+                    },
+                    name: recipe.ingredient.name,
+                    category: recipe.ingredient.category.name,
+                    value: recipe.ingredient.value,
+                    description: recipe.ingredient.description,
+                    amount: recipe.amount
+                }]
+            });
+        }
+    });
+    return recipes;
+}

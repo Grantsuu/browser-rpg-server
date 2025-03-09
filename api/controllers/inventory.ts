@@ -3,7 +3,6 @@ import { supabase } from '../lib/supabase.js';
 import { type SupabaseInventoryItem } from "../types/types.js";
 import { getCharacterIdByUserId } from "./characters.js";
 
-
 export const getInventoryByUserId = async (userId: string) => {
     try {
         const characterId = await getCharacterIdByUserId(userId);
