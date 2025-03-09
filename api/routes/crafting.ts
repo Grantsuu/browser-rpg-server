@@ -2,9 +2,9 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
 import { combineRecipeRows } from "../utilities/functions.js";
-import { addItemToInventory } from "../controllers/inventory.js";
+import { getCharacterIdByUserId } from "../controllers/characters.js";
+import { addItemToInventory, removeItemFromInventory } from "../controllers/inventory.js";
 import { getCraftingRecipes } from "../controllers/crafting.js";
-import { userInfo } from "os";
 
 type Variables = {
     user: { user: User };
@@ -25,7 +25,9 @@ crafting.get('/', async (c) => {
 crafting.post('/', async (c) => {
     try {
         const user = c.get('user').user;
-        const item = await addItemToInventory(user.id, 4, 2);
+        const characterId = await getCharacterIdByUserId(user.id);
+        const item = await addItemToInventory(characterId, 4, 2);
+        const remove = await removeItemFromInventory(characterId, 4, 1);
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }

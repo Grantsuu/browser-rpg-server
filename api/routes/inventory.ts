@@ -1,7 +1,8 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
-import { getInventoryByUserId } from "../controllers/inventory.js";
+import { getCharacterIdByUserId } from "../controllers/characters.js";
+import { getInventoryByCharacterId } from "../controllers/inventory.js";
 import { supabaseInventoryItemsToClientItems } from "../utilities/functions.js";
 
 type Variables = {
@@ -13,7 +14,8 @@ const inventory = new Hono<{ Variables: Variables }>();
 inventory.get('/', async (c) => {
     try {
         const user = c.get('user').user;
-        const inventory = await getInventoryByUserId(user.id);
+        const characterId = await getCharacterIdByUserId(user.id);
+        const inventory = await getInventoryByCharacterId(characterId);
         const normalizedInventory = supabaseInventoryItemsToClientItems(inventory);
         return c.json(normalizedInventory);
     } catch (error) {
