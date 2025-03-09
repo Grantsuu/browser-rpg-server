@@ -1,7 +1,6 @@
 import { HTTPException } from 'hono/http-exception';
 import { supabase } from '../lib/supabase.js';
 import { type SupabaseRecipe } from "../types/types.js";
-import { getCharacterIdByUserId } from "./characters.js";
 
 export const getCraftingRecipes = async () => {
     try {

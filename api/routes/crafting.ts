@@ -12,6 +12,7 @@ type Variables = {
 
 const crafting = new Hono<{ Variables: Variables }>();
 
+// Get Crafting Recipes
 crafting.get('/', async (c) => {
     try {
         const recipeRows = await getCraftingRecipes();
@@ -22,12 +23,15 @@ crafting.get('/', async (c) => {
     }
 });
 
+// Post Craft
 crafting.post('/', async (c) => {
     try {
         const user = c.get('user').user;
         const characterId = await getCharacterIdByUserId(user.id);
+        console.log(characterId);
         const item = await addItemToInventory(characterId, 4, 2);
         const remove = await removeItemFromInventory(characterId, 4, 1);
+        return c.json(remove)
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }

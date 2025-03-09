@@ -32,8 +32,8 @@ export const getInventoryByCharacterId = async (characterId: string) => {
     }
 }
 
-// Returns the item data if found, undefined if not found
-export const findItemInInventory = async (characterId: string, itemId: number) => {
+// Returns the inventory item data in an array if found, empty array if not found
+export const findItemInInventory = async (characterId: string, itemId: number, amount?: number) => {
     try {
         const { data, error } = await supabase
             .from('inventories')
@@ -46,6 +46,13 @@ export const findItemInInventory = async (characterId: string, itemId: number) =
             throw new HTTPException(500, { message: 'unable to search inventory' })
         }
 
+        // If the amount we're trying to find is greater than the amount of items in inventory return empty array
+        if (amount) {
+            if (amount > data[0].amount) {
+                return [];
+            }
+        }
+
         return data;
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
@@ -56,6 +63,7 @@ export const findItemInInventory = async (characterId: string, itemId: number) =
 export const addItemToInventory = async (characterId: string, itemId: number, amount: number) => {
     try {
         const item = await findItemInInventory(characterId, itemId);
+        // If item isn't already in the inventory just add a new one with the given amount
         if (item.length < 1) {
             const { error } = await supabase
                 .from('inventories')
@@ -69,6 +77,7 @@ export const addItemToInventory = async (characterId: string, itemId: number, am
                 throw new HTTPException(500, { message: 'unable to add item to inventory' })
             }
         } else {
+            // Otherwise, add the amount to the existing item
             const { error } = await supabase
                 .from('inventories')
                 .update({ amount: amount + item[0].amount })
@@ -89,17 +98,38 @@ export const addItemToInventory = async (characterId: string, itemId: number, am
 // If item is not found or removing more than in inventory return error.
 export const removeItemFromInventory = async (characterId: string, itemId: number, amount: number) => {
     try {
-        const item = await findItemInInventory(characterId, itemId);
-        console.log(item);
-        const { error } = await supabase
-            .from('inventories')
-            .delete()
-            .eq('character', characterId)
-            .eq('item', itemId)
+        const inventoryItem = await findItemInInventory(characterId, itemId, amount);
 
-        if (error) {
-            console.log(error);
-            throw new HTTPException(500, { message: 'unable to delete item from inventory' })
+        // If the item isn't found in the inventory return an exception
+        if (inventoryItem.length < 1) {
+            // Maybe this should just return false instead of an error, not sure
+            throw new HTTPException(500, { message: 'unable to remove item from inventory: insufficient amount found in inventory' });
+        }
+
+        // If removing less than the amount in the inventory, update the amount
+        if (amount < inventoryItem[0].amount) {
+            const { error } = await supabase
+                .from('inventories')
+                .update({ amount: inventoryItem[0].amount - amount })
+                .eq('character', characterId)
+                .eq('item', itemId);
+
+            if (error) {
+                console.log(error);
+                throw new HTTPException(500, { message: 'unable to update item in inventory' });
+            }
+        } else {
+            // In this case, assume we're removing the exact amount in player's inventory so we just delete the item
+            const { error } = await supabase
+                .from('inventories')
+                .delete()
+                .eq('character', characterId)
+                .eq('item', itemId);
+
+            if (error) {
+                console.log(error);
+                throw new HTTPException(500, { message: 'unable to delete item from inventory' });
+            }
         }
 
         return true;
