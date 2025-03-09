@@ -6,6 +6,7 @@ import { authorization } from './middleware/authorization.js'; // have to import
 import inventory from './routes/inventory.js';
 import shop from './routes/shop.js';
 import crafting from './routes/crafting.js';
+import type { StatusCode } from 'hono/utils/http-status';
 
 const app = new Hono()
 
@@ -22,9 +23,10 @@ app.route('/inventory', inventory);
 app.route('/crafting', crafting);
 
 // Error handling
-app.onError((err, c) => {
+app.onError(async (err, c) => {
     if (err instanceof HTTPException) {
-        return err.getResponse()
+        c.status(err.status);
+        return c.json(err.message);
     }
     c.status(500);
     return c.json(err);

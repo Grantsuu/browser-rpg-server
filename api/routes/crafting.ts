@@ -41,7 +41,7 @@ crafting.post('/', async (c) => {
             }
         }))
         if (insufficientIngredients.length > 0) {
-            throw new HTTPException(500, { message: `insufficient ingredients: ${insufficientIngredients.map((ingredient) => { return ingredient.name }).join(', ')}` })
+            throw new HTTPException(500, { message: `insufficient ingredient(s): ${insufficientIngredients.map((ingredient) => { return ingredient.name }).join(', ')}` })
         }
         // Add item to inventory if true
         // TODO: Right now all recipes only craft 1 of an item but may update this later
