@@ -45,6 +45,11 @@ export const findItemInInventory = async (characterId: string, itemId: number, a
             throw new HTTPException(500, { message: 'unable to search inventory' })
         }
 
+        // If item not found return empty array
+        if (data.length < 1) {
+            return data;
+        }
+
         // If the amount we're trying to find is greater than the amount of items in inventory return empty array
         if (amount) {
             if (amount > data[0].amount) {

@@ -28,12 +28,13 @@ crafting.get('/', async (c) => {
 crafting.post('/', async (c) => {
     try {
         const body = await c.req.json();
-        console.log(body);
+        // console.log(body);
         const user = c.get('user').user;
         const characterId = await getCharacterIdByUserId(user.id);
         // Check if character has all items in inventory
         const insufficientIngredients: ClientItem[] = [];
         await Promise.all(body.ingredients.map(async (ingredient: ClientItem) => {
+            // console.log(ingredient)
             const item = await findItemInInventory(characterId, ingredient.id, ingredient.amount);
             if (item.length < 1) {
                 insufficientIngredients.push(ingredient);
@@ -52,7 +53,7 @@ crafting.post('/', async (c) => {
         }));
 
         c.status(200);
-        return c.text('craft successful');
+        return c.json({ message: 'craft successful' });
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }
