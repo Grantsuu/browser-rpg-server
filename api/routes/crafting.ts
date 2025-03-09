@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
-import { getCraftingRecipes } from "../controllers/crafting.ts";
-import { combineRecipeRows } from "../utilities/functions.ts";
+import { getCraftingRecipes } from "../controllers/crafting.js";
+import { combineRecipeRows } from "../utilities/functions.js";
 
 type Variables = {
     user: { user: User };
