@@ -100,7 +100,7 @@ export const addItemToInventory = async (characterId: string, itemId: number, am
 
 // If item is in inventory try to remove amount, if removing all remove the item entirely.
 // If item is not found or removing more than in inventory return error.
-export const removeItemFromInventory = async (characterId: string, itemId: number, amount: number) => {
+export const removeItemFromInventory = async (characterId: string, itemId: number, amount?: number) => {
     try {
         const inventoryItem = await findItemInInventory(characterId, itemId, amount);
 
@@ -111,7 +111,7 @@ export const removeItemFromInventory = async (characterId: string, itemId: numbe
         }
 
         // If removing less than the amount in the inventory, update the amount
-        if (amount < inventoryItem[0].amount) {
+        if (amount && amount < inventoryItem[0].amount) {
             const { error } = await supabase
                 .from('inventories')
                 .update({ amount: inventoryItem[0].amount - amount })
