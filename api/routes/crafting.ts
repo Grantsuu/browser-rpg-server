@@ -5,7 +5,7 @@ import { type ClientItem } from '../types/types.js';
 import { combineRecipeRows } from "../utilities/functions.js";
 import { getCharacterIdByUserId } from "../controllers/characters.js";
 import { addItemToInventory, findItemInInventory, removeItemFromInventory } from "../controllers/inventory.js";
-import { getCraftingRecipes } from "../controllers/crafting.js";
+import { getCraftingRecipeByItemId, getCraftingRecipes } from "../controllers/crafting.js";
 
 type Variables = {
     user: { user: User };
@@ -17,25 +17,32 @@ const crafting = new Hono<{ Variables: Variables }>();
 crafting.get('/', async (c) => {
     try {
         const recipeRows = await getCraftingRecipes();
-        const combinedRecieps = combineRecipeRows(recipeRows);
-        return c.json(combinedRecieps);
+        const combinedRecipes = combineRecipeRows(recipeRows);
+        return c.json(combinedRecipes);
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }
 });
 
-// Post Craft
-// TODO: This really should take an item id as the only parameter and then lookup the recipe based on the id instead of taking it as a payload
+// Post Craft Recipe
 crafting.post('/', async (c) => {
     try {
-        const body = await c.req.json();
-        // console.log(body);
+        // Find the recipe for the given item id
+        const itemId = c.req.query('id');
+        if (!itemId) {
+            throw new HTTPException(400, { message: `missing query param 'id'` });
+        }
+        const recipeRows = await getCraftingRecipeByItemId(itemId);
+        if (recipeRows.length < 1) {
+            throw new HTTPException(404, { message: `recipe for given item id not found` });
+        }
+        const combinedRecipe = combineRecipeRows(recipeRows)[0];
+
+        // Check if character has all items in inventory
         const user = c.get('user').user;
         const characterId = await getCharacterIdByUserId(user.id);
-        // Check if character has all items in inventory
         const insufficientIngredients: ClientItem[] = [];
-        await Promise.all(body.ingredients.map(async (ingredient: ClientItem) => {
-            // console.log(ingredient)
+        await Promise.all(combinedRecipe.ingredients.map(async (ingredient: ClientItem) => {
             const item = await findItemInInventory(characterId, ingredient.id, ingredient.amount);
             if (item.length < 1) {
                 insufficientIngredients.push(ingredient);
@@ -44,12 +51,13 @@ crafting.post('/', async (c) => {
         if (insufficientIngredients.length > 0) {
             throw new HTTPException(500, { message: `insufficient ingredient(s): ${insufficientIngredients.map((ingredient) => { return ingredient.name }).join(', ')}` })
         }
+
         // Add item to inventory if true
         // TODO: Right now all recipes only craft 1 of an item but may update this later
-        addItemToInventory(characterId, body.item.id, 1);
+        addItemToInventory(characterId, combinedRecipe.item.id, 1);
 
         // Remove ingredients from inventory
-        await Promise.all(body.ingredients.map(async (ingredient: ClientItem) => {
+        await Promise.all(combinedRecipe.ingredients.map(async (ingredient: ClientItem) => {
             await removeItemFromInventory(characterId, ingredient.id, ingredient.amount ? ingredient.amount : 1);
         }));
 
