@@ -29,10 +29,11 @@ inventory.delete('/', async (c) => {
         if (!itemId) {
             throw new HTTPException(400, { message: `missing query param 'id'` });
         }
+        const amount = Number(c.req.query('amount'));
         const user = c.get('user').user;
         const characterId = await getCharacterIdByUserId(user.id);
-        await removeItemFromInventory(characterId, Number(itemId));
-        return c.json({ message: 'deleted succesfully' });
+        await removeItemFromInventory(characterId, Number(itemId), amount);
+        return c.json({ message: 'removed succesfully' });
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }
