@@ -3,10 +3,10 @@ import { cors } from 'hono/cors';
 import { HTTPException } from 'hono/http-exception';
 import { serve } from '@hono/node-server';
 import { authorization } from './middleware/authorization.js'; // have to import these .ts files as .js for Vercel
-import inventory from './routes/inventory.js';
+import characters from './routes/characters.js'
 import shop from './routes/shop.js';
+import inventory from './routes/inventory.js';
 import crafting from './routes/crafting.js';
-import type { StatusCode } from 'hono/utils/http-status';
 
 const app = new Hono()
 
@@ -15,8 +15,10 @@ app.use(cors());
 // Authorization middleware
 app.use(authorization);
 
+// Character
+app.route('/characters', characters);
 // Shop
-app.route('/shop', shop)
+app.route('/shop', shop);
 // Inventory
 app.route('/inventory', inventory);
 // Crafting
