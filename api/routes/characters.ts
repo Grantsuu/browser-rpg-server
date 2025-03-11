@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
 import { getCharacterGold, getCharacterIdByUserId } from '../controllers/characters.js'
+
 type Variables = {
     user: { user: User };
 }

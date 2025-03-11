@@ -26,6 +26,7 @@ app.route('/crafting', crafting);
 
 // Error handling
 app.onError(async (err, c) => {
+    console.log(err);
     if (err instanceof HTTPException) {
         c.status(err.status);
         return c.json(err.message);
