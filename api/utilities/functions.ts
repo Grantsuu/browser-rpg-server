@@ -6,8 +6,7 @@ export const supabaseShopItemsToClientItems = (supabaseShopItems: SupabaseShopIt
         items.push({
             id: item.item.id,
             image: {
-                base64: item.item.image.base64,
-                type: item.item.image.type
+                base64: item.item.image.base64
             },
             name: item.item.name,
             category: item.item.category.name,
@@ -24,8 +23,7 @@ export const supabaseInventoryItemsToClientItems = (supabaseInventoryItems: Supa
         inventory.push({
             id: item.item.id,
             image: {
-                base64: item.item.image.base64,
-                type: item.item.image.type
+                base64: item.item.image.base64
             },
             name: item.item.name,
             category: item.item.category.name,
@@ -48,8 +46,7 @@ export const combineRecipeRows = (recipeRows: SupabaseRecipe[]) => {
                 {
                     id: recipe.ingredient.id,
                     image: {
-                        base64: recipe.ingredient.image.base64,
-                        type: recipe.ingredient.image.type
+                        base64: recipe.ingredient.image.base64
                     },
                     name: recipe.ingredient.name,
                     category: recipe.ingredient.category.name,
@@ -64,8 +61,7 @@ export const combineRecipeRows = (recipeRows: SupabaseRecipe[]) => {
                 item: {
                     id: recipe.item.id,
                     image: {
-                        base64: recipe.item.image.base64,
-                        type: recipe.item.image.type
+                        base64: recipe.item.image.base64
                     },
                     name: recipe.item.name,
                     category: recipe.item.category.name,
@@ -75,8 +71,7 @@ export const combineRecipeRows = (recipeRows: SupabaseRecipe[]) => {
                 ingredients: [{
                     id: recipe.ingredient.id,
                     image: {
-                        base64: recipe.ingredient.image.base64,
-                        type: recipe.ingredient.image.type
+                        base64: recipe.ingredient.image.base64
                     },
                     name: recipe.ingredient.name,
                     category: recipe.ingredient.category.name,

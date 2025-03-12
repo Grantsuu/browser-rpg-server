@@ -14,7 +14,7 @@ export const getInventoryByCharacterId = async (characterId: string) => {
                     category:lk_item_categories(name),
                     value,
                     description,
-                    image:lk_item_images(base64,type)
+                    image:lk_item_images(base64)
                 )
             `)
             .eq('character', characterId)

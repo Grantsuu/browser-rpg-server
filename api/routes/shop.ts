@@ -24,7 +24,7 @@ shop.get('/', async (c) => {
                 category:lk_item_categories(name),
                 value,
                 description,
-                image:lk_item_images(base64,type)
+                image:lk_item_images(base64)
             )
         `)
         .overrideTypes<SupabaseShopItem[]>();
