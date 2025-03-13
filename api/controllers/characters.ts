@@ -22,6 +22,20 @@ export const getCharacterIdByUserId = async (userId: string) => {
     return data[0].id
 }
 
+export const getCharacterByUserId = async (userId: string) => {
+    const { data, error } = await supabase
+        .from('characters')
+        .select('*')
+        .eq('user', userId);
+
+    if (error) {
+        console.log(error);
+        throw new HTTPException(500, { message: 'unable to retrieve character' })
+    }
+
+    return data[0];
+}
+
 export const getCharacterGold = async (characterId: number) => {
     const { data, error } = await supabase
         .from('characters')

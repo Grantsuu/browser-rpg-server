@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
-import { getCharacterGold, getCharacterIdByUserId, postCreateCharacter } from '../controllers/characters.js'
+import { getCharacterGold, getCharacterByUserId, getCharacterIdByUserId, postCreateCharacter } from '../controllers/characters.js'
 
 type Variables = {
     user: { user: User };
@@ -9,14 +9,11 @@ type Variables = {
 
 const characters = new Hono<{ Variables: Variables }>();
 
-// Get character id
+// Get character
 characters.get('/', async (c) => {
     const user = c.get('user').user;
-    const characterId = await getCharacterIdByUserId(user.id);
-    if (characterId === "") {
-        throw new HTTPException(404, { message: 'character not found' });
-    }
-    return c.json({ message: characterId });
+    const character = await getCharacterByUserId(user.id);
+    return c.json(character);
 });
 
 
