@@ -51,6 +51,9 @@ shop.post('/buy', async (c) => {
 
         const user = c.get('user').user;
         const characterId = await getCharacterIdByUserId(user.id);
+        if (characterId === "") {
+            throw new HTTPException(404, { message: 'character not found' });
+        }
         const item = await getItemById(itemId);
         await updateCharacterGold(characterId, -item.value * amount);
         await addItemToInventory(characterId, Number(itemId), amount);
@@ -75,6 +78,9 @@ shop.post('/sell', async (c) => {
 
         const user = c.get('user').user;
         const characterId = await getCharacterIdByUserId(user.id);
+        if (characterId === "") {
+            throw new HTTPException(404, { message: 'character not found' });
+        }
         const item = await getItemById(itemId);
         await updateCharacterGold(characterId, (item.value / 2) * amount);
         await removeItemFromInventory(characterId, Number(itemId), amount);

@@ -41,6 +41,9 @@ crafting.post('/', async (c) => {
         // Check if character has all items in inventory
         const user = c.get('user').user;
         const characterId = await getCharacterIdByUserId(user.id);
+        if (characterId === "") {
+            throw new HTTPException(404, { message: 'character not found' });
+        }
         const insufficientIngredients: ClientItem[] = [];
         await Promise.all(combinedRecipe.ingredients.map(async (ingredient: ClientItem) => {
             const item = await findItemInInventory(characterId, ingredient.id, ingredient.amount);

@@ -13,9 +13,9 @@ export const getCharacterIdByUserId = async (userId: string) => {
         throw new HTTPException(500, { message: 'unable to retrieve character' })
     }
 
-    // Empty array means no characters found
+    // Return empty string if no character found
     if (data.length < 1) {
-        throw new HTTPException(404, { message: 'character not found' })
+        return "";
     }
 
     // For now only one character per user so just return the first one
@@ -56,4 +56,17 @@ export const updateCharacterGold = async (characterId: number, gold: number) => 
     }
 
     return data[0].gold;
+}
+
+export const postCreateCharacter = async (userId: string, name: string) => {
+    const { data, error } = await supabase
+        .from('characters')
+        .insert({ user: userId, name: name, gold: 100 });
+
+    if (error) {
+        console.log(error);
+        throw new HTTPException(500, { message: 'unable to create character' })
+    }
+
+    return data;
 }

@@ -15,6 +15,9 @@ inventory.get('/', async (c) => {
     try {
         const user = c.get('user').user;
         const characterId = await getCharacterIdByUserId(user.id);
+        if (characterId === "") {
+            throw new HTTPException(404, { message: 'character not found' });
+        }
         const inventory = await getInventoryByCharacterId(characterId);
         const normalizedInventory = supabaseInventoryItemsToClientItems(inventory);
         return c.json(normalizedInventory);
@@ -32,6 +35,9 @@ inventory.delete('/', async (c) => {
         const amount = Number(c.req.query('amount'));
         const user = c.get('user').user;
         const characterId = await getCharacterIdByUserId(user.id);
+        if (characterId === "") {
+            throw new HTTPException(404, { message: 'character not found' });
+        }
         await removeItemFromInventory(characterId, Number(itemId), amount);
         return c.json({ message: 'removed succesfully' });
     } catch (error) {
