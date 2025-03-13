@@ -9,6 +9,12 @@ type Variables = {
 
 const characters = new Hono<{ Variables: Variables }>();
 
+characters.get('/', async (c) => {
+    const user = c.get('user').user;
+    const characterId = await getCharacterIdByUserId(user.id);
+    return c.json({ message: characterId });
+});
+
 characters.get('/gold', async (c) => {
     try {
         const user = c.get('user').user;
