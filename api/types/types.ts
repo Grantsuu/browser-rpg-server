@@ -40,3 +40,11 @@ export type SupabaseRecipe = {
     ingredient: SupabaseItem,
     amount: number,
 }
+
+export type SupabaseFarmPlot = {
+    id: number,
+    character_id: string,
+    crop_id: number,
+    start_time: string,
+    end_time: string
+}
