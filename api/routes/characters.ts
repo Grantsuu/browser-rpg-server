@@ -11,9 +11,16 @@ const characters = new Hono<{ Variables: Variables }>();
 
 // Get character
 characters.get('/', async (c) => {
-    const user = c.get('user').user;
-    const character = await getCharacterByUserId(user.id);
-    return c.json(character);
+    try {
+        const user = c.get('user').user;
+        const character = await getCharacterByUserId(user.id);
+        if (!character) {
+            throw new HTTPException(404, { message: 'character not found' });
+        }
+        return c.json(character);
+    } catch (error) {
+        throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
+    }
 });
 
 
