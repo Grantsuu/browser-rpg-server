@@ -50,6 +50,19 @@ export const getCharacterGold = async (characterId: number) => {
     return data[0].gold;
 }
 
+export const postCreateCharacter = async (userId: string, name: string) => {
+    const { data, error } = await supabase
+        .from('characters')
+        .insert({ user: userId, name: name, gold: 100 });
+
+    if (error) {
+        console.log(error);
+        throw new HTTPException(500, { message: 'unable to create character' })
+    }
+
+    return data;
+}
+
 // Negative gold for removing it
 export const updateCharacterGold = async (characterId: number, gold: number) => {
     const currentGold = await getCharacterGold(characterId);
@@ -72,15 +85,27 @@ export const updateCharacterGold = async (characterId: number, gold: number) => 
     return data[0].gold;
 }
 
-export const postCreateCharacter = async (userId: string, name: string) => {
+export const addFarmingExperience = async (characterId: number, experience: number) => {
+    const { data: farming, error: farmingError } = await supabase
+        .from('characters')
+        .select('farming_experience')
+        .eq('id', characterId);
+
+    if (farmingError) {
+        console.log(farmingError);
+        throw new HTTPException(500, { message: 'unable to gold' })
+    }
+
     const { data, error } = await supabase
         .from('characters')
-        .insert({ user: userId, name: name, gold: 100 });
+        .update({ experience: farming[0].farming_experience + experience })
+        .eq('id', characterId)
+        .select('experience');
 
     if (error) {
         console.log(error);
-        throw new HTTPException(500, { message: 'unable to create character' })
+        throw new HTTPException(500, { message: 'unable to add experience' })
     }
 
-    return data;
+    return data[0].experience;
 }

@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { HTTPException } from 'hono/http-exception';
 import { type User } from '@supabase/supabase-js';
-import { getCharacterIdByUserId } from "../controllers/characters.js";
+import { addFarmingExperience, getCharacterIdByUserId } from "../controllers/characters.js";
 import { getFarmingPlots, getFarmingPlotById, harvestCrop, plantCrop } from "../controllers/farming.js";
 import { getCropBySeedId } from "../controllers/crops.js";
 import { addItemToInventory, findItemInInventory, removeItemFromInventory } from "../controllers/inventory.js";
@@ -87,6 +87,7 @@ farming.post('/harvest', async (c) => {
         }
         // Delete the plot
         await harvestCrop(plotId);
+        await addFarmingExperience(characterId, plot[0].crop.experience);
         // Add the product to the inventory
         const amount = getRandomNumberBetween(Number(plot[0].crop.amount_produced[0]), Number(plot[0].crop.amount_produced[1]));
         await addItemToInventory(characterId, plot[0].crop.product.id, amount);
