@@ -82,7 +82,7 @@ farming.post('/plant', async (c) => {
             throw new HTTPException(500, { message: 'no available farm plots' });
         }
         // Remove seed from inventory
-        // await removeItemFromInventory(characterId, Number(seedId), 1);
+        await removeItemFromInventory(characterId, Number(seedId), 1);
         // Create a new farm plot for the character with the crop
         await plantCrop(characterId, cropRows[0].id, cropRows[0].grow_time, Number(tzOffset));
         return c.json({ message: 'crop planted succesfully' });
