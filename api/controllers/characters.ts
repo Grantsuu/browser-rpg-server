@@ -98,14 +98,14 @@ export const addFarmingExperience = async (characterId: number, experience: numb
 
     const { data, error } = await supabase
         .from('characters')
-        .update({ experience: farming[0].farming_experience + experience })
+        .update({ farming_experience: farming[0].farming_experience + experience })
         .eq('id', characterId)
-        .select('experience');
+        .select('farming_experience');
 
     if (error) {
         console.log(error);
         throw new HTTPException(500, { message: 'unable to add experience' })
     }
 
-    return data[0].experience;
+    return data[0].farming_experience;
 }

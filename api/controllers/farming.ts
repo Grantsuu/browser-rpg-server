@@ -92,15 +92,21 @@ export const getFarmingPlotById = async (plotId: string) => {
     }
 }
 
-export const plantCrop = async (characterId: string, cropId: string, growTime: number) => {
+export const plantCrop = async (characterId: string, cropId: string, growTime: number, tzOffset: number) => {
+    // Offset the time by the timezone in minutes
+    const now = new Date();
+    now.setMinutes(new Date().getMinutes() - tzOffset);
+    const endTime = new Date();
+    endTime.setMinutes(now.getMinutes() - tzOffset);
+    endTime.setSeconds(now.getSeconds() + growTime);
     try {
         const { data, error } = await supabase
             .from('farm_plots')
             .insert({
                 character_id: characterId,
                 crop_id: cropId,
-                start_time: new Date().toISOString(),
-                end_time: new Date(Date.now() + (growTime * 1000)).toISOString()
+                start_time: now.toISOString(),
+                end_time: endTime.toISOString()
             })
         if (error) {
             console.log(error);
@@ -112,7 +118,7 @@ export const plantCrop = async (characterId: string, cropId: string, growTime: n
     }
 }
 
-export const harvestCrop = async (plotId: string) => {
+export const deletePlot = async (plotId: string) => {
     try {
         const { data, error } = await supabase
             .from('farm_plots')
@@ -120,7 +126,7 @@ export const harvestCrop = async (plotId: string) => {
             .eq('id', plotId)
         if (error) {
             console.log(error);
-            throw new HTTPException(500, { message: 'unable to harvest crop' })
+            throw new HTTPException(500, { message: 'unable to delete crop' })
         }
         return data;
     } catch (error) {
