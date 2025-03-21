@@ -78,7 +78,10 @@ export const combineRecipeRows = (recipeRows: SupabaseRecipe[]) => {
                     value: recipe.ingredient.value,
                     description: recipe.ingredient.description,
                     amount: recipe.amount
-                }]
+                }],
+                amount: recipe.amount,
+                category: recipe.category,
+                experience: recipe.experience
             });
         }
     });

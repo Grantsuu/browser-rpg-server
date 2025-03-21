@@ -14,7 +14,10 @@ export type ClientItem = {
 
 export type ClientRecipe = {
     item: ClientItem
-    ingredients: ClientItem[]
+    ingredients: ClientItem[],
+    amount: number,
+    category: string,
+    experience: number
 }
 
 export type SupabaseItem = {

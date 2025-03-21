@@ -23,7 +23,9 @@ export const getCraftingRecipes = async () => {
                     description,
                     image:lk_item_images(base64)
                 ),
-                amount
+                amount,
+                category,
+                experience
             `)
             .overrideTypes<SupabaseRecipe[]>();
         if (error) {
@@ -57,7 +59,9 @@ export const getCraftingRecipeByItemId = async (itemId: string) => {
                 description,
                 image:lk_item_images(base64)
             ),
-            amount
+            amount,
+            category,
+            experience
         `)
             .eq('item.id', itemId)
             .overrideTypes<SupabaseRecipe[]>();
