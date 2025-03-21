@@ -3,7 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
 import { type ClientItem } from '../types/types.js';
 import { combineRecipeRows } from "../utilities/functions.js";
-import { getCharacterIdByUserId } from "../controllers/characters.js";
+import { addCookingExperience, getCharacterIdByUserId } from "../controllers/characters.js";
 import { addItemToInventory, findItemInInventory, removeItemFromInventory } from "../controllers/inventory.js";
 import { getCraftingRecipeByItemId, getCraftingRecipes } from "../controllers/crafting.js";
 
@@ -55,15 +55,15 @@ crafting.post('/', async (c) => {
             throw new HTTPException(500, { message: `insufficient ingredient(s): ${insufficientIngredients.map((ingredient) => { return ingredient.name }).join(', ')}` })
         }
 
-        // Add item to inventory if true
-        // TODO: Right now all recipes only craft 1 of an item but may update this later
-        addItemToInventory(characterId, combinedRecipe.item.id, 1);
-
         // Remove ingredients from inventory
         await Promise.all(combinedRecipe.ingredients.map(async (ingredient: ClientItem) => {
             await removeItemFromInventory(characterId, ingredient.id, ingredient.amount ? ingredient.amount : 1);
         }));
 
+        // Add item to inventory if true
+        // TODO: Right now all recipes only craft 1 of an item but may update this later
+        await addItemToInventory(characterId, combinedRecipe.item.id, 1);
+        await addCookingExperience(characterId, recipeRows[0].experience);
         c.status(200);
         return c.json({ message: 'craft successful' });
     } catch (error) {

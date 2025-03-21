@@ -39,6 +39,8 @@ export type SupabaseRecipe = {
     item: SupabaseItem,
     ingredient: SupabaseItem,
     amount: number,
+    category: string,
+    experience: number
 }
 
 export type SupabaseCrop = {
