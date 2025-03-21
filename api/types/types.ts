@@ -17,7 +17,8 @@ export type ClientRecipe = {
     ingredients: ClientItem[],
     amount: number,
     category: string,
-    experience: number
+    experience: number,
+    required_level: number
 }
 
 export type SupabaseItem = {
@@ -43,7 +44,8 @@ export type SupabaseRecipe = {
     ingredient: SupabaseItem,
     amount: number,
     category: string,
-    experience: number
+    experience: number,
+    required_level: number
 }
 
 export type SupabaseCrop = {

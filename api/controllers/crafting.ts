@@ -25,7 +25,8 @@ export const getCraftingRecipes = async () => {
                 ),
                 amount,
                 category,
-                experience
+                experience,
+                required_level
             `)
             .overrideTypes<SupabaseRecipe[]>();
         if (error) {
@@ -61,7 +62,8 @@ export const getCraftingRecipeByItemId = async (itemId: string) => {
             ),
             amount,
             category,
-            experience
+            experience,
+            required_level
         `)
             .eq('item.id', itemId)
             .overrideTypes<SupabaseRecipe[]>();
