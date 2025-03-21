@@ -21,7 +21,7 @@ shop.get('/', async (c) => {
             item:items(
                 id,
                 name,
-                category:lk_item_categories(name),
+                category,
                 value,
                 description,
                 image:lk_item_images(base64)

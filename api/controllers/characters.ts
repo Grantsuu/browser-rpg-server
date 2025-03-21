@@ -109,3 +109,28 @@ export const addFarmingExperience = async (characterId: number, experience: numb
 
     return data[0].farming_experience;
 }
+
+export const addCookingExperience = async (characterId: number, experience: number) => {
+    const { data: cooking, error: cookingError } = await supabase
+        .from('characters')
+        .select('cooking_experience')
+        .eq('id', characterId);
+
+    if (cookingError) {
+        console.log(cookingError);
+        throw new HTTPException(500, { message: 'unable to gold' })
+    }
+
+    const { data, error } = await supabase
+        .from('characters')
+        .update({ cooking_experience: cooking[0].cooking_experience + experience })
+        .eq('id', characterId)
+        .select('cooking_experience');
+
+    if (error) {
+        console.log(error);
+        throw new HTTPException(500, { message: 'unable to add experience' })
+    }
+
+    return data[0].cooking_experience;
+}

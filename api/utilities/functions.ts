@@ -9,7 +9,7 @@ export const supabaseShopItemsToClientItems = (supabaseShopItems: SupabaseShopIt
                 base64: item.item.image.base64
             },
             name: item.item.name,
-            category: item.item.category.name,
+            category: item.item.category,
             value: item.item.value,
             description: item.item.description,
         });
@@ -26,7 +26,7 @@ export const supabaseInventoryItemsToClientItems = (supabaseInventoryItems: Supa
                 base64: item.item.image.base64
             },
             name: item.item.name,
-            category: item.item.category.name,
+            category: item.item.category,
             value: item.item.value,
             description: item.item.description,
             amount: item.amount,
@@ -49,7 +49,7 @@ export const combineRecipeRows = (recipeRows: SupabaseRecipe[]) => {
                         base64: recipe.ingredient.image.base64
                     },
                     name: recipe.ingredient.name,
-                    category: recipe.ingredient.category.name,
+                    category: recipe.ingredient.category,
                     value: recipe.ingredient.value,
                     description: recipe.ingredient.description,
                     amount: recipe.amount
@@ -64,7 +64,7 @@ export const combineRecipeRows = (recipeRows: SupabaseRecipe[]) => {
                         base64: recipe.item.image.base64
                     },
                     name: recipe.item.name,
-                    category: recipe.item.category.name,
+                    category: recipe.item.category,
                     value: recipe.item.value,
                     description: recipe.item.description
                 },
@@ -74,7 +74,7 @@ export const combineRecipeRows = (recipeRows: SupabaseRecipe[]) => {
                         base64: recipe.ingredient.image.base64
                     },
                     name: recipe.ingredient.name,
-                    category: recipe.ingredient.category.name,
+                    category: recipe.ingredient.category,
                     value: recipe.ingredient.value,
                     description: recipe.ingredient.description,
                     amount: recipe.amount

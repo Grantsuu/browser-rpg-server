@@ -10,7 +10,7 @@ export const getCrops = async () => {
                 seed:items!crops_seed_id_fkey(
                         id,
                         name,
-                        category:lk_item_categories(name),
+                        category,
                         value,
                         description,
                         image:lk_item_images(base64)

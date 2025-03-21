@@ -19,7 +19,7 @@ export type ClientRecipe = {
 
 export type SupabaseItem = {
     id: number,
-    category: { name: string },
+    category: string,
     description: string,
     image: Image,
     name: string,

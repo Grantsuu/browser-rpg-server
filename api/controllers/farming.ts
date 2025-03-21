@@ -14,7 +14,7 @@ export const getFarmingPlots = async (characterId: string) => {
                     seed:items!crops_seed_id_fkey(
                         id,
                         name,
-                        category:lk_item_categories(name),
+                        category,
                         value,
                         description,
                         image:lk_item_images(base64)
@@ -24,7 +24,7 @@ export const getFarmingPlots = async (characterId: string) => {
                     product:items!crops_product_id_fkey(
                         id,
                         name,
-                        category:lk_item_categories(name),
+                        category,
                         value,
                         description,
                         image:lk_item_images(base64)
@@ -59,7 +59,7 @@ export const getFarmingPlotById = async (plotId: string) => {
                     seed:items!crops_seed_id_fkey(
                         id,
                         name,
-                        category:lk_item_categories(name),
+                        category,
                         value,
                         description,
                         image:lk_item_images(base64)
@@ -69,7 +69,7 @@ export const getFarmingPlotById = async (plotId: string) => {
                     product:items!crops_product_id_fkey(
                         id,
                         name,
-                        category:lk_item_categories(name),
+                        category,
                         value,
                         description,
                         image:lk_item_images(base64)
