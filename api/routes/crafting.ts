@@ -3,7 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
 import { type ClientItem } from '../types/types.js';
 import { combineRecipeRows } from "../utilities/functions.js";
-import { addCookingExperience, getCharacterIdByUserId } from "../controllers/characters.js";
+import { addExperience, getCharacterByUserId } from "../controllers/characters.js";
 import { addItemToInventory, findItemInInventory, removeItemFromInventory } from "../controllers/inventory.js";
 import { getCraftingRecipeByItemId, getCraftingRecipes } from "../controllers/crafting.js";
 
@@ -40,7 +40,8 @@ crafting.post('/', async (c) => {
 
         // Check if character has all items in inventory
         const user = c.get('user').user;
-        const characterId = await getCharacterIdByUserId(user.id);
+        const character = await getCharacterByUserId(user.id);
+        const characterId = character?.id;
         if (characterId === "") {
             throw new HTTPException(404, { message: 'character not found' });
         }
@@ -63,9 +64,9 @@ crafting.post('/', async (c) => {
         // Add item to inventory if true
         // TODO: Right now all recipes only craft 1 of an item but may update this later
         await addItemToInventory(characterId, combinedRecipe.item.id, 1);
-        await addCookingExperience(characterId, recipeRows[0].experience);
+        const level = await addExperience(character, 'cooking', recipeRows[0].experience);
         c.status(200);
-        return c.json({ message: 'craft successful' });
+        return c.json({ message: 'craft successful', level: level });
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }

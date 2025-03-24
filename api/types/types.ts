@@ -21,6 +21,18 @@ export type ClientRecipe = {
     required_level: number
 }
 
+export type SupabaseCharacter = {
+    id: string,
+    user: string,
+    created_at: string,
+    name: string,
+    gold: number,
+    farming_level: number,
+    farming_experience: number,
+    cooking_level: number,
+    cooking_experience: number
+}
+
 export type SupabaseItem = {
     id: number,
     category: string,

@@ -1,5 +1,7 @@
 import { HTTPException } from 'hono/http-exception';
 import { supabase } from '../lib/supabase.js';
+import { type SupabaseCharacter } from '../types/types.js';
+import { experience_table } from '../../game/constants/experience_table.js';
 
 export const getCharacterIdByUserId = async (userId: string) => {
     const { data, error } = await supabase
@@ -85,52 +87,23 @@ export const updateCharacterGold = async (characterId: number, gold: number) => 
     return data[0].gold;
 }
 
-export const addFarmingExperience = async (characterId: number, experience: number) => {
-    const { data: farming, error: farmingError } = await supabase
-        .from('characters')
-        .select('farming_experience')
-        .eq('id', characterId);
-
-    if (farmingError) {
-        console.log(farmingError);
-        throw new HTTPException(500, { message: 'unable to gold' })
-    }
+export const addExperience = async (character: SupabaseCharacter, skillName: string, experience: number) => {
+    const skillExpKey = `${skillName}_experience`;
+    const skillLevelKey = `${skillName}_level`;
+    const updatedExperience = Number(character[skillExpKey as keyof typeof character]) + experience;
+    const updatedLevel = Number(Object.keys(experience_table).find(key => experience_table[Number(key) as keyof typeof experience_table] > updatedExperience)) - 1;
 
     const { data, error } = await supabase
         .from('characters')
-        .update({ farming_experience: farming[0].farming_experience + experience })
-        .eq('id', characterId)
-        .select('farming_experience');
+        .update({ [skillExpKey]: updatedExperience, [skillLevelKey]: updatedLevel })
+        .eq('id', character.id)
+        .select();
 
     if (error) {
         console.log(error);
         throw new HTTPException(500, { message: 'unable to add experience' })
     }
 
-    return data[0].farming_experience;
-}
-
-export const addCookingExperience = async (characterId: number, experience: number) => {
-    const { data: cooking, error: cookingError } = await supabase
-        .from('characters')
-        .select('cooking_experience')
-        .eq('id', characterId);
-
-    if (cookingError) {
-        console.log(cookingError);
-        throw new HTTPException(500, { message: 'unable to gold' })
-    }
-
-    const { data, error } = await supabase
-        .from('characters')
-        .update({ cooking_experience: cooking[0].cooking_experience + experience })
-        .eq('id', characterId)
-        .select('cooking_experience');
-
-    if (error) {
-        console.log(error);
-        throw new HTTPException(500, { message: 'unable to add experience' })
-    }
-
-    return data[0].cooking_experience;
+    // Return -1 if level did not change
+    return Number(updatedLevel) !== character[skillLevelKey as keyof typeof character] ? updatedLevel : -1;
 }

@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { HTTPException } from 'hono/http-exception';
 import { type User } from '@supabase/supabase-js';
-import { addFarmingExperience, getCharacterIdByUserId } from "../controllers/characters.js";
+import { addExperience, getCharacterByUserId, getCharacterIdByUserId } from "../controllers/characters.js";
 import { getFarmingPlots, getFarmingPlotById, deletePlot, plantCrop } from "../controllers/farming.js";
 import { getCropBySeedId } from "../controllers/crops.js";
 import { addItemToInventory, findItemInInventory, removeItemFromInventory } from "../controllers/inventory.js";
@@ -104,11 +104,11 @@ farming.post('/harvest', async (c) => {
         }
         // Check if plot matches the character id
         const user = c.get('user').user;
-        const characterId = await getCharacterIdByUserId(user.id);
-        if (characterId === "") {
+        const character = await getCharacterByUserId(user.id);
+        if (character.id === "") {
             throw new HTTPException(404, { message: 'character not found' });
         }
-        if (plot[0].character_id !== characterId) {
+        if (plot[0].character_id !== character.id) {
             throw new HTTPException(500, { message: 'plot does not belong to character' });
         }
         // Check if plot is ready to harvest
@@ -118,11 +118,11 @@ farming.post('/harvest', async (c) => {
         }
         // Delete the plot
         await deletePlot(plotId);
-        await addFarmingExperience(characterId, plot[0].crop.experience);
+        const level = await addExperience(character, 'farming', plot[0].crop.experience);
         // Add the product to the inventory
         const amount = getRandomNumberBetween(Number(plot[0].crop.amount_produced[0]), Number(plot[0].crop.amount_produced[1]));
-        await addItemToInventory(characterId, plot[0].crop.product.id, amount);
-        return c.json({ message: 'crop harvested succesfully', amount: amount });
+        await addItemToInventory(character.id, plot[0].crop.product.id, amount);
+        return c.json({ message: 'crop harvested succesfully', amount: amount, level: level });
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }
