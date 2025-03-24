@@ -25,6 +25,7 @@ crafting.get('/', async (c) => {
 });
 
 // Post Craft Recipe
+// TODO: Make this generic or make this specifict to crafting categories
 crafting.post('/', async (c) => {
     try {
         // Find the recipe for the given item id
@@ -38,13 +39,17 @@ crafting.post('/', async (c) => {
         }
         const combinedRecipe = combineRecipeRows(recipeRows)[0];
 
-        // Check if character has all items in inventory
+        // Check if character has required level for recipe
         const user = c.get('user').user;
         const character = await getCharacterByUserId(user.id);
         const characterId = character?.id;
         if (characterId === "") {
             throw new HTTPException(404, { message: 'character not found' });
         }
+        if (character?.cooking_level < combinedRecipe.required_level) {
+            throw new HTTPException(500, { message: `required level: ${combinedRecipe.required_level}` });
+        }
+        // Check if character has all items in inventory
         const insufficientIngredients: ClientItem[] = [];
         await Promise.all(combinedRecipe.ingredients.map(async (ingredient: ClientItem) => {
             const item = await findItemInInventory(characterId, ingredient.id, ingredient.amount);

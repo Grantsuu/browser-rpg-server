@@ -69,22 +69,26 @@ farming.post('/plant', async (c) => {
         if (cropRows.length < 1) {
             throw new HTTPException(404, { message: `crop for given seed not found` });
         }
-        // Check if character has the seed in their inventory and has a farm plot available
+        // Check if character has required level for seed
         const user = c.get('user').user;
-        const characterId = await getCharacterIdByUserId(user.id);
-        if (characterId === "") {
+        const character = await getCharacterByUserId(user.id);
+        if (character.id === "") {
             throw new HTTPException(404, { message: 'character not found' });
         }
-        const item = await findItemInInventory(characterId, Number(seedId), 1);
-        const plots = await getFarmingPlots(characterId);
+        if (character.farming_level < cropRows[0].required_level) {
+            throw new HTTPException(500, { message: `required level: ${cropRows[0].required_level}` });
+        }
+        // Check if character has the seed in their inventory and has a farm plot available
+        const item = await findItemInInventory(character.id, Number(seedId), 1);
+        const plots = await getFarmingPlots(character.id);
         // TODO: Change the hard coded 3 to a variable somewhere
         if (plots.length >= 3) {
             throw new HTTPException(500, { message: 'no available farm plots' });
         }
         // Remove seed from inventory
-        await removeItemFromInventory(characterId, Number(seedId), 1);
+        await removeItemFromInventory(character.id, Number(seedId), 1);
         // Create a new farm plot for the character with the crop
-        await plantCrop(characterId, cropRows[0].id, cropRows[0].grow_time, Number(tzOffset));
+        await plantCrop(character.id, cropRows[0].id, cropRows[0].grow_time, Number(tzOffset));
         return c.json({ message: 'crop planted succesfully' });
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
