@@ -4,8 +4,8 @@ import { type User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase.js';
 import { type SupabaseShopItem } from "../types/types.js";
 import { supabaseShopItemsToClientItems } from "../utilities/functions.js";
-import { addItemToInventory, findItemInInventory, removeItemFromInventory } from "../controllers/inventory.js";
-import { getCharacterIdByUserId, updateCharacterGold } from "../controllers/characters.js";
+import { addItemToInventory, removeItemFromInventory } from "../controllers/inventory.js";
+import { getCharacterByUserId, updateCharacterGold } from "../controllers/characters.js";
 import { getItemById } from "../controllers/items.js";
 
 type Variables = {
@@ -50,13 +50,16 @@ shop.post('/buy', async (c) => {
         }
 
         const user = c.get('user').user;
-        const characterId = await getCharacterIdByUserId(user.id);
-        if (characterId === "") {
+        const character = await getCharacterByUserId(user.id);
+        if (character.id === "") {
             throw new HTTPException(404, { message: 'character not found' });
         }
         const item = await getItemById(itemId);
-        await updateCharacterGold(characterId, -item.value * amount);
-        await addItemToInventory(characterId, Number(itemId), amount);
+        if (item.value * amount > character.gold) {
+            throw new HTTPException(400, { message: 'not enough gold' });
+        }
+        await updateCharacterGold(character.id, character.gold - (item.value * amount));
+        await addItemToInventory(character.id, Number(itemId), amount);
 
         return c.json({ message: 'item(s) bought successfully' });
     } catch (error) {
@@ -77,13 +80,13 @@ shop.post('/sell', async (c) => {
         }
 
         const user = c.get('user').user;
-        const characterId = await getCharacterIdByUserId(user.id);
-        if (characterId === "") {
+        const character = await getCharacterByUserId(user.id);
+        if (character.id === "") {
             throw new HTTPException(404, { message: 'character not found' });
         }
         const item = await getItemById(itemId);
-        await updateCharacterGold(characterId, (item.value / 2) * amount);
-        await removeItemFromInventory(characterId, Number(itemId), amount);
+        await updateCharacterGold(character.id, character.gold + (item.value / 2) * amount);
+        await removeItemFromInventory(character.id, Number(itemId), amount);
 
         return c.json({ message: 'item(s) sold successfully' });
     } catch (error) {

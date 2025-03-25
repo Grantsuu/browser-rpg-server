@@ -8,6 +8,7 @@ import shop from './routes/shop.js';
 import inventory from './routes/inventory.js';
 import crafting from './routes/crafting.js';
 import farming from './routes/farming.js';
+import crops from './routes/crops.js';
 
 const app = new Hono()
 
@@ -26,6 +27,8 @@ app.route('/inventory', inventory);
 app.route('/crafting', crafting);
 // Farming
 app.route('/farming', farming);
+// Crops
+app.route('/crops', crops);
 
 // Error handling
 app.onError(async (err, c) => {

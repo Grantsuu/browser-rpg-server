@@ -38,20 +38,6 @@ export const getCharacterByUserId = async (userId: string) => {
     return data[0];
 }
 
-export const getCharacterGold = async (characterId: number) => {
-    const { data, error } = await supabase
-        .from('characters')
-        .select('gold')
-        .eq('id', characterId);
-
-    if (error) {
-        console.log(error);
-        throw new HTTPException(500, { message: 'unable to gold' })
-    }
-
-    return data[0].gold;
-}
-
 export const postCreateCharacter = async (userId: string, name: string) => {
     const { data, error } = await supabase
         .from('characters')
@@ -67,15 +53,9 @@ export const postCreateCharacter = async (userId: string, name: string) => {
 
 // Negative gold for removing it
 export const updateCharacterGold = async (characterId: number, gold: number) => {
-    const currentGold = await getCharacterGold(characterId);
-
-    if (currentGold + gold < 0) {
-        throw new HTTPException(500, { message: 'insufficient gold' })
-    }
-
     const { data, error } = await supabase
         .from('characters')
-        .update({ gold: currentGold + gold })
+        .update({ gold: gold })
         .eq('id', characterId)
         .select('gold');
 
