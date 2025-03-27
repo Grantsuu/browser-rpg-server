@@ -33,6 +33,10 @@ crafting.post('/', async (c) => {
         if (!itemId) {
             throw new HTTPException(400, { message: `missing query param 'id'` });
         }
+        const amount = c.req.query('amount');
+        if (!itemId) {
+            throw new HTTPException(400, { message: `missing query param 'amount'` });
+        }
         const recipeRows = await getCraftingRecipeByItemId(itemId);
         if (recipeRows.length < 1) {
             throw new HTTPException(404, { message: `recipe for given item id not found` });
@@ -52,7 +56,7 @@ crafting.post('/', async (c) => {
         // Check if character has all items in inventory
         const insufficientIngredients: ClientItem[] = [];
         await Promise.all(combinedRecipe.ingredients.map(async (ingredient: ClientItem) => {
-            const item = await findItemInInventory(characterId, ingredient.id, ingredient.amount);
+            const item = await findItemInInventory(characterId, ingredient.id, Number(ingredient.amount) * Number(amount));
             if (item.length < 1) {
                 insufficientIngredients.push(ingredient);
             }
@@ -63,15 +67,14 @@ crafting.post('/', async (c) => {
 
         // Remove ingredients from inventory
         await Promise.all(combinedRecipe.ingredients.map(async (ingredient: ClientItem) => {
-            await removeItemFromInventory(characterId, ingredient.id, ingredient.amount ? ingredient.amount : 1);
+            await removeItemFromInventory(characterId, ingredient.id, Number(ingredient.amount) * Number(amount));
         }));
 
         // Add item to inventory if true
-        // TODO: Right now all recipes only craft 1 of an item but may update this later
-        await addItemToInventory(characterId, combinedRecipe.item.id, 1);
-        const level = await addExperience(character, 'cooking', recipeRows[0].experience);
+        await addItemToInventory(characterId, combinedRecipe.item.id, Number(amount));
+        const level = await addExperience(character, 'cooking', recipeRows[0].experience * Number(amount));
         c.status(200);
-        return c.json({ message: 'craft successful', level: level });
+        return c.json({ amount: amount, level: level });
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }
