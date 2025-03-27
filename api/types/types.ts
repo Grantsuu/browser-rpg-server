@@ -47,6 +47,10 @@ export type SupabaseInventoryItem = {
     item: SupabaseItem
 }
 
+export type SupabaseCategory = {
+    name: string
+}
+
 export type SupabaseShopItem = {
     item: SupabaseItem;
 }

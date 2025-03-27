@@ -3,7 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
 import { getCharacterIdByUserId } from "../controllers/characters.js";
 import { getInventoryByCharacterId, removeItemFromInventory } from "../controllers/inventory.js";
-import { supabaseInventoryItemsToClientItems } from "../utilities/functions.js";
+import { supabaseInventoryItemsToClientItems } from "../utilities/transforms.js";
 
 type Variables = {
     user: { user: User };

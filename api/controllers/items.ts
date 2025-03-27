@@ -21,3 +21,17 @@ export const getItemById = async (id: string) => {
     // For now only one character per user so just return the first one
     return data[0]
 }
+
+export const getItemCategories = async () => {
+    const { data, error } = await supabase
+        .from('lk_item_categories')
+        .select('*');
+
+    // Error from supabase
+    if (error) {
+        console.log(error);
+        throw new HTTPException(500, { message: 'unable to retrieve item categories' })
+    }
+
+    return data;
+}

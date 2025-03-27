@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
 import { type ClientItem } from '../types/types.js';
-import { combineRecipeRows } from "../utilities/functions.js";
+import { combineRecipeRows } from "../utilities/transforms.js";
 import { addExperience, getCharacterByUserId } from "../controllers/characters.js";
 import { addItemToInventory, findItemInInventory, removeItemFromInventory } from "../controllers/inventory.js";
 import { getCraftingRecipeByItemId, getCraftingRecipes } from "../controllers/crafting.js";
