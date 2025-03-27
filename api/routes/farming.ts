@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { HTTPException } from 'hono/http-exception';
 import { type User } from '@supabase/supabase-js';
 import { addExperience, getCharacterByUserId, getCharacterIdByUserId } from "../controllers/characters.js";
-import { getFarmingPlots, getFarmingPlotById, deletePlot, plantCrop } from "../controllers/farming.js";
+import { getFarmingPlots, getFarmingPlotById, clearPlot, plantCrop } from "../controllers/farming.js";
 import { getCropBySeedId } from "../controllers/crops.js";
 import { addItemToInventory, findItemInInventory, removeItemFromInventory } from "../controllers/inventory.js";
 import { getRandomNumberBetween } from "../utilities/functions.js";
@@ -13,6 +13,7 @@ type Variables = {
 
 const farming = new Hono<{ Variables: Variables }>();
 
+// Get farm plots for user
 farming.get('/', async (c) => {
     try {
         const user = c.get('user').user;
@@ -27,40 +28,19 @@ farming.get('/', async (c) => {
     }
 });
 
-farming.delete('/', async (c) => {
-    try {
-        const plotId = c.req.query('id');
-        if (!plotId) {
-            throw new HTTPException(400, { message: `missing query param 'id'` });
-        }
-        const plot = await getFarmingPlotById(plotId);
-        if (plot.length < 1) {
-            throw new HTTPException(404, { message: `plot not found` });
-        }
-        const user = c.get('user').user;
-        const characterId = await getCharacterIdByUserId(user.id);
-        if (characterId === "") {
-            throw new HTTPException(404, { message: 'character not found' });
-        }
-        if (plot[0].character_id !== characterId) {
-            throw new HTTPException(500, { message: 'plot does not belong to character' });
-        }
-        await deletePlot(plotId);
-        return c.json({ message: 'plot deleted succesfully' });
-    } catch (error) {
-        throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
-    }
-});
-
-
-
+// Plant seed in specified plot id
 farming.post('/plant', async (c) => {
     try {
-        // Find the crop for the given seed id
-        const seedId = c.req.query('id');
-        if (!seedId) {
-            throw new HTTPException(400, { message: `missing query param 'id'` });
+        const plotId = c.req.query('plot_id');
+        if (!plotId) {
+            throw new HTTPException(400, { message: `missing query param 'plot_id'` });
         }
+        // Find the crop for the given seed id
+        const seedId = c.req.query('seed_id');
+        if (!seedId) {
+            throw new HTTPException(400, { message: `missing query param 'seed_id'` });
+        }
+        // tz offset gets used to determine the local time of the user to be used for the end time of the crop
         const tzOffset = c.req.query('tz_offset');
         if (!tzOffset) {
             throw new HTTPException(400, { message: `missing query param 'tz_offset'` });
@@ -75,26 +55,28 @@ farming.post('/plant', async (c) => {
         if (character.id === "") {
             throw new HTTPException(404, { message: 'character not found' });
         }
+        // Check if the plot belongs to the character
+        const plot = await getFarmingPlotById(plotId);
+        if (plot[0].character_id !== character.id) {
+            throw new HTTPException(500, { message: 'plot does not belong to character' });
+        }
+        // Check if character has the required level for the crop
         if (character.farming_level < cropRows[0].required_level) {
             throw new HTTPException(500, { message: `required level: ${cropRows[0].required_level}` });
         }
         // Check if character has the seed in their inventory and has a farm plot available
         const item = await findItemInInventory(character.id, Number(seedId), 1);
-        const plots = await getFarmingPlots(character.id);
-        // TODO: Change the hard coded 3 to a variable somewhere
-        if (plots.length >= 3) {
-            throw new HTTPException(500, { message: 'no available farm plots' });
-        }
         // Remove seed from inventory
         await removeItemFromInventory(character.id, Number(seedId), 1);
         // Create a new farm plot for the character with the crop
-        await plantCrop(character.id, cropRows[0].id, cropRows[0].grow_time, Number(tzOffset));
+        await plantCrop(plotId, cropRows[0].id, cropRows[0].grow_time, Number(tzOffset));
         return c.json({ message: 'crop planted succesfully' });
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }
 });
 
+// Attempt to harvest crop from specified plot id
 farming.post('/harvest', async (c) => {
     try {
         // Find the plot
@@ -120,13 +102,39 @@ farming.post('/harvest', async (c) => {
         if (new Date(plot[0].end_time) > currentTime) {
             throw new HTTPException(500, { message: 'plot is not ready to harvest' });
         }
-        // Delete the plot
-        await deletePlot(plotId);
+        // Clear the plot
+        await clearPlot(plotId);
         const level = await addExperience(character, 'farming', plot[0].crop.experience);
         // Add the product to the inventory
         const amount = getRandomNumberBetween(Number(plot[0].crop.amount_produced[0]), Number(plot[0].crop.amount_produced[1]));
         await addItemToInventory(character.id, plot[0].crop.product.id, amount);
         return c.json({ message: 'crop harvested succesfully', amount: amount, level: level });
+    } catch (error) {
+        throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
+    }
+});
+
+// Cancel currently growing crop from farm plot
+farming.put('/', async (c) => {
+    try {
+        const plotId = c.req.query('id');
+        if (!plotId) {
+            throw new HTTPException(400, { message: `missing query param 'id'` });
+        }
+        const plot = await getFarmingPlotById(plotId);
+        if (plot.length < 1) {
+            throw new HTTPException(404, { message: `plot not found` });
+        }
+        const user = c.get('user').user;
+        const characterId = await getCharacterIdByUserId(user.id);
+        if (characterId === "") {
+            throw new HTTPException(404, { message: 'character not found' });
+        }
+        if (plot[0].character_id !== characterId) {
+            throw new HTTPException(500, { message: 'plot does not belong to character' });
+        }
+        await clearPlot(plotId);
+        return c.json({ message: 'plot cancelled succesfully' });
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }

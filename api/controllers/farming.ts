@@ -92,7 +92,7 @@ export const getFarmingPlotById = async (plotId: string) => {
     }
 }
 
-export const plantCrop = async (characterId: string, cropId: string, growTime: number, tzOffset: number) => {
+export const plantCrop = async (plotId: string, cropId: string, growTime: number, tzOffset: number) => {
     // Offset the time by the timezone in minutes
     const now = new Date();
     now.setMinutes(new Date().getMinutes() - tzOffset);
@@ -102,12 +102,12 @@ export const plantCrop = async (characterId: string, cropId: string, growTime: n
     try {
         const { data, error } = await supabase
             .from('farm_plots')
-            .insert({
-                character_id: characterId,
+            .update({
                 crop_id: cropId,
                 start_time: now.toISOString(),
                 end_time: endTime.toISOString()
             })
+            .eq('id', plotId)
         if (error) {
             console.log(error);
             throw new HTTPException(500, { message: 'unable to plant crop' })
@@ -118,11 +118,11 @@ export const plantCrop = async (characterId: string, cropId: string, growTime: n
     }
 }
 
-export const deletePlot = async (plotId: string) => {
+export const clearPlot = async (plotId: string) => {
     try {
         const { data, error } = await supabase
             .from('farm_plots')
-            .delete()
+            .update({ crop_id: null, start_time: null, end_time: null })
             .eq('id', plotId)
         if (error) {
             console.log(error);

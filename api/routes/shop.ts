@@ -22,7 +22,6 @@ shop.get('/', async (c) => {
                 throw new HTTPException(400, { message: 'invalid category' });
             }
             const shopItems = await getShopItemsByCategory(category);
-            console.log(shopItems);
             return c.json(supabaseShopItemsToClientItems(shopItems));
         } else {
             const shopItems = await getShopItems();
