@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
 import { getCharacterByUserId, getCharacterIdByUserId, postCreateCharacter } from '../controllers/characters.js'
+import { createFarmingPlot } from "../controllers/farming.js";
 
 type Variables = {
     user: { user: User };
@@ -36,6 +37,9 @@ characters.post('/', async (c) => {
             throw new HTTPException(500, { message: 'character already exists for this user' });
         }
         const newCharacter = await postCreateCharacter(user.id, name);
+        console.log(newCharacter);
+        // Create a farm plot for the new character
+        await createFarmingPlot(newCharacter[0].id);
         return c.json({ message: 'character created' });
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });

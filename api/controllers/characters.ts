@@ -1,7 +1,7 @@
 import { HTTPException } from 'hono/http-exception';
 import { supabase } from '../lib/supabase.js';
 import { type SupabaseCharacter } from '../types/types.js';
-import { experience_table } from '../../game/constants/experience_table.js';
+import { experience_table } from '../../game/constants/tables.ts';
 
 export const getCharacterIdByUserId = async (userId: string) => {
     const { data, error } = await supabase

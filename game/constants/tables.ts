@@ -50,3 +50,15 @@ export const experience_table = {
     49: 91721,
     50: 101333
 };
+
+export const farm_plot_cost_table = {
+    1: 500,
+    2: 5000,
+    3: 10000,
+    4: 15000,
+    5: 25000,
+    6: 30000,
+    7: 40000,
+    8: 65000,
+    9: 80000
+}

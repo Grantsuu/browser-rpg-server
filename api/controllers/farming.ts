@@ -92,6 +92,21 @@ export const getFarmingPlotById = async (plotId: string) => {
     }
 }
 
+export const createFarmingPlot = async (characterId: string) => {
+    try {
+        const { data, error } = await supabase
+            .from('farm_plots')
+            .insert({ character_id: characterId })
+        if (error) {
+            console.log(error);
+            throw new HTTPException(500, { message: 'unable to create farm plot' })
+        }
+        return data;
+    } catch (error) {
+        throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
+    }
+}
+
 export const plantCrop = async (plotId: string, cropId: string, growTime: number, tzOffset: number) => {
     // Offset the time by the timezone in minutes
     const now = new Date();
