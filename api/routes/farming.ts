@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { HTTPException } from 'hono/http-exception';
 import { type User } from '@supabase/supabase-js';
-import { farm_plot_cost_table } from "../../game/constants/tables.ts";
+import { farm_plot_cost_table } from "../../game/constants/tables.js";
 import { addExperience, getCharacterByUserId, getCharacterIdByUserId, updateCharacterGold } from "../controllers/characters.js";
 import { getFarmingPlots, getFarmingPlotById, createFarmingPlot, clearPlot, plantCrop } from "../controllers/farming.js";
 import { getCropBySeedId } from "../controllers/crops.js";
