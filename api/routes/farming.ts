@@ -29,6 +29,25 @@ farming.get('/', async (c) => {
     }
 });
 
+// Get cost of next farm plot
+farming.get('/buy', async (c) => {
+    try {
+        const user = c.get('user').user;
+        const character = await getCharacterByUserId(user.id);
+        if (character.id === "") {
+            throw new HTTPException(404, { message: 'character not found' });
+        }
+        const plots = await getFarmingPlots(character.id);
+        if (plots.length < 1) {
+            throw new HTTPException(500, { message: 'no farm plots found for character' });
+        }
+        const cost = farm_plot_cost_table[plots.length as keyof typeof farm_plot_cost_table];
+        return c.json({ cost: cost });
+    } catch (error) {
+        throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
+    }
+});
+
 // Buy a new farm plot
 farming.post('/buy', async (c) => {
     try {
