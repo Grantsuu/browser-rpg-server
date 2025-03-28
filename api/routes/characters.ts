@@ -37,7 +37,6 @@ characters.post('/', async (c) => {
             throw new HTTPException(500, { message: 'character already exists for this user' });
         }
         const newCharacter = await postCreateCharacter(user.id, name);
-        console.log(newCharacter);
         // Create a farm plot for the new character
         await createFarmingPlot(newCharacter[0].id);
         return c.json({ message: 'character created' });

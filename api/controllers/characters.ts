@@ -41,7 +41,8 @@ export const getCharacterByUserId = async (userId: string) => {
 export const postCreateCharacter = async (userId: string, name: string) => {
     const { data, error } = await supabase
         .from('characters')
-        .insert({ user: userId, name: name, gold: 100 });
+        .insert({ user: userId, name: name, gold: 100 })
+        .select('*');
 
     if (error) {
         console.log(error);
