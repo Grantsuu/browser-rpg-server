@@ -33,7 +33,30 @@ export const getFarmingPlots = async (characterId: string) => {
                     amount_produced
                 ),
                 start_time,
-                end_time
+                end_time,
+                previous_crop:crops!farm_plots_previous_crop_fkey(
+                    id,
+                    seed:items!crops_seed_id_fkey(
+                        id,
+                        name,
+                        category,
+                        value,
+                        description,
+                        image:lk_item_images(base64)
+                    ),
+                    grow_time,
+                    experience,
+                    product:items!crops_product_id_fkey(
+                        id,
+                        name,
+                        category,
+                        value,
+                        description,
+                        image:lk_item_images(base64)
+                    ),
+                    required_level,
+                    amount_produced
+                )
             `)
             .eq('character_id', characterId)
             .overrideTypes<SupabaseFarmPlot[]>();
@@ -78,7 +101,30 @@ export const getFarmingPlotById = async (plotId: string) => {
                     amount_produced
                 ),
                 start_time,
-                end_time
+                end_time,
+                previous_crop:crops!farm_plots_previous_crop_fkey(
+                    id,
+                    seed:items!crops_seed_id_fkey(
+                        id,
+                        name,
+                        category,
+                        value,
+                        description,
+                        image:lk_item_images(base64)
+                    ),
+                    grow_time,
+                    experience,
+                    product:items!crops_product_id_fkey(
+                        id,
+                        name,
+                        category,
+                        value,
+                        description,
+                        image:lk_item_images(base64)
+                    ),
+                    required_level,
+                    amount_produced
+                )
             `)
             .eq('id', plotId)
             .overrideTypes<SupabaseFarmPlot[]>();
@@ -120,7 +166,8 @@ export const plantCrop = async (plotId: string, cropId: string, growTime: number
             .update({
                 crop_id: cropId,
                 start_time: now.toISOString(),
-                end_time: endTime.toISOString()
+                end_time: endTime.toISOString(),
+                previous_crop: cropId
             })
             .eq('id', plotId)
         if (error) {

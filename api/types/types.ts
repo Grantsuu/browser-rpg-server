@@ -79,5 +79,6 @@ export type SupabaseFarmPlot = {
     character_id: string,
     crop: SupabaseCrop,
     start_time: string,
-    end_time: string
+    end_time: string,
+    previous_crop: SupabaseCrop
 }
