@@ -82,3 +82,17 @@ export type SupabaseFarmPlot = {
     end_time: string,
     previous_crop: SupabaseCrop
 }
+
+export type SupabaseFishing = {
+    id: number,
+    character_id: string,
+    turns: number,
+    game_state: object,
+    area: FishingArea,
+    previous_area: FishingArea
+}
+
+export type FishingArea = {
+    name: string,
+    required_level: number
+}
