@@ -31,7 +31,6 @@ export const getFishingState = async (characterId: string) => {
         console.log(error);
         throw new HTTPException(500, { message: 'unable to retrieve fishing state' })
     }
-    // console.log(data);
     return data[0];
 }
 
@@ -41,7 +40,13 @@ export const startFishingGame = async (characterId: string, area: string) => {
         .update({
             character_id: characterId,
             turns: 0,
-            game_state: {},
+            game_state: {
+                tiles: [
+                    [{ isDiscovered: false, content: 'fish' }, { isDiscovered: false, content: '3' }, { isDiscovered: false, content: 'fish' }],
+                    [{ isDiscovered: false, content: '2' }, { isDiscovered: false, content: 'bountiful' }, { isDiscovered: false, content: '3' }],
+                    [{ isDiscovered: false, content: '1' }, { isDiscovered: false, content: '2' }, { isDiscovered: false, content: '1' }]
+                ]
+            },
             area: area,
             previous_area: area
         })

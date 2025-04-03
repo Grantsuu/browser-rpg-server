@@ -99,3 +99,10 @@ export type FishingArea = {
     size: string,
     required_level: number
 }
+
+export type FishingGameState = {
+    tiles: {
+        isDiscovered: boolean,
+        content: string
+    }[][]
+}

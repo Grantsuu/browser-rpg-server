@@ -3,6 +3,8 @@ import { HTTPException } from 'hono/http-exception';
 import { type User } from '@supabase/supabase-js';
 import { addExperience, getCharacterByUserId, getCharacterIdByUserId } from "../controllers/characters.js";
 import { clearFishingGame, startFishingGame, getFishingState, updateFishingGame, getFishingAreas, getFishingAreaByName } from "../controllers/fishing.js";
+import { censorFishingTiles } from '../../game/utilities/functions.js';
+import { type FishingGameState } from "../types/types.js";
 
 type Variables = {
     user: { user: User };
@@ -22,6 +24,7 @@ fishing.get('/', async (c) => {
         if (fishing === null) {
             throw new HTTPException(404, { message: 'fishing game not found' });
         }
+        (fishing.game_state as FishingGameState).tiles = censorFishingTiles(fishing.game_state as FishingGameState);
         return c.json(fishing);
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
@@ -75,6 +78,14 @@ fishing.put('/start', async (c) => {
 // Update fishing game state
 fishing.put('/', async (c) => {
     try {
+        const row = c.req.query('row');
+        if (row === undefined) {
+            throw new HTTPException(400, { message: 'row is required' });
+        }
+        const col = c.req.query('col');
+        if (col === undefined) {
+            throw new HTTPException(400, { message: 'col is required' });
+        }
         const user = c.get('user').user;
         const characterId = await getCharacterIdByUserId(user.id);
         if (characterId === "") {
@@ -85,8 +96,8 @@ fishing.put('/', async (c) => {
             throw new HTTPException(404, { message: 'fishing game not found' });
         }
         const turns = fishing.turns + 1;
-        const gameState = fishing.game_state;
-        const fishingGame = await updateFishingGame(characterId, turns, gameState);
+        (fishing.game_state as FishingGameState).tiles[Number(row)][Number(col)].isDiscovered = true;
+        const fishingGame = await updateFishingGame(characterId, turns, fishing.game_state);
         if (fishingGame === null) {
             throw new HTTPException(500, { message: 'unable to update fishing game' });
         }
