@@ -12,10 +12,16 @@ export const getFishingState = async (characterId: string) => {
             game_state,
             area:lk_fishing_areas!fishing_area_fkey(
                 name,
+                description,
+                size,
+                max_turns,
                 required_level
             ),
             previous_area:lk_fishing_areas!fishing_previous_area_fkey(
                 name,
+                description,
+                size,
+                max_turns,
                 required_level
             )  
         `)

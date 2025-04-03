@@ -94,5 +94,8 @@ export type SupabaseFishing = {
 
 export type FishingArea = {
     name: string,
+    description: string,
+    max_turns: number,
+    size: string,
     required_level: number
 }
