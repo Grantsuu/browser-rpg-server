@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { HTTPException } from 'hono/http-exception';
 import { type User } from '@supabase/supabase-js';
 import { addExperience, getCharacterByUserId, getCharacterIdByUserId } from "../controllers/characters.js";
-import { clearFishingGame, createFishingGame, getFishingState, updateFishingGame } from "../controllers/fishing.js";
+import { clearFishingGame, startFishingGame, getFishingState, updateFishingGame, getFishingAreaByName } from "../controllers/fishing.js";
 
 type Variables = {
     user: { user: User };
@@ -28,27 +28,30 @@ fishing.get('/', async (c) => {
     }
 });
 
-// Create a new fishing game
-fishing.post('/', async (c) => {
+// Start a new fishing game
+fishing.put('/start', async (c) => {
     try {
+        const areaName = c.req.query('area');
+        if (areaName === undefined) {
+            throw new HTTPException(400, { message: 'area is required' });
+        }
+        const area = await getFishingAreaByName(areaName);
+        if (!area) {
+            throw new HTTPException(404, { message: 'area not found' });
+        }
         const user = c.get('user').user;
         const character = await getCharacterByUserId(user.id);
         if (character.id === "") {
             throw new HTTPException(404, { message: 'character not found' });
         }
-        const fishing = await getFishingState(character.id);
-        if (fishing !== null) {
-            throw new HTTPException(400, { message: 'fishing game already exists' });
+        if (character.fising_level < area.required_level) {
+            throw new HTTPException(400, { message: 'level too low' });
         }
-        const { area } = await c.req.json();
-        if (area === undefined) {
-            throw new HTTPException(400, { message: 'area is required' });
-        }
-        // TODO: check if area is valid and character has level to fish there
-        // if (character.level < 1) {
-        //     throw new HTTPException(400, { message: 'level too low' });
+        // const fishing = await getFishingState(character.id);
+        // if (fishing.game_state !== null) {
+        //     throw new HTTPException(400, { message: 'fishing game already exists' });
         // }
-        const fishingGame = await createFishingGame(character.id, area);
+        const fishingGame = await startFishingGame(character.id, area.name);
         if (fishingGame === null) {
             throw new HTTPException(500, { message: 'unable to create fishing game' });
         }

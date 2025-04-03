@@ -1,6 +1,6 @@
 import { HTTPException } from 'hono/http-exception';
 import { supabase } from '../lib/supabase.js';
-import { type SupabaseFishing } from "../types/types.js";
+import type { FishingArea, SupabaseFishing } from "../types/types.js";
 
 export const getFishingState = async (characterId: string) => {
     const { data, error } = await supabase
@@ -10,11 +10,11 @@ export const getFishingState = async (characterId: string) => {
             character_id,
             turns,
             game_state,
-            area:lk_fish_areas!fishing_area_fkey(
+            area:lk_fishing_areas!fishing_area_fkey(
                 name,
                 required_level
             ),
-            previous_area:lk_fish_areas!fishing_previous_area_fkey(
+            previous_area:lk_fishing_areas!fishing_previous_area_fkey(
                 name,
                 required_level
             )  
@@ -25,20 +25,21 @@ export const getFishingState = async (characterId: string) => {
         console.log(error);
         throw new HTTPException(500, { message: 'unable to retrieve fishing state' })
     }
-    console.log(data);
+    // console.log(data);
     return data[0];
 }
 
-export const createFishingGame = async (characterId: string, area: number) => {
+export const startFishingGame = async (characterId: string, area: string) => {
     const { data, error } = await supabase
         .from('fishing')
-        .insert({
+        .update({
             character_id: characterId,
             turns: 0,
             game_state: {},
-            area_id: area,
-            previous_area_id: area
+            area: area,
+            previous_area: area
         })
+        .eq('character_id', characterId)
         .select()
         .overrideTypes<SupabaseFishing[]>();
     if (error) {
@@ -71,7 +72,7 @@ export const clearFishingGame = async (characterId: string) => {
         .update({
             turns: null,
             game_state: null,
-            area_id: null
+            area: null
         })
         .eq('character_id', characterId)
         .select()
@@ -79,6 +80,31 @@ export const clearFishingGame = async (characterId: string) => {
     if (error) {
         console.log(error);
         throw new HTTPException(500, { message: 'unable to clear fishing game' })
+    }
+    return data[0];
+}
+
+export const getFishingAreas = async () => {
+    const { data, error } = await supabase
+        .from('lk_fishing_areas')
+        .select()
+        .overrideTypes<FishingArea[]>();
+    if (error) {
+        console.log(error);
+        throw new HTTPException(500, { message: 'unable to retrieve fishing areas' })
+    }
+    return data;
+}
+
+export const getFishingAreaByName = async (name: string) => {
+    const { data, error } = await supabase
+        .from('lk_fishing_areas')
+        .select()
+        .eq('name', name)
+        .overrideTypes<FishingArea[]>();
+    if (error) {
+        console.log(error);
+        throw new HTTPException(500, { message: 'unable to retrieve fishing area' })
     }
     return data[0];
 }
