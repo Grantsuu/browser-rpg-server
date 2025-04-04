@@ -5,7 +5,7 @@ import { addExperience, getCharacterByUserId, getCharacterIdByUserId } from "../
 import { startFishingGame, getFishingState, updateFishingGame, getFishingAreas, getFishingAreaByName, getFishByAreaName } from "../controllers/fishing.js";
 import { censorFishingTiles, generateFishingTiles } from '../../game/utilities/functions.js';
 import { type FishingGameState, type SupabaseFishing } from "../types/types.js";
-import { addItemToInventory } from "../controllers/inventory.ts";
+import { addItemToInventory } from "../controllers/inventory.js";
 
 type Variables = {
     user: { user: User };
