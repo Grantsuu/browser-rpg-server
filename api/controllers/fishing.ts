@@ -1,6 +1,6 @@
 import { HTTPException } from 'hono/http-exception';
 import { supabase } from '../lib/supabase.js';
-import type { FishingArea, SupabaseFishing } from "../types/types.js";
+import type { Fish, FishingArea, FishingGameState, SupabaseFishing } from "../types/types.js";
 
 export const getFishingState = async (characterId: string) => {
     const { data, error } = await supabase
@@ -34,19 +34,13 @@ export const getFishingState = async (characterId: string) => {
     return data[0];
 }
 
-export const startFishingGame = async (characterId: string, area: string) => {
+export const startFishingGame = async (characterId: string, area: string, gameState: FishingGameState) => {
     const { data, error } = await supabase
         .from('fishing')
         .update({
             character_id: characterId,
             turns: 0,
-            game_state: {
-                tiles: [
-                    [{ isDiscovered: false, content: 'fish' }, { isDiscovered: false, content: '3' }, { isDiscovered: false, content: 'fish' }],
-                    [{ isDiscovered: false, content: '2' }, { isDiscovered: false, content: 'bountiful' }, { isDiscovered: false, content: '3' }],
-                    [{ isDiscovered: false, content: '1' }, { isDiscovered: false, content: '2' }, { isDiscovered: false, content: '1' }]
-                ]
-            },
+            game_state: gameState,
             area: area,
             previous_area: area
         })
@@ -110,7 +104,7 @@ export const getFishingAreas = async () => {
 export const getFishingAreaByName = async (name: string) => {
     const { data, error } = await supabase
         .from('lk_fishing_areas')
-        .select()
+        .select('*')
         .eq('name', name)
         .overrideTypes<FishingArea[]>();
     if (error) {
@@ -118,4 +112,17 @@ export const getFishingAreaByName = async (name: string) => {
         throw new HTTPException(500, { message: 'unable to retrieve fishing area' })
     }
     return data[0];
+}
+
+export const getFishByAreaName = async (areaName: string) => {
+    const { data, error } = await supabase
+        .from('fish')
+        .select(`*`)
+        .eq('area', areaName)
+        .overrideTypes<Fish[]>();
+    if (error) {
+        console.log(error);
+        throw new HTTPException(500, { message: 'unable to retrieve fishing area' })
+    }
+    return data;
 }

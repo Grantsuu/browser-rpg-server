@@ -2,9 +2,10 @@ import { Hono } from "hono";
 import { HTTPException } from 'hono/http-exception';
 import { type User } from '@supabase/supabase-js';
 import { addExperience, getCharacterByUserId, getCharacterIdByUserId } from "../controllers/characters.js";
-import { clearFishingGame, startFishingGame, getFishingState, updateFishingGame, getFishingAreas, getFishingAreaByName } from "../controllers/fishing.js";
-import { censorFishingTiles } from '../../game/utilities/functions.js';
-import { type FishingGameState } from "../types/types.js";
+import { startFishingGame, getFishingState, updateFishingGame, getFishingAreas, getFishingAreaByName, getFishByAreaName } from "../controllers/fishing.js";
+import { censorFishingTiles, generateFishingTiles } from '../../game/utilities/functions.js';
+import { type FishingGameState, type SupabaseFishing } from "../types/types.js";
+import { addItemToInventory } from "../controllers/inventory.ts";
 
 type Variables = {
     user: { user: User };
@@ -61,11 +62,10 @@ fishing.put('/start', async (c) => {
         if (character.fising_level < area.required_level) {
             throw new HTTPException(400, { message: 'level too low' });
         }
-        // const fishing = await getFishingState(character.id);
-        // if (fishing.game_state !== null) {
-        //     throw new HTTPException(400, { message: 'fishing game already exists' });
-        // }
-        const fishingGame = await startFishingGame(character.id, area.name);
+        const tiles = generateFishingTiles(3, 3, 2, 1);
+        const fishingGame = await startFishingGame(character.id, area.name, {
+            tiles: tiles
+        } as FishingGameState);
         if (fishingGame === null) {
             throw new HTTPException(500, { message: 'unable to create fishing game' });
         }
@@ -87,21 +87,58 @@ fishing.put('/', async (c) => {
             throw new HTTPException(400, { message: 'col is required' });
         }
         const user = c.get('user').user;
-        const characterId = await getCharacterIdByUserId(user.id);
-        if (characterId === "") {
+        const character = await getCharacterByUserId(user.id);
+        if (character.id === "") {
             throw new HTTPException(404, { message: 'character not found' });
         }
-        const fishing = await getFishingState(characterId);
+        const fishing = await getFishingState(character.id);
         if (fishing === null) {
             throw new HTTPException(404, { message: 'fishing game not found' });
         }
         const turns = fishing.turns + 1;
         (fishing.game_state as FishingGameState).tiles[Number(row)][Number(col)].isDiscovered = true;
-        const fishingGame = await updateFishingGame(characterId, turns, fishing.game_state);
-        if (fishingGame === null) {
-            throw new HTTPException(500, { message: 'unable to update fishing game' });
+        const fishingGame = await updateFishingGame(character.id, turns, fishing.game_state);
+        // Check if the tile is a fish
+        const content = (fishing.game_state as FishingGameState).tiles[Number(row)][Number(col)].content;
+        let responseFish;
+        let responseExperience;
+        let levelChange = -1;
+        let fishAmount = 0;
+        if (content === 'fish' || content === 'bountiful') {
+            // Add experience to character
+            const fish = await getFishByAreaName(fishing.area.name);
+            if (!fish) {
+                throw new HTTPException(404, { message: 'fish not found' });
+            }
+            if (content === 'bountiful') {
+                fishAmount = 3;
+            } else {
+                fishAmount = 1;
+            }
+            // Add fish to inventory
+            await addItemToInventory(character.id, fish[0].item_id, fishAmount);
+            // Add experience to character
+            levelChange = await addExperience(character, 'fishing', fish[0].experience * fishAmount);
+            responseFish = fish[0];
+            responseExperience = fish[0].experience * fishAmount;
         }
-        return c.json(fishingGame);
+        const returnFishing = {
+            id: fishing.id,
+            area: fishing.area,
+            previous_area: fishing.previous_area,
+            character_id: fishing.character_id,
+            game_state: {
+                tiles: censorFishingTiles(fishing.game_state as FishingGameState),
+            },
+            turns: turns
+        } as SupabaseFishing;
+        return c.json({
+            ...returnFishing,
+            fish: responseFish ? responseFish : null,
+            fish_amount: fishAmount > 0 ? fishAmount : null,
+            experience: responseExperience ? responseExperience : null,
+            level: levelChange > 0 ? levelChange : null
+        });
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }

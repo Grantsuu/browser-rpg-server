@@ -106,3 +106,12 @@ export type FishingGameState = {
         content: string
     }[][]
 }
+
+export type Fish = {
+    id: number,
+    name: string,
+    item_id: number,
+    required_level: number,
+    experience: number,
+    area: string
+}
