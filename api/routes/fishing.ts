@@ -59,10 +59,29 @@ fishing.put('/start', async (c) => {
         if (character.id === "") {
             throw new HTTPException(404, { message: 'character not found' });
         }
-        if (character.fising_level < area.required_level) {
+        if (character.fishing_level < area.required_level) {
             throw new HTTPException(400, { message: 'level too low' });
         }
-        const tiles = generateFishingTiles(3, 3, 2, 1);
+        let size, fish, bountiful = 0;
+        if (area.size === 'Small') {
+            size = 3;
+            fish = 2;
+            bountiful = 1;
+            // size = 4;
+            // fish = 5;
+            // bountiful = 1;
+        } else if (area.size === 'Medium') {
+            size = 4;
+            fish = 5;
+            bountiful = 1;
+        } else if (area.size === 'Large') {
+            size = 5;
+            fish = 6;
+            bountiful = 2;
+        } else {
+            throw new HTTPException(400, { message: 'invalid area size' });
+        }
+        const tiles = generateFishingTiles(size, size, fish, bountiful);
         const fishingGame = await startFishingGame(character.id, area.name, {
             tiles: tiles
         } as FishingGameState);
@@ -106,21 +125,23 @@ fishing.put('/', async (c) => {
         let fishAmount = 0;
         if (content === 'fish' || content === 'bountiful') {
             // Add experience to character
-            const fish = await getFishByAreaName(fishing.area.name);
-            if (!fish) {
+            const possibleFish = await getFishByAreaName(fishing.area.name, character.fishing_level);
+            if (possibleFish.length < 1) {
                 throw new HTTPException(404, { message: 'fish not found' });
             }
+            // Bountiful fish give 3 fish
             if (content === 'bountiful') {
                 fishAmount = 3;
             } else {
                 fishAmount = 1;
             }
+            const fish = possibleFish[Math.floor(Math.random() * possibleFish.length)];
             // Add fish to inventory
-            await addItemToInventory(character.id, fish[0].item_id, fishAmount);
+            await addItemToInventory(character.id, fish.item_id, fishAmount);
             // Add experience to character
-            levelChange = await addExperience(character, 'fishing', fish[0].experience * fishAmount);
-            responseFish = fish[0];
-            responseExperience = fish[0].experience * fishAmount;
+            levelChange = await addExperience(character, 'fishing', fish.experience * fishAmount);
+            responseFish = fish;
+            responseExperience = fish.experience * fishAmount;
         }
         const returnFishing = {
             id: fishing.id,

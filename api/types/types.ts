@@ -101,10 +101,12 @@ export type FishingArea = {
 }
 
 export type FishingGameState = {
-    tiles: {
-        isDiscovered: boolean,
-        content: string
-    }[][]
+    tiles: FishingGameTile[][]
+}
+
+export type FishingGameTile = {
+    isDiscovered: boolean,
+    content: FishingGameTileContent
 }
 
 export type Fish = {
@@ -115,3 +117,7 @@ export type Fish = {
     experience: number,
     area: string
 }
+
+export type FishingGameTileContent = 'undiscovered' | 'fish' | 'bountiful' | number;
+
+export type FishingAreaSize = 'Small' | 'Medium' | 'Large';

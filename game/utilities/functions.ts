@@ -1,4 +1,4 @@
-import { type FishingGameState } from '../../api/types/types.js';
+import type { FishingGameState, FishingGameTile } from '../../api/types/types.js';
 
 export const censorFishingTiles = (gameState: FishingGameState) => {
     const censoredTiles = gameState['tiles'].map((tile: any) => {
@@ -10,10 +10,11 @@ export const censorFishingTiles = (gameState: FishingGameState) => {
 }
 
 export const generateFishingTiles = (rows: number, columns: number, fish: number, bountiful_fish: number) => {
-    const tiles = Array.from({ length: rows }, () => Array(columns).fill({ isDiscovered: false, content: 'undiscovered' }));
+    const tiles: FishingGameTile[][] = Array.from({ length: rows }, () => Array(columns).fill({ isDiscovered: false, content: 'undiscovered' } as FishingGameTile));
     let fishCount = 0;
     let bountifulFishCount = 0;
 
+    // Add fish to random tiles
     while (fishCount < fish) {
         const row = Math.floor(Math.random() * rows);
         const col = Math.floor(Math.random() * columns);
@@ -22,6 +23,8 @@ export const generateFishingTiles = (rows: number, columns: number, fish: number
             fishCount++;
         }
     }
+
+    // Add bountiful fish to random tiles
     while (bountifulFishCount < bountiful_fish) {
         const row = Math.floor(Math.random() * rows);
         const col = Math.floor(Math.random() * columns);
@@ -30,7 +33,8 @@ export const generateFishingTiles = (rows: number, columns: number, fish: number
             bountifulFishCount++;
         }
     }
-    // iterate through the tiles and set the content to the number of adjacent fish
+
+    // Iterate through the tiles and set the content to the number of adjacent fish
     for (let i = 0; i < rows; i++) {
         for (let j = 0; j < columns; j++) {
             if (tiles[i][j].content === 'undiscovered') {
@@ -47,7 +51,7 @@ export const generateFishingTiles = (rows: number, columns: number, fish: number
                         }
                     }
                 }
-                tiles[i][j] = { isDiscovered: false, content: adjacentFish.toString() };
+                tiles[i][j] = { isDiscovered: false, content: adjacentFish };
             }
         }
     }
