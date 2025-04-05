@@ -4,7 +4,7 @@ import { type User } from '@supabase/supabase-js';
 import { addExperience, getCharacterByUserId, getCharacterIdByUserId } from "../controllers/characters.js";
 import { startFishingGame, getFishingState, updateFishingGame, getFishingAreas, getFishingAreaByName, getFishByAreaName } from "../controllers/fishing.js";
 import { censorFishingTiles, generateFishingTiles } from '../../game/utilities/functions.js';
-import { type FishingGameState, type SupabaseFishing } from "../types/types.js";
+import type { Fish, FishingGameState, SupabaseFishing } from "../types/types.js";
 import { addItemToInventory } from "../controllers/inventory.js";
 
 type Variables = {
@@ -132,9 +132,10 @@ fishing.put('/', async (c) => {
             } else {
                 fishAmount = 1;
             }
-            const fish = possibleFish[Math.floor(Math.random() * possibleFish.length)];
+            const fish: Fish = possibleFish[Math.floor(Math.random() * possibleFish.length)];
+            // console.log(fish);
             // Add fish to inventory
-            await addItemToInventory(character.id, fish.item_id, fishAmount);
+            await addItemToInventory(character.id, fish.item.id, fishAmount);
             // Add experience to character
             levelChange = await addExperience(character, 'fishing', fish.experience * fishAmount);
             responseFish = fish;

@@ -65,7 +65,7 @@ export const findItemInInventory = async (characterId: string, itemId: number, a
 // If item is already inventory add amount to existing item, otherwise insert a new one
 export const addItemToInventory = async (characterId: string, itemId: number, amount: number) => {
     try {
-        const item = await findItemInInventory(characterId, itemId);
+        let item = await findItemInInventory(characterId, itemId);
         // If item isn't already in the inventory just add a new one with the given amount
         if (item.length < 1) {
             const { error } = await supabase
@@ -75,6 +75,8 @@ export const addItemToInventory = async (characterId: string, itemId: number, am
                     item: itemId,
                     amount: amount
                 })
+                .select()
+                .overrideTypes<SupabaseInventoryItem[]>();
             if (error) {
                 console.log(error);
                 throw new HTTPException(500, { message: 'unable to add item to inventory' })
@@ -86,12 +88,14 @@ export const addItemToInventory = async (characterId: string, itemId: number, am
                 .update({ amount: amount + item[0].amount })
                 .eq('character', characterId)
                 .eq('item', itemId)
+                .select()
+                .overrideTypes<SupabaseInventoryItem[]>();
             if (error) {
                 console.log(error);
                 throw new HTTPException(500, { message: 'unable to update item in inventory' })
             }
         }
-        return true;
+        return item;
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }

@@ -113,10 +113,10 @@ export type FishingGameTile = {
 export type Fish = {
     id: number,
     name: string,
-    item_id: number,
+    item: SupabaseItem,
     required_level: number,
     experience: number,
-    area: string
+    area: FishingArea
 }
 
 export type FishingGameTileContent = 'undiscovered' | 'fish' | 'bountiful' | number;

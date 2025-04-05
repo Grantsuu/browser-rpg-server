@@ -117,7 +117,27 @@ export const getFishingAreaByName = async (name: string) => {
 export const getFishByAreaName = async (areaName: string, level: number) => {
     const { data, error } = await supabase
         .from('fish')
-        .select(`*`)
+        .select(`
+            id,
+            name,
+            item:items!fish_item_id_fkey(
+                id,
+                name,
+                category,
+                value,
+                description,
+                image:lk_item_images(*)
+            ),
+            required_level,
+            experience,
+            area:lk_fishing_areas!fish_area_fkey(
+                name,
+                description,
+                size,
+                max_turns,
+                required_level
+            )
+        `)
         .eq('area', areaName)
         .lte('required_level', level)
         .overrideTypes<Fish[]>();
