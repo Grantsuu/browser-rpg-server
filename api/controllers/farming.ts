@@ -17,7 +17,7 @@ export const getFarmingPlots = async (characterId: string) => {
                         category,
                         value,
                         description,
-                        image:lk_item_images(base64)
+                        image:lk_item_images(*)
                     ),
                     grow_time,
                     experience,
@@ -27,7 +27,7 @@ export const getFarmingPlots = async (characterId: string) => {
                         category,
                         value,
                         description,
-                        image:lk_item_images(base64)
+                        image:lk_item_images(*)
                     ),
                     required_level,
                     amount_produced
@@ -42,7 +42,7 @@ export const getFarmingPlots = async (characterId: string) => {
                         category,
                         value,
                         description,
-                        image:lk_item_images(base64)
+                        image:lk_item_images(*)
                     ),
                     grow_time,
                     experience,
@@ -52,7 +52,7 @@ export const getFarmingPlots = async (characterId: string) => {
                         category,
                         value,
                         description,
-                        image:lk_item_images(base64)
+                        image:lk_item_images(*)
                     ),
                     required_level,
                     amount_produced
@@ -85,7 +85,7 @@ export const getFarmingPlotById = async (plotId: string) => {
                         category,
                         value,
                         description,
-                        image:lk_item_images(base64)
+                        image:lk_item_images(*)
                     ),
                     grow_time,
                     experience,                 
@@ -95,7 +95,7 @@ export const getFarmingPlotById = async (plotId: string) => {
                         category,
                         value,
                         description,
-                        image:lk_item_images(base64)
+                        image:lk_item_images(*)
                     ),
                     required_level,
                     amount_produced
@@ -110,7 +110,7 @@ export const getFarmingPlotById = async (plotId: string) => {
                         category,
                         value,
                         description,
-                        image:lk_item_images(base64)
+                        image:lk_item_images(*)
                     ),
                     grow_time,
                     experience,
@@ -120,7 +120,7 @@ export const getFarmingPlotById = async (plotId: string) => {
                         category,
                         value,
                         description,
-                        image:lk_item_images(base64)
+                        image:lk_item_images(*)
                     ),
                     required_level,
                     amount_produced

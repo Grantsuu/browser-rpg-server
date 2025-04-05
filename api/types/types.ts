@@ -1,5 +1,6 @@
 type Image = {
-    base64: string
+    base64: string,
+    alt: string
 }
 
 export type ClientItem = {

@@ -14,7 +14,7 @@ export const getInventoryByCharacterId = async (characterId: string) => {
                     category,
                     value,
                     description,
-                    image:lk_item_images(base64)
+                    image:lk_item_images(*)
                 )
             `)
             .eq('character', characterId)
@@ -24,7 +24,6 @@ export const getInventoryByCharacterId = async (characterId: string) => {
             console.log(error);
             throw new HTTPException(500, { message: 'unable to retrieve inventory' })
         }
-
         return data;
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });

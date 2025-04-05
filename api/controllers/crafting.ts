@@ -13,7 +13,7 @@ export const getCraftingRecipes = async () => {
                     category,
                     value,
                     description,
-                    image:lk_item_images(base64)
+                    image:lk_item_images(*)
                 ),
                 ingredient:items!recipes_ingredient_fkey(
                     id,
@@ -21,7 +21,7 @@ export const getCraftingRecipes = async () => {
                     category,
                     value,
                     description,
-                    image:lk_item_images(base64)
+                    image:lk_item_images(*)
                 ),
                 amount,
                 category,
@@ -50,7 +50,7 @@ export const getCraftingRecipeByItemId = async (itemId: string) => {
                 category,
                 value,
                 description,
-                image:lk_item_images(base64)
+                image:lk_item_images(*)
             ),
             ingredient:items!recipes_ingredient_fkey(
                 id,
@@ -58,7 +58,7 @@ export const getCraftingRecipeByItemId = async (itemId: string) => {
                 category,
                 value,
                 description,
-                image:lk_item_images(base64)
+                image:lk_item_images(*)
             ),
             amount,
             category,

@@ -13,7 +13,7 @@ export const getShopItems = async () => {
                     category,
                     value,
                     description,
-                    image:lk_item_images(base64)
+                    image:lk_item_images(*)
                 )
             `)
             .overrideTypes<SupabaseShopItem[]>();
@@ -40,7 +40,7 @@ export const getShopItemsByCategory = async (category: string) => {
                     category,
                     value,
                     description,
-                    image:lk_item_images(base64)
+                    image:lk_item_images(*)
                 )
             `)
             .eq('item.category', category)

@@ -67,9 +67,6 @@ fishing.put('/start', async (c) => {
             size = 3;
             fish = 2;
             bountiful = 1;
-            // size = 4;
-            // fish = 5;
-            // bountiful = 1;
         } else if (area.size === 'Medium') {
             size = 4;
             fish = 5;

@@ -2,6 +2,7 @@
     "name": "browser-rpg-server",
     "type": "module",
     "scripts": {
+        "build": "tsc -b",
         "dev": "tsx watch api/index.ts"
     },
     "dependencies": {
