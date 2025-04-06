@@ -52,7 +52,6 @@ export const postCreateCharacter = async (userId: string, name: string) => {
     return data;
 }
 
-// Negative gold for removing it
 export const updateCharacterGold = async (characterId: number, gold: number) => {
     const { data, error } = await supabase
         .from('characters')

@@ -181,7 +181,7 @@ farming.post('/harvest', async (c) => {
         // Add the product to the inventory
         const amount = getRandomNumberBetween(Number(plot[0].crop.amount_produced[0]), Number(plot[0].crop.amount_produced[1]));
         await addItemToInventory(character.id, plot[0].crop.product.id, amount);
-        return c.json({ message: 'crop harvested succesfully', amount: amount, level: level });
+        return c.json({ message: 'crop harvested succesfully', amount: amount, level: (level > 0 ? level : null) });
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }

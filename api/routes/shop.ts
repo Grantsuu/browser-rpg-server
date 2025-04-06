@@ -62,10 +62,10 @@ shop.post('/buy', async (c) => {
         if (item.value * amount > character.gold) {
             throw new HTTPException(400, { message: 'not enough gold' });
         }
-        await updateCharacterGold(character.id, character.gold - (item.value * amount));
+        const characterGold = await updateCharacterGold(character.id, character.gold - (item.value * amount));
         await addItemToInventory(character.id, Number(itemId), amount);
 
-        return c.json({ message: 'item(s) bought successfully' });
+        return c.json({ characterGold: characterGold, goldSpent: (item.value * amount) });
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }
@@ -89,10 +89,10 @@ shop.post('/sell', async (c) => {
             throw new HTTPException(404, { message: 'character not found' });
         }
         const item = await getItemById(itemId);
-        await updateCharacterGold(character.id, character.gold + Math.floor((item.value / 2) * amount));
+        const characterGold = await updateCharacterGold(character.id, character.gold + (Math.floor(item.value / 2) * amount));
         await removeItemFromInventory(character.id, Number(itemId), amount);
 
-        return c.json({ message: 'item(s) sold successfully' });
+        return c.json({ characterGold: characterGold, goldGained: (Math.floor(item.value / 2) * amount) });
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }

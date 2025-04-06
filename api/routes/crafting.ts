@@ -25,7 +25,7 @@ crafting.get('/', async (c) => {
 });
 
 // Post Craft Recipe
-// TODO: Make this generic or make this specifict to crafting categories
+// TODO: Make this generic or make this specific to crafting categories
 crafting.post('/', async (c) => {
     try {
         // Find the recipe for the given item id
@@ -57,7 +57,7 @@ crafting.post('/', async (c) => {
         const insufficientIngredients: ClientItem[] = [];
         await Promise.all(combinedRecipe.ingredients.map(async (ingredient: ClientItem) => {
             const item = await findItemInInventory(characterId, ingredient.id, Number(ingredient.amount) * Number(amount));
-            if (item.length < 1) {
+            if (!item) {
                 insufficientIngredients.push(ingredient);
             }
         }))
@@ -73,8 +73,7 @@ crafting.post('/', async (c) => {
         // Add item to inventory if true
         await addItemToInventory(characterId, combinedRecipe.item.id, Number(amount));
         const level = await addExperience(character, 'cooking', recipeRows[0].experience * Number(amount));
-        c.status(200);
-        return c.json({ amount: amount, level: level });
+        return c.json({ amount: Number(amount), experience: recipeRows[0].experience * Number(amount), level: (level > 0) ? level : null });
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }
