@@ -38,8 +38,9 @@ inventory.delete('/', async (c) => {
         if (characterId === "") {
             throw new HTTPException(404, { message: 'character not found' });
         }
-        await removeItemFromInventory(characterId, Number(itemId), amount);
-        return c.json({ message: 'removed succesfully' });
+        const item = await removeItemFromInventory(characterId, Number(itemId), amount);
+
+        return c.json({ item: item, amount: amount ? amount : item.amount });
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }
