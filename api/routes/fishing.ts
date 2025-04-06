@@ -25,7 +25,9 @@ fishing.get('/', async (c) => {
         if (fishing === null) {
             throw new HTTPException(404, { message: 'fishing game not found' });
         }
-        (fishing.game_state as FishingGameState).tiles = censorFishingTiles(fishing.game_state as FishingGameState);
+        if (fishing.game_state) {
+            (fishing.game_state as FishingGameState).tiles = censorFishingTiles(fishing.game_state as FishingGameState);
+        }
         return c.json(fishing);
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
@@ -85,6 +87,7 @@ fishing.put('/start', async (c) => {
         if (fishingGame === null) {
             throw new HTTPException(500, { message: 'unable to create fishing game' });
         }
+        (fishingGame.game_state as FishingGameState).tiles = censorFishingTiles(fishingGame.game_state as FishingGameState);
         return c.json(fishingGame);
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
@@ -133,7 +136,6 @@ fishing.put('/', async (c) => {
                 fishAmount = 1;
             }
             const fish: Fish = possibleFish[Math.floor(Math.random() * possibleFish.length)];
-            // console.log(fish);
             // Add fish to inventory
             await addItemToInventory(character.id, fish.item.id, fishAmount);
             // Add experience to character

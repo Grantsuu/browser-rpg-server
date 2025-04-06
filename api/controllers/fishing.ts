@@ -34,6 +34,25 @@ export const getFishingState = async (characterId: string) => {
     return data[0];
 }
 
+export const createFishingGame = async (characterId: string) => {
+    const { data, error } = await supabase
+        .from('fishing')
+        .insert({
+            character_id: characterId,
+            turns: 0,
+            game_state: null,
+            area: null,
+            previous_area: null
+        })
+        .select()
+        .overrideTypes<SupabaseFishing[]>();
+    if (error) {
+        console.log(error);
+        throw new HTTPException(500, { message: 'unable to create fishing game' })
+    }
+    return data[0];
+}
+
 export const startFishingGame = async (characterId: string, area: string, gameState: FishingGameState) => {
     const { data, error } = await supabase
         .from('fishing')
@@ -45,7 +64,26 @@ export const startFishingGame = async (characterId: string, area: string, gameSt
             previous_area: area
         })
         .eq('character_id', characterId)
-        .select()
+        .select(`
+            id,
+            character_id,
+            turns,
+            game_state,
+            area:lk_fishing_areas!fishing_area_fkey(
+                name,
+                description,
+                size,
+                max_turns,
+                required_level
+            ),
+            previous_area:lk_fishing_areas!fishing_previous_area_fkey(
+                name,
+                description,
+                size,
+                max_turns,
+                required_level
+            )  
+        `)
         .overrideTypes<SupabaseFishing[]>();
     if (error) {
         console.log(error);
@@ -71,6 +109,7 @@ export const updateFishingGame = async (characterId: string, turns: number, game
     return data[0];
 }
 
+//TODO: Maybe remove this function
 export const clearFishingGame = async (characterId: string) => {
     const { data, error } = await supabase
         .from('fishing')

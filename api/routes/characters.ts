@@ -3,6 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
 import { getCharacterByUserId, getCharacterIdByUserId, postCreateCharacter } from '../controllers/characters.js'
 import { createFarmingPlot } from "../controllers/farming.js";
+import { createFishingGame } from "../controllers/fishing.js";
 
 type Variables = {
     user: { user: User };
@@ -39,6 +40,8 @@ characters.post('/', async (c) => {
         const newCharacter = await postCreateCharacter(user.id, name);
         // Create a farm plot for the new character
         await createFarmingPlot(newCharacter[0].id);
+        // Create a fishing game for the new character
+        await createFishingGame(newCharacter[0].id);
         return c.json({ message: 'character created' });
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
