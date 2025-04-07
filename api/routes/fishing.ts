@@ -64,23 +64,7 @@ fishing.put('/start', async (c) => {
         if (character.fishing_level < area.required_level) {
             throw new HTTPException(400, { message: 'level too low' });
         }
-        let size, fish, bountiful = 0;
-        if (area.size === 'Small') {
-            size = 3;
-            fish = 2;
-            bountiful = 1;
-        } else if (area.size === 'Medium') {
-            size = 4;
-            fish = 5;
-            bountiful = 1;
-        } else if (area.size === 'Large') {
-            size = 5;
-            fish = 6;
-            bountiful = 2;
-        } else {
-            throw new HTTPException(400, { message: 'invalid area size' });
-        }
-        const tiles = generateFishingTiles(size, size, fish, bountiful);
+        const tiles = generateFishingTiles(area.size.rows, area.size.cols, area.fish, area.bountiful_fish);
         const fishingGame = await startFishingGame(character.id, area.name, {
             tiles: tiles
         } as FishingGameState);

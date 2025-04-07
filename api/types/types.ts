@@ -97,8 +97,18 @@ export type FishingArea = {
     name: string,
     description: string,
     max_turns: number,
-    size: string,
-    required_level: number
+    size: FishingAreaSize,
+    required_level: number,
+    fish: number,
+    bountiful_fish: number
+}
+
+export type FishingAreaSizes = 'Small' | 'Medium' | 'Large';
+
+export type FishingAreaSize = {
+    name: FishingAreaSizes,
+    rows: number,
+    cols: number
 }
 
 export type FishingGameState = {
@@ -120,5 +130,3 @@ export type Fish = {
 }
 
 export type FishingGameTileContent = 'undiscovered' | 'fish' | 'bountiful' | number;
-
-export type FishingAreaSize = 'Small' | 'Medium' | 'Large';

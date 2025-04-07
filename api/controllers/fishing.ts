@@ -13,16 +13,28 @@ export const getFishingState = async (characterId: string) => {
             area:lk_fishing_areas!fishing_area_fkey(
                 name,
                 description,
-                size,
+                size:lk_fishing_area_sizes!lk_fishing_areas_size_fkey(
+                    name,
+                    rows,
+                    cols
+                ),
                 max_turns,
-                required_level
+                required_level,
+                fish,
+                bountiful_fish
             ),
             previous_area:lk_fishing_areas!fishing_previous_area_fkey(
                 name,
                 description,
-                size,
+                size:lk_fishing_area_sizes!lk_fishing_areas_size_fkey(
+                    name,
+                    rows,
+                    cols
+                ),
                 max_turns,
-                required_level
+                required_level,
+                fish,
+                bountiful_fish
             )  
         `)
         .eq('character_id', characterId)
@@ -72,16 +84,28 @@ export const startFishingGame = async (characterId: string, area: string, gameSt
             area:lk_fishing_areas!fishing_area_fkey(
                 name,
                 description,
-                size,
+                size:lk_fishing_area_sizes!lk_fishing_areas_size_fkey(
+                    name,
+                    rows,
+                    cols
+                ),
                 max_turns,
-                required_level
+                required_level,
+                fish,
+                bountiful_fish
             ),
             previous_area:lk_fishing_areas!fishing_previous_area_fkey(
                 name,
                 description,
-                size,
+                size:lk_fishing_area_sizes!lk_fishing_areas_size_fkey(
+                    name,
+                    rows,
+                    cols
+                ),
                 max_turns,
-                required_level
+                required_level,
+                fish,
+                bountiful_fish
             )  
         `)
         .overrideTypes<SupabaseFishing[]>();
@@ -131,7 +155,19 @@ export const clearFishingGame = async (characterId: string) => {
 export const getFishingAreas = async () => {
     const { data, error } = await supabase
         .from('lk_fishing_areas')
-        .select()
+        .select(`
+                name,
+                description,
+                size:lk_fishing_area_sizes!lk_fishing_areas_size_fkey(
+                    name,
+                    rows,
+                    cols
+                ),
+                max_turns,
+                required_level,
+                fish,
+                bountiful_fish
+        `)
         .overrideTypes<FishingArea[]>();
     if (error) {
         console.log(error);
@@ -143,7 +179,19 @@ export const getFishingAreas = async () => {
 export const getFishingAreaByName = async (name: string) => {
     const { data, error } = await supabase
         .from('lk_fishing_areas')
-        .select('*')
+        .select(`
+                name,
+                description,
+                size:lk_fishing_area_sizes!lk_fishing_areas_size_fkey(
+                    name,
+                    rows,
+                    cols
+                ),
+                max_turns,
+                required_level,
+                fish,
+                bountiful_fish
+            `)
         .eq('name', name)
         .overrideTypes<FishingArea[]>();
     if (error) {
@@ -172,9 +220,15 @@ export const getFishByAreaName = async (areaName: string, level: number) => {
             area:lk_fishing_areas!fish_area_fkey(
                 name,
                 description,
-                size,
+                size:lk_fishing_area_sizes!lk_fishing_areas_size_fkey(
+                    name,
+                    rows,
+                    cols
+                ),
                 max_turns,
-                required_level
+                required_level,
+                fish,
+                bountiful_fish
             )
         `)
         .eq('area', areaName)
