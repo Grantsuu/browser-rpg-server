@@ -30,7 +30,7 @@ farming.get('/', async (c) => {
 });
 
 // Get cost of next farm plot
-farming.get('/buy', async (c) => {
+farming.get('/plot-cost', async (c) => {
     try {
         const user = c.get('user').user;
         const character = await getCharacterByUserId(user.id);
@@ -41,7 +41,12 @@ farming.get('/buy', async (c) => {
         if (plots.length < 1) {
             throw new HTTPException(500, { message: 'no farm plots found for character' });
         }
-        const cost = farm_plot_cost_table[plots.length as keyof typeof farm_plot_cost_table];
+        let cost = -1;
+        // Need to make sure the number of plots is less than the number of plots in the cost table
+        if (plots.length < Object.keys(farm_plot_cost_table).length) {
+            cost = farm_plot_cost_table[plots.length as keyof typeof farm_plot_cost_table];
+
+        }
         return c.json({ cost: cost });
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
@@ -60,6 +65,10 @@ farming.post('/buy', async (c) => {
         const plots = await getFarmingPlots(character.id);
         if (plots.length < 1) {
             throw new HTTPException(500, { message: 'no farm plots found for character' });
+        }
+        // Need to make sure the number of plots is less than the number of plots in the cost table
+        if (plots.length < Object.keys(farm_plot_cost_table).length) {
+            throw new HTTPException(500, { message: 'no more plots available to buy' });
         }
         // Check if character has enough coins to buy a new plot
         const cost = farm_plot_cost_table[plots.length as keyof typeof farm_plot_cost_table];
