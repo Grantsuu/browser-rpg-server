@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
-import { getCharacterByUserId, getCharacterIdByUserId, postCreateCharacter } from '../controllers/characters.js'
+import { getCharacterByUserId, getCharacterIdByUserId, getCharacterLevelsById, postCreateCharacter } from '../controllers/characters.js'
 import { createFarmingPlot } from "../controllers/farming.js";
 import { createFishingGame } from "../controllers/fishing.js";
 
@@ -20,6 +20,20 @@ characters.get('/', async (c) => {
             throw new HTTPException(404, { message: 'character not found' });
         }
         return c.json(character);
+    } catch (error) {
+        throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
+    }
+});
+
+characters.get('/levels', async (c) => {
+    try {
+        const user = c.get('user').user;
+        const character = await getCharacterByUserId(user.id);
+        if (!character) {
+            throw new HTTPException(404, { message: 'character not found' });
+        }
+        const characterLevels = await getCharacterLevelsById(character.id);
+        return c.json(characterLevels);
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }

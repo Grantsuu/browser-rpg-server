@@ -38,6 +38,21 @@ export const getCharacterByUserId = async (userId: string) => {
     return data[0];
 }
 
+export const getCharacterLevelsById = async (characterId: string) => {
+    const { data, error } = await supabase
+        .from('character_levels')
+        .select('*')
+        .eq('character_id', characterId);
+    if (error) {
+        console.log(error);
+        throw new HTTPException(500, { message: 'unable to retrieve character levels' })
+    }
+    if (data.length < 1) {
+        throw new HTTPException(404, { message: 'character levels not found' })
+    }
+    return data[0];
+}
+
 export const postCreateCharacter = async (userId: string, name: string) => {
     const { data, error } = await supabase
         .from('characters')

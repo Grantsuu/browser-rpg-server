@@ -10,6 +10,7 @@ import crafting from './routes/crafting.js';
 import farming from './routes/farming.js';
 import crops from './routes/crops.js';
 import fishing from './routes/fishing.js';
+import combat from './routes/combat.js';
 
 const app = new Hono()
 
@@ -24,6 +25,8 @@ app.route('/characters', characters);
 app.route('/shop', shop);
 // Inventory
 app.route('/inventory', inventory);
+// Training
+app.route('/combat', combat);
 // Crafting
 app.route('/crafting', crafting);
 // Farming
