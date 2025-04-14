@@ -130,3 +130,29 @@ export type Fish = {
 }
 
 export type FishingGameTileContent = 'undiscovered' | 'fish' | 'bountiful' | number;
+
+export type CombatState = {
+
+}
+
+export type Monster = {
+    id: number;
+    name: string;
+    description: string;
+    area: string;
+    level: number;
+    health: number;
+    power: number;
+    toughness: number;
+    experience: number;
+    gold: number;
+    image: string;
+}
+
+export type PlayerCombat = {
+    // level: number;
+    health: number;
+    power: number;
+    toughness: number;
+}
+
