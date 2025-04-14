@@ -10,10 +10,10 @@ export const getFishingState = async (characterId: string) => {
             character_id,
             turns,
             game_state,
-            area:lk_fishing_areas!fishing_area_fkey(
+            area:fishing_areas!fishing_area_fkey(
                 name,
                 description,
-                size:lk_fishing_area_sizes!lk_fishing_areas_size_fkey(
+                size:lk_fishing_area_sizes!fishing_areas_size_fkey(
                     name,
                     rows,
                     cols
@@ -23,10 +23,10 @@ export const getFishingState = async (characterId: string) => {
                 fish,
                 bountiful_fish
             ),
-            previous_area:lk_fishing_areas!fishing_previous_area_fkey(
+            previous_area:fishing_areas!fishing_previous_area_fkey(
                 name,
                 description,
-                size:lk_fishing_area_sizes!lk_fishing_areas_size_fkey(
+                size:lk_fishing_area_sizes!fishing_areas_size_fkey(
                     name,
                     rows,
                     cols
@@ -81,10 +81,10 @@ export const startFishingGame = async (characterId: string, area: string, gameSt
             character_id,
             turns,
             game_state,
-            area:lk_fishing_areas!fishing_area_fkey(
+            area:fishing_areas!fishing_area_fkey(
                 name,
                 description,
-                size:lk_fishing_area_sizes!lk_fishing_areas_size_fkey(
+                size:lk_fishing_area_sizes!fishing_areas_size_fkey(
                     name,
                     rows,
                     cols
@@ -94,10 +94,10 @@ export const startFishingGame = async (characterId: string, area: string, gameSt
                 fish,
                 bountiful_fish
             ),
-            previous_area:lk_fishing_areas!fishing_previous_area_fkey(
+            previous_area:fishing_areas!fishing_previous_area_fkey(
                 name,
                 description,
-                size:lk_fishing_area_sizes!lk_fishing_areas_size_fkey(
+                size:lk_fishing_area_sizes!fishing_areas_size_fkey(
                     name,
                     rows,
                     cols
@@ -154,11 +154,11 @@ export const clearFishingGame = async (characterId: string) => {
 
 export const getFishingAreas = async () => {
     const { data, error } = await supabase
-        .from('lk_fishing_areas')
+        .from('fishing_areas')
         .select(`
                 name,
                 description,
-                size:lk_fishing_area_sizes!lk_fishing_areas_size_fkey(
+                size:lk_fishing_area_sizes!fishing_areas_size_fkey(
                     name,
                     rows,
                     cols
@@ -178,11 +178,11 @@ export const getFishingAreas = async () => {
 
 export const getFishingAreaByName = async (name: string) => {
     const { data, error } = await supabase
-        .from('lk_fishing_areas')
+        .from('fishing_areas')
         .select(`
                 name,
                 description,
-                size:lk_fishing_area_sizes!lk_fishing_areas_size_fkey(
+                size:lk_fishing_area_sizes!fishing_areas_size_fkey(
                     name,
                     rows,
                     cols
@@ -217,10 +217,10 @@ export const getFishByAreaName = async (areaName: string, level: number) => {
             ),
             required_level,
             experience,
-            area:lk_fishing_areas!fish_area_fkey(
+            area:fishing_areas!fish_area_fkey(
                 name,
                 description,
-                size:lk_fishing_area_sizes!lk_fishing_areas_size_fkey(
+                size:lk_fishing_area_sizes!fishing_areas_size_fkey(
                     name,
                     rows,
                     cols
