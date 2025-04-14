@@ -80,7 +80,9 @@ export const updateCombatByCharacter = async (character: SupabaseCharacter, stat
             player: player,
             monster: monster
         })
-        .eq('character_id', character.id);
+        .eq('character_id', character.id)
+        .select('*')
+        .single();
     if (error) {
         console.log(error);
         throw new HTTPException(500, { message: 'unable to update combat' })
