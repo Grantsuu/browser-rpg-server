@@ -13,3 +13,17 @@ export const getTrainingAreas = async () => {
 
     return data;
 }
+
+export const getMonstersByArea = async (areaName: string) => {
+    const { data, error } = await supabase
+        .from('monsters')
+        .select('*')
+        .eq('area', areaName);
+
+    if (error) {
+        console.log(error);
+        throw new HTTPException(500, { message: 'unable to retrieve monsters' })
+    }
+
+    return data;
+}
