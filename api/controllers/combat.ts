@@ -59,6 +59,19 @@ export const getCombatByCharacterId = async (characterId: string) => {
     return data;
 }
 
+export const getCharacterCombatStats = async (characterId: string) => {
+    const { data, error } = await supabase
+        .from('character_combat_stats')
+        .select('*')
+        .eq('character_id', characterId)
+        .single();
+    if (error) {
+        console.log(error);
+        throw new HTTPException(500, { message: 'unable to retrieve character combat stats' })
+    }
+    return data;
+}
+
 export const createCombatByCharacterId = async (character_id: string) => {
     const { data, error } = await supabase
         .from('combat')

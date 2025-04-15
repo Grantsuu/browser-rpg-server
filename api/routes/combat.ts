@@ -1,7 +1,8 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
-import { clearCombatByCharacterId, createCombatByCharacterId, getCombatByCharacterId, getTrainingAreas, getMonstersByArea, getMonsterById, updateCombatByCharacter } from "../controllers/combat.js";
+import type { CombatState } from "../types/types.js";
+import { clearCombatByCharacterId, createCombatByCharacterId, getCombatByCharacterId, getCharacterCombatStats, getTrainingAreas, getMonstersByArea, getMonsterById, updateCombatByCharacter } from "../controllers/combat.js";
 import { getCharacterByUserId } from "../controllers/characters.js";
 
 type Variables = {
@@ -82,7 +83,7 @@ combat.put('/', async (c) => {
     }
 
     switch (action) {
-        case "start":
+        case "start": {
             // Start new combat
             const monsterId = c.req.query('monster_id');
             if (!monsterId) {
@@ -90,34 +91,45 @@ combat.put('/', async (c) => {
             }
             try {
                 // Get player data
+                const player = await getCharacterCombatStats(character.id);
+                player.max_health = player.health;
 
                 // Get monster data
                 const monster = await getMonsterById(monsterId);
+                monster.max_health = monster.health;
+
+                // TODO: check if .single returns an exception for us
                 // if (!monster) {
                 //     return c.json({ message: 'monster not found' }, 404);
                 // }
 
-                const combat = await updateCombatByCharacter(character, {}, {}, monster);
+                const combat = await updateCombatByCharacter(character, {} as CombatState, player, monster);
                 return c.json(combat);
             } catch (error) {
                 throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
             }
-            break;
-        case "attack":
+        }
+        case "attack": {
             // Handle attack action
+            const combat = await getCombatByCharacterId(character.id);
             break;
-        case "defend":
+        }
+        case "defend": {
             // Handle defend action
             break;
-        case "flee":
+        }
+        case "use_item": {
+            // Handle use_item action
+            break;
+        }
+        case "flee": {
             // Handle flee action
             const combat = await clearCombatByCharacterId(character.id);
             return c.json(combat);
-        case "use_item":
-            // Handle use_item action
-            break;
-        default:
+        }
+        default: {
             return c.json({ message: 'invalid action' }, 400);
+        }
     }
 });
 
