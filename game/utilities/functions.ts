@@ -1,4 +1,5 @@
 import type { FishingGameState, FishingGameTile } from '../../api/types/types.js';
+import { getRandomNumberBetween } from '../../api/utilities/functions.js';
 
 export const censorFishingTiles = (gameState: FishingGameState) => {
     const censoredTiles = gameState['tiles'].map((tile: any) => {
@@ -56,4 +57,13 @@ export const generateFishingTiles = (rows: number, columns: number, fish: number
         }
     }
     return tiles;
+}
+
+export const rollDamage = (power: number, toughness: number) => {
+    let damage = 0;
+    for (let i = 0; i < power; i++) {
+        damage += getRandomNumberBetween(1, 4);
+    }
+    damage -= toughness;
+    return damage > 0 ? damage : 0;
 }

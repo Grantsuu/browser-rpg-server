@@ -4,6 +4,7 @@ import { type User } from '@supabase/supabase-js';
 import type { CombatState } from "../types/types.js";
 import { clearCombatByCharacterId, createCombatByCharacterId, getCombatByCharacterId, getCharacterCombatStats, getTrainingAreas, getMonstersByArea, getMonsterById, updateCombatByCharacter, updateCharacterCombatStats } from "../controllers/combat.js";
 import { getCharacterByUserId } from "../controllers/characters.js";
+import { rollDamage } from "../../game/utilities/functions.ts";
 
 type Variables = {
     user: { user: User };
@@ -82,6 +83,20 @@ combat.put('/', async (c) => {
         throw new HTTPException(404, { message: 'character not found' });
     }
 
+    const combat = await getCombatByCharacterId(character.id);
+    // console.log(combat);
+    // TODO: Calcuate damage monster does to player since they will always just attack for now
+    let monsterDamage = 0;
+    if (combat.monster) {
+        monsterDamage = rollDamage(combat.monster.power, combat.player.toughness);
+        combat.state.last_actions = {
+            monster: {
+                action: 'attacks',
+                amount: monsterDamage
+            }
+        }
+    }
+
     switch (action) {
         case "start": {
             // Start new combat
@@ -90,6 +105,8 @@ combat.put('/', async (c) => {
                 return c.json({ message: 'monster_id query parameter is required to start combat' }, 400);
             }
             try {
+                // TODO: Check if combat already exists
+
                 // Get player data
                 const player = await getCharacterCombatStats(character.id);
 
@@ -102,8 +119,8 @@ combat.put('/', async (c) => {
                 //     return c.json({ message: 'monster not found' }, 404);
                 // }
 
-                const combat = await updateCombatByCharacter(character, {} as CombatState, player, monster);
-                return c.json(combat);
+                const updatedCombat = await updateCombatByCharacter(character, {} as CombatState, player, monster);
+                return c.json(updatedCombat);
             } catch (error) {
                 throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
             }
@@ -111,30 +128,30 @@ combat.put('/', async (c) => {
         case "attack": {
             // Handle attack action
             try {
-                const combat = await getCombatByCharacterId(character.id);
+                const playerDamage = rollDamage(combat.player.power, combat.monster.toughness);
 
-                combat.monster.health -= combat.player.power;
-                combat.player.health -= combat.monster.power;
+                combat.monster.health -= playerDamage;
 
-                combat.state.last_actions = {
-                    player: {
-                        action: 'attack',
-                        amount: 1
-                    },
-                    monster: {
-                        action: 'attack',
-                        amount: 1
-                    }
-                }
-
-                await updateCharacterCombatStats(character.id, { health: combat.player.health });
-
+                // TODO: Add in checks for killing monster or player
                 // if (combat.monster.health <= 0) {
                 //     // Monster defeated
                 //     combat.player.experience += combat.monster.experience;
                 //     combat.player.gold += combat.monster.gold;
                 //     combat.monster = null; // Clear monster data
                 // }
+
+                combat.player.health -= monsterDamage;
+
+                combat.state.last_actions = {
+                    ...combat.state.last_actions,
+                    player: {
+                        action: 'attacks',
+                        amount: playerDamage
+                    }
+                }
+
+                await updateCharacterCombatStats(character.id, { health: combat.player.health });
+
                 // if (combat.player.health <= 0) {
                 //     // Player defeated
                 //     combat.player = null; // Clear player data
@@ -147,8 +164,23 @@ combat.put('/', async (c) => {
             }
         }
         case "defend": {
-            // Handle defend action
-            break;
+            try {
+                const healthRestored = 5;
+                await updateCharacterCombatStats(character.id, { health: combat.player.health += healthRestored });
+
+                combat.state.last_actions = {
+                    ...combat.state.last_actions,
+                    player: {
+                        action: 'heals',
+                        amount: healthRestored
+                    }
+                }
+
+                const updatedCombat = await updateCombatByCharacter(character, combat.state, combat.player, combat.monster);
+                return c.json(updatedCombat);
+            } catch (error) {
+                throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
+            }
         }
         case "use_item": {
             // Handle use_item action
