@@ -72,6 +72,20 @@ export const getCharacterCombatStats = async (characterId: string) => {
     return data;
 }
 
+export const updateCharacterCombatStats = async (characterId: string, stats: object) => {
+    const { data, error } = await supabase
+        .from('character_combat_stats')
+        .update(stats)
+        .eq('character_id', characterId)
+        .select('*')
+        .single();
+    if (error) {
+        console.log(error);
+        throw new HTTPException(500, { message: 'unable to update character combat stats' })
+    }
+    return data;
+}
+
 export const createCombatByCharacterId = async (character_id: string) => {
     const { data, error } = await supabase
         .from('combat')

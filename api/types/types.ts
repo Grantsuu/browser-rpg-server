@@ -153,8 +153,8 @@ export type Monster = {
 }
 
 export type PlayerCombat = {
-    // level: number;
     health: number;
+    max_health: number;
     power: number;
     toughness: number;
 }

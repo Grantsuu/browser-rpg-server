@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
 import type { CombatState } from "../types/types.js";
-import { clearCombatByCharacterId, createCombatByCharacterId, getCombatByCharacterId, getCharacterCombatStats, getTrainingAreas, getMonstersByArea, getMonsterById, updateCombatByCharacter } from "../controllers/combat.js";
+import { clearCombatByCharacterId, createCombatByCharacterId, getCombatByCharacterId, getCharacterCombatStats, getTrainingAreas, getMonstersByArea, getMonsterById, updateCombatByCharacter, updateCharacterCombatStats } from "../controllers/combat.js";
 import { getCharacterByUserId } from "../controllers/characters.js";
 
 type Variables = {
@@ -92,7 +92,6 @@ combat.put('/', async (c) => {
             try {
                 // Get player data
                 const player = await getCharacterCombatStats(character.id);
-                player.max_health = player.health;
 
                 // Get monster data
                 const monster = await getMonsterById(monsterId);
@@ -111,8 +110,41 @@ combat.put('/', async (c) => {
         }
         case "attack": {
             // Handle attack action
-            const combat = await getCombatByCharacterId(character.id);
-            break;
+            try {
+                const combat = await getCombatByCharacterId(character.id);
+
+                combat.monster.health -= combat.player.power;
+                combat.player.health -= combat.monster.power;
+
+                combat.state.last_actions = {
+                    player: {
+                        action: 'attack',
+                        amount: 1
+                    },
+                    monster: {
+                        action: 'attack',
+                        amount: 1
+                    }
+                }
+
+                await updateCharacterCombatStats(character.id, { health: combat.player.health });
+
+                // if (combat.monster.health <= 0) {
+                //     // Monster defeated
+                //     combat.player.experience += combat.monster.experience;
+                //     combat.player.gold += combat.monster.gold;
+                //     combat.monster = null; // Clear monster data
+                // }
+                // if (combat.player.health <= 0) {
+                //     // Player defeated
+                //     combat.player = null; // Clear player data
+                // }
+
+                const updatedCombat = await updateCombatByCharacter(character, combat.state, combat.player, combat.monster);
+                return c.json(updatedCombat);
+            } catch (error) {
+                throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
+            }
         }
         case "defend": {
             // Handle defend action
