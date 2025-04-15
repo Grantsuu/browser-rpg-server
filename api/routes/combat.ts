@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
-import { createCombatByCharacterId, getCombatByCharacterId, getTrainingAreas, getMonstersByArea, getMonsterById, updateCombatByCharacter } from "../controllers/combat.js";
+import { clearCombatByCharacterId, createCombatByCharacterId, getCombatByCharacterId, getTrainingAreas, getMonstersByArea, getMonsterById, updateCombatByCharacter } from "../controllers/combat.js";
 import { getCharacterByUserId } from "../controllers/characters.js";
 
 type Variables = {
@@ -90,6 +90,7 @@ combat.put('/', async (c) => {
             }
             try {
                 // Get player data
+
                 // Get monster data
                 const monster = await getMonsterById(monsterId);
                 // if (!monster) {
@@ -110,7 +111,8 @@ combat.put('/', async (c) => {
             break;
         case "flee":
             // Handle flee action
-            break;
+            const combat = await clearCombatByCharacterId(character.id);
+            return c.json(combat);
         case "use_item":
             // Handle use_item action
             break;

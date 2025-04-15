@@ -98,7 +98,9 @@ export const clearCombatByCharacterId = async (character_id: string) => {
             player: null,
             monster: null
         })
-        .eq('character_id', character_id);
+        .eq('character_id', character_id)
+        .select('*')
+        .single();
 
     if (error) {
         console.log(error);
