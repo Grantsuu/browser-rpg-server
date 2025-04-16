@@ -4,7 +4,7 @@ import { type User } from '@supabase/supabase-js';
 import type { CombatState } from "../types/types.js";
 import { clearCombatByCharacterId, createCombatByCharacterId, getCombatByCharacterId, getCharacterCombatStats, getTrainingAreas, getMonstersByArea, getMonsterById, updateCombatByCharacter, updateCharacterCombatStats } from "../controllers/combat.js";
 import { getCharacterByUserId } from "../controllers/characters.js";
-import { rollDamage } from "../../game/utilities/functions.ts";
+import { rollDamage } from "../../game/utilities/functions.js";
 
 type Variables = {
     user: { user: User };
