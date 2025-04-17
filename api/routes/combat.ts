@@ -144,7 +144,7 @@ combat.put('/', async (c) => {
     const combat = await getCombatByCharacterId(character.id);
 
     // Check if the outcome is already set
-    if (combat.state.outcome) {
+    if (combat?.state?.outcome) {
         // If the outcome is already set, return the combat data
         return c.json(combat);
     }
@@ -220,7 +220,7 @@ combat.put('/', async (c) => {
                     // Make sure to replace the whole last actions with just the player action since the monster is dead
                     combat.state.last_actions = {
                         player: {
-                            action: 'attacks',
+                            action: 'attack',
                             amount: playerDamage
                         }
                     }
@@ -233,7 +233,7 @@ combat.put('/', async (c) => {
                     combat.state.last_actions = {
                         ...combat.state.last_actions,
                         player: {
-                            action: 'attacks',
+                            action: 'attack',
                             amount: playerDamage
                         }
                     }
@@ -263,7 +263,7 @@ combat.put('/', async (c) => {
                 combat.state.last_actions = {
                     ...combat.state.last_actions,
                     player: {
-                        action: 'heals',
+                        action: 'defend',
                         amount: healthRestored
                     }
                 }
@@ -290,7 +290,7 @@ combat.put('/', async (c) => {
                 }
                 combat.state.last_actions = {
                     player: {
-                        action: 'flees'
+                        action: 'flee'
                     }
                 }
             }
@@ -310,9 +310,10 @@ combat.put('/', async (c) => {
                     }
                 }
             }
+            break;
         }
         default: {
-            return c.json({ message: 'invalid action' }, 400);
+            return c.json({ message: `invalid action '${action}'` }, 400);
         }
     }
 
