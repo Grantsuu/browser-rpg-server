@@ -132,6 +132,14 @@ export type Fish = {
 export type FishingGameTileContent = 'undiscovered' | 'fish' | 'bountiful' | number;
 
 export type CombatState = {
+    outcome: {
+        status: string
+        rewards: {
+            gold: number,
+            experience: number,
+            loot: ClientItem[]
+        }
+    },
     last_actions: {
         player: object,
         monster: object

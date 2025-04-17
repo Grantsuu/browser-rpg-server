@@ -67,3 +67,17 @@ export const rollDamage = (power: number, toughness: number) => {
     damage -= toughness;
     return damage > 0 ? damage : 0;
 }
+
+export const assignDamage = (health: number, damage: number) => {
+    health -= damage;
+    return health > 0 ? health : 0;
+}
+
+export const assignHealing = (health: number, maxHealth: number, healing: number) => {
+    health += healing;
+    return health > maxHealth ? maxHealth : health;
+}
+
+export const checkIsDead = (health: number) => {
+    return health <= 0;
+}

@@ -4,7 +4,7 @@ import { type User } from '@supabase/supabase-js';
 import type { CombatState } from "../types/types.js";
 import { clearCombatByCharacterId, createCombatByCharacterId, getCombatByCharacterId, getCharacterCombatStats, getTrainingAreas, getMonstersByArea, getMonsterById, updateCombatByCharacter, updateCharacterCombatStats } from "../controllers/combat.js";
 import { getCharacterByUserId } from "../controllers/characters.js";
-import { rollDamage } from "../../game/utilities/functions.js";
+import { assignDamage, assignHealing, checkIsDead, rollDamage } from "../../game/utilities/functions.js";
 
 type Variables = {
     user: { user: User };
@@ -70,12 +70,69 @@ combat.post('/', async (c) => {
     }
 });
 
+combat.put('/reset', async (c) => {
+    const user = c.get('user').user;
+    const character = await getCharacterByUserId(user.id);
+    const characterId = character?.id;
+    if (characterId === "") {
+        throw new HTTPException(404, { message: 'character not found' });
+    }
+    try {
+        const combat = await getCombatByCharacterId(character.id);
+        if (!combat) {
+            return c.json({ message: 'combat not found' }, 404);
+        }
+
+        // Check if the combat is already cleared
+        if (!combat.state && !combat.player && !combat.monster) {
+            return c.json(combat);
+        }
+
+        // Check if combat is in a bad state (i.e. only one of the columns is set a combatant is missing)
+        if (([combat.state, combat.player, combat.monster].filter(val => val !== undefined && val !== null).length === 1) ||
+            ((combat.player || combat.monster) && !(combat.player && combat.monster))) {
+            const clearedCombat = await clearCombatByCharacterId(character.id);
+            return c.json(clearedCombat);
+        }
+        // Only let the player reset their combat if the outcome has already been decided
+        if (!combat.state.outcome) {
+            throw new HTTPException(500, { message: 'combat cannot be cleared until an outcome is decided' });
+        }
+
+        // Currently, in most cases we just want to clear the combat
+        switch (combat.state.outcome?.status) {
+            case 'player_wins': {
+                break;
+            }
+            case 'player_loses': {
+                // If the player loses, then we reset their health to half after combat
+                await updateCharacterCombatStats(character.id, { health: Math.floor(combat.player.max_health / 2) });
+                break;
+            }
+            case 'player_flees': {
+                break;
+            }
+            default: {
+                break;
+            }
+        }
+
+        const clearedCombat = await clearCombatByCharacterId(character.id);
+        return c.json(clearedCombat);
+    } catch (error) {
+        throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
+    }
+});
+
 // Update combat encounter
 combat.put('/', async (c) => {
+    // Get the player's action
     const action = c.req.query('action');
     if (!action) {
         return c.json({ message: 'action query parameter is required' }, 400);
     }
+
+    // Get the character data
     const user = c.get('user').user;
     const character = await getCharacterByUserId(user.id);
     const characterId = character?.id;
@@ -83,9 +140,16 @@ combat.put('/', async (c) => {
         throw new HTTPException(404, { message: 'character not found' });
     }
 
+    // Get the combat data for the character
     const combat = await getCombatByCharacterId(character.id);
-    // console.log(combat);
-    // TODO: Calcuate damage monster does to player since they will always just attack for now
+
+    // Check if the outcome is already set
+    if (combat.state.outcome) {
+        // If the outcome is already set, return the combat data
+        return c.json(combat);
+    }
+
+    // Can calculate the monster damager here since it will be used in various places later
     let monsterDamage = 0;
     if (combat.monster) {
         monsterDamage = rollDamage(combat.monster.power, combat.player.toughness);
@@ -97,21 +161,26 @@ combat.put('/', async (c) => {
         }
     }
 
+    // Handle player actions here
     switch (action) {
         case "start": {
-            // Start new combat
+            // Start a new combat
             const monsterId = c.req.query('monster_id');
             if (!monsterId) {
                 return c.json({ message: 'monster_id query parameter is required to start combat' }, 400);
             }
             try {
-                // TODO: Check if combat already exists
+                // Check if combat already exists
+                if (combat.player && combat.monster) {
+                    return c.json(combat);
+                }
 
-                // Get player data
+                // Get player combat stats
                 const player = await getCharacterCombatStats(character.id);
 
                 // Get monster data
                 const monster = await getMonsterById(monsterId);
+                // Remember to set the monster's max health to the current health, maybe we should just add this to the table
                 monster.max_health = monster.health;
 
                 // TODO: check if .single returns an exception for us
@@ -128,45 +197,68 @@ combat.put('/', async (c) => {
         case "attack": {
             // Handle attack action
             try {
+                // Roll the player's damage
                 const playerDamage = rollDamage(combat.player.power, combat.monster.toughness);
 
-                combat.monster.health -= playerDamage;
+                // Then calcuate how much health the monster has left
+                const monsterHealth = assignDamage(combat.monster.health, playerDamage);
+                combat.monster.health = monsterHealth;
 
-                // TODO: Add in checks for killing monster or player
-                // if (combat.monster.health <= 0) {
-                //     // Monster defeated
-                //     combat.player.experience += combat.monster.experience;
-                //     combat.player.gold += combat.monster.gold;
-                //     combat.monster = null; // Clear monster data
-                // }
-
-                combat.player.health -= monsterDamage;
-
-                combat.state.last_actions = {
-                    ...combat.state.last_actions,
-                    player: {
-                        action: 'attacks',
-                        amount: playerDamage
+                // Check if monster is dead
+                if (checkIsDead(combat.monster.health)) {
+                    // In this case we can set the outcome to player_wins and add rewards
+                    // TODO: add rewards to the outcome
+                    combat.state.outcome = {
+                        status: 'player_wins',
+                        // rewards: {
+                        //     gold: combat.monster.gold,
+                        //     experience: combat.monster.experience,
+                        //     loot: []
+                        // }
                     }
+
+                    // Make sure to replace the whole last actions with just the player action since the monster is dead
+                    combat.state.last_actions = {
+                        player: {
+                            action: 'attacks',
+                            amount: playerDamage
+                        }
+                    }
+                } else {
+                    // In this case the mosnter is still alive and attacks the player back
+                    const playerHealth = assignDamage(combat.player.health, monsterDamage);
+                    combat.player.health = playerHealth;
+
+                    // Make sure to just append the player's last action and leave the monster's action intact
+                    combat.state.last_actions = {
+                        ...combat.state.last_actions,
+                        player: {
+                            action: 'attacks',
+                            amount: playerDamage
+                        }
+                    }
+
+                    await updateCharacterCombatStats(character.id, { health: combat.player.health });
                 }
-
-                await updateCharacterCombatStats(character.id, { health: combat.player.health });
-
-                // if (combat.player.health <= 0) {
-                //     // Player defeated
-                //     combat.player = null; // Clear player data
-                // }
-
-                const updatedCombat = await updateCombatByCharacter(character, combat.state, combat.player, combat.monster);
-                return c.json(updatedCombat);
+                break;
             } catch (error) {
                 throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
             }
         }
         case "defend": {
             try {
+                // For now defend is the only way to heal
                 const healthRestored = 5;
-                await updateCharacterCombatStats(character.id, { health: combat.player.health += healthRestored });
+
+                // First check how much health the player has after healing
+                let playerHealth = assignHealing(combat.player.health, combat.player.max_health, healthRestored);
+
+                // Then check how much health the player has after the monster attacks
+                playerHealth = assignDamage(playerHealth, monsterDamage);
+                combat.player.health = playerHealth;
+
+                // Update the player's health in the database
+                await updateCharacterCombatStats(character.id, { health: playerHealth });
 
                 combat.state.last_actions = {
                     ...combat.state.last_actions,
@@ -175,9 +267,8 @@ combat.put('/', async (c) => {
                         amount: healthRestored
                     }
                 }
-
-                const updatedCombat = await updateCombatByCharacter(character, combat.state, combat.player, combat.monster);
-                return c.json(updatedCombat);
+                // Continue to after the switch where we check if the player is dead and perform other cleanup actions
+                break;
             } catch (error) {
                 throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
             }
@@ -188,13 +279,52 @@ combat.put('/', async (c) => {
         }
         case "flee": {
             // Handle flee action
-            const combat = await clearCombatByCharacterId(character.id);
-            return c.json(combat);
+            // const combat = await clearCombatByCharacterId(character.id);
+            // return c.json(combat);
+            // Fleeing has a 90% chance of success
+            const fleeChance = Math.random();
+            if (fleeChance < 0.9) {
+                // Flee successful
+                combat.state.outcome = {
+                    status: 'player_flees'
+                }
+                combat.state.last_actions = {
+                    player: {
+                        action: 'flees'
+                    }
+                }
+            }
+            else {
+                // Flee failed
+                const playerHealth = assignDamage(combat.player.health, monsterDamage);
+                combat.player.health = playerHealth;
+
+                // Update the player's health in the database
+                await updateCharacterCombatStats(character.id, { health: playerHealth });
+
+                // Make sure to just append the player's last action and leave the monster's action intact
+                combat.state.last_actions = {
+                    ...combat.state.last_actions,
+                    player: {
+                        action: 'flee'
+                    }
+                }
+            }
         }
         default: {
             return c.json({ message: 'invalid action' }, 400);
         }
     }
+
+    // Check if player is dead
+    if (checkIsDead(combat.player.health)) {
+        // TODO: Add dealth penalty to the player
+        combat.state.outcome = {
+            status: 'player_loses'
+        }
+    }
+
+    return c.json(await updateCombatByCharacter(character, combat.state, combat.player, combat.monster));
 });
 
 export default combat;
