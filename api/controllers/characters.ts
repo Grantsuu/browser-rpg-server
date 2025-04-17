@@ -57,13 +57,44 @@ export const postCreateCharacter = async (userId: string, name: string) => {
     const { data, error } = await supabase
         .from('characters')
         .insert({ user: userId, name: name, gold: 100 })
-        .select('*');
+        .select('*')
+        .single();
 
     if (error) {
         console.log(error);
         throw new HTTPException(500, { message: 'unable to create character' })
     }
 
+    return data;
+}
+
+export const postCreateCharacterLevels = async (characterId: string) => {
+    const { data, error } = await supabase
+        .from('character_levels')
+        .insert({
+            character_id: characterId
+        })
+        .select('*')
+        .single();
+    if (error) {
+        console.log(error);
+        throw new HTTPException(500, { message: 'unable to create character levels' })
+    }
+    return data;
+}
+
+export const postCharacterCombatStats = async (characterId: string) => {
+    const { data, error } = await supabase
+        .from('character_combat_stats')
+        .insert({
+            character_id: characterId
+        })
+        .select('*')
+        .single();
+    if (error) {
+        console.log(error);
+        throw new HTTPException(500, { message: 'unable to create character combat stats' })
+    }
     return data;
 }
 

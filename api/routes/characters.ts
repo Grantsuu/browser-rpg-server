@@ -1,9 +1,10 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
-import { getCharacterByUserId, getCharacterIdByUserId, getCharacterLevelsById, postCreateCharacter } from '../controllers/characters.js'
+import { getCharacterByUserId, getCharacterIdByUserId, getCharacterLevelsById, postCreateCharacter, postCreateCharacterLevels, postCharacterCombatStats } from '../controllers/characters.js'
 import { createFarmingPlot } from "../controllers/farming.js";
 import { createFishingGame } from "../controllers/fishing.js";
+import { createCombatByCharacterId } from "../controllers/combat.js";
 
 type Variables = {
     user: { user: User };
@@ -51,11 +52,18 @@ characters.post('/', async (c) => {
         if (characterId !== "") {
             throw new HTTPException(500, { message: 'character already exists for this user' });
         }
-        const newCharacter = await postCreateCharacter(user.id, name);
+        const character = await postCreateCharacter(user.id, name);
+
+        // Create character levels table entry
+        await postCreateCharacterLevels(character.id);
+        // Create character combat stats table entry
+        await postCharacterCombatStats(character.id);
+        // Create combat table entry
+        await createCombatByCharacterId(character.id);
         // Create a farm plot for the new character
-        await createFarmingPlot(newCharacter[0].id);
+        await createFarmingPlot(character.id);
         // Create a fishing game for the new character
-        await createFishingGame(newCharacter[0].id);
+        await createFishingGame(character.id);
         return c.json({ message: 'character created' });
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });

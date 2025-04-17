@@ -54,22 +54,6 @@ combat.get('/', async (c) => {
     }
 });
 
-// Create new combat data for character
-combat.post('/', async (c) => {
-    const user = c.get('user').user;
-    const character = await getCharacterByUserId(user.id);
-    const characterId = character?.id;
-    if (characterId === "") {
-        throw new HTTPException(404, { message: 'character not found' });
-    }
-    try {
-        const newCombat = await createCombatByCharacterId(character.id);
-        return c.json(newCombat);
-    } catch (error) {
-        throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
-    }
-});
-
 combat.put('/reset', async (c) => {
     const user = c.get('user').user;
     const character = await getCharacterByUserId(user.id);
