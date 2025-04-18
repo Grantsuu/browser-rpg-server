@@ -139,7 +139,7 @@ combat.put('/', async (c) => {
         monsterDamage = rollDamage(combat.monster.power, combat.player.toughness);
         combat.state.last_actions = {
             monster: {
-                action: 'attacks',
+                action: 'attack',
                 amount: monsterDamage
             }
         }
