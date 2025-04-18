@@ -1,8 +1,10 @@
 import { Hono } from 'hono';
+import { env } from 'hono/adapter'
 import { cors } from 'hono/cors';
 import { HTTPException } from 'hono/http-exception';
 import { serve } from '@hono/node-server';
 import { authorization } from './middleware/authorization.js'; // have to import these .ts files as .js for Vercel
+import auth from './routes/auth.js';
 import characters from './routes/characters.js'
 import shop from './routes/shop.js';
 import inventory from './routes/inventory.js';
@@ -15,10 +17,15 @@ import combat from './routes/combat.js';
 const app = new Hono()
 
 // CORS Policy
-app.use(cors());
+app.use(cors(
+    { credentials: true, origin: [process.env.ORIGIN_URL as string] }
+));
+
 // Authorization middleware
 app.use(authorization);
 
+// Auth
+app.route('/auth', auth);
 // Character
 app.route('/characters', characters);
 // Shop

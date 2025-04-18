@@ -35,13 +35,6 @@ export const getCharacterByUserId = async (userId: string) => {
         throw new HTTPException(500, { message: 'unable to retrieve character' })
     }
 
-    console.log('data', data, userId);
-    let { data: funcData, error: funcErr } = await supabase
-        .rpc('hello_world')
-    if (error) console.error('error', funcErr)
-    else console.log('data', funcData)
-
-
     return data[0];
 }
 

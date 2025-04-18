@@ -3,6 +3,11 @@ import { HTTPException } from 'hono/http-exception';
 import { supabase } from '../lib/supabase.js';
 
 export const authorization = createMiddleware(async (c, next) => {
+    if (c.req.path.startsWith('/auth')) {
+        // Skip authorization for auth routes
+        return await next();
+    }
+
     const jwt = c.req.header('Authorization')?.replace('Bearer ', '');
 
     if (!jwt) {
