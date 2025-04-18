@@ -26,6 +26,7 @@ auth.post('/login', async (c) => {
             httpOnly: true,
             secure: true,
             path: '/',
+            sameSite: 'none',
             expires: new Date(Date.now() + 60 * 60 * 1000), // 1 hour 
         }
     );
@@ -36,7 +37,8 @@ auth.post('/login', async (c) => {
         {
             httpOnly: true,
             secure: true,
-            path: '/'
+            path: '/',
+            sameSite: 'none',
         }
     )
 
