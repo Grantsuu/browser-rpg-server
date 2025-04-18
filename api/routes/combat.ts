@@ -127,8 +127,8 @@ combat.put('/', async (c) => {
     // Get the combat data for the character
     const combat = await getCombatByCharacterId(character.id);
 
-    // Check if the outcome is already set
-    if (combat?.state?.outcome) {
+    // Check if the outcome is already set and not restarting
+    if (action !== "start" && combat?.state?.outcome) {
         // If the outcome is already set, return the combat data
         return c.json(combat);
     }
@@ -154,8 +154,9 @@ combat.put('/', async (c) => {
                 return c.json({ message: 'monster_id query parameter is required to start combat' }, 400);
             }
             try {
+                // console.log(combat.state)
                 // Check if combat already exists
-                if (combat.player && combat.monster) {
+                if (!combat?.state?.outcome && combat.player && combat.monster) {
                     return c.json(combat);
                 }
 
