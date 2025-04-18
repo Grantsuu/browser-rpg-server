@@ -7,7 +7,7 @@ export const getCharacterIdByUserId = async (userId: string) => {
     const { data, error } = await supabase
         .from('characters')
         .select('id')
-        .eq('user', userId);
+        .eq('user_id', userId);
 
     // Error from supabase
     if (error) {
@@ -28,12 +28,19 @@ export const getCharacterByUserId = async (userId: string) => {
     const { data, error } = await supabase
         .from('characters')
         .select('*')
-        .eq('user', userId);
+        .eq('user_id', userId);
 
     if (error) {
         console.log(error);
         throw new HTTPException(500, { message: 'unable to retrieve character' })
     }
+
+    console.log('data', data, userId);
+    let { data: funcData, error: funcErr } = await supabase
+        .rpc('hello_world')
+    if (error) console.error('error', funcErr)
+    else console.log('data', funcData)
+
 
     return data[0];
 }
