@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { setCookie } from 'hono/cookie'
+import { deleteCookie, setCookie } from 'hono/cookie'
 import { HTTPException } from "hono/http-exception";
 import { supabase } from '../lib/supabase.js';
 
@@ -17,7 +17,6 @@ auth.post('/login', async (c) => {
         throw new HTTPException(401, { message: 'invalid credentials' });
     }
 
-    console.log(data);
     setCookie(
         c,
         'access_token',
@@ -30,6 +29,7 @@ auth.post('/login', async (c) => {
             expires: new Date(Date.now() + 60 * 60 * 1000), // 1 hour 
         }
     );
+
     setCookie(
         c,
         'refresh_token',
@@ -43,6 +43,17 @@ auth.post('/login', async (c) => {
     )
 
     return c.json(data);
+});
+
+auth.get('/logout', async (c) => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+        console.log(error);
+        throw new HTTPException(401, { message: 'unable to logout' });
+    }
+    deleteCookie(c, 'access_token');
+    deleteCookie(c, 'refresh_token');
+    return c.json({ message: 'logged out' });
 });
 
 export default auth;
