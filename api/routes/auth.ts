@@ -14,7 +14,11 @@ auth.post('/login', async (c) => {
 
     if (error) {
         console.log(error);
-        throw new HTTPException(401, { message: 'invalid credentials' });
+        if (error.status === 400) {
+            throw new HTTPException(error.status, { message: 'Invalid login credentials' });
+        } else {
+            throw new HTTPException(500, { message: 'Error logging in' });
+        }
     }
 
     setCookie(
@@ -42,7 +46,7 @@ auth.post('/login', async (c) => {
         }
     )
 
-    return c.json(data);
+    return c.json({ message: 'logged in successfully' });
 });
 
 auth.get('/logout', async (c) => {
