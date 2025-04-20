@@ -1,7 +1,8 @@
 import { Hono } from "hono";
 import { HTTPException } from 'hono/http-exception';
 import { type User } from '@supabase/supabase-js';
-import { addExperience, getCharacter } from "../controllers/characters.js";
+import { getCharacter } from "../controllers/characters.js";
+import { addExperience, getCharacterLevels } from "../controllers/character_levels.js";
 import { startFishingGame, getFishingState, updateFishingGame, getFishingAreas, getFishingAreaByName, getFishByAreaName } from "../controllers/fishing.js";
 import { censorFishingTiles, generateFishingTiles } from '../../game/utilities/functions.js';
 import type { Fish, FishingGameState, SupabaseFishing } from "../types/types.js";
@@ -52,10 +53,11 @@ fishing.put('/start', async (c) => {
             throw new HTTPException(404, { message: 'area not found' });
         }
         const character = await getCharacter();
-        if (character.id === "") {
+        if (!character) {
             throw new HTTPException(404, { message: 'character not found' });
         }
-        if (character.fishing_level < area.required_level) {
+        const characterLevels = await getCharacterLevels();
+        if (characterLevels?.fishing_level < area.required_level) {
             throw new HTTPException(400, { message: 'level too low' });
         }
         const tiles = generateFishingTiles(area.size.rows, area.size.cols, area.fish, area.bountiful_fish);
@@ -87,6 +89,7 @@ fishing.put('/', async (c) => {
         if (character.id === "") {
             throw new HTTPException(404, { message: 'character not found' });
         }
+        const characterLevels = await getCharacterLevels();
         const fishing = await getFishingState();
         if (fishing === null) {
             throw new HTTPException(404, { message: 'fishing game not found' });
@@ -102,7 +105,7 @@ fishing.put('/', async (c) => {
         let fishAmount = 0;
         if (content === 'fish' || content === 'bountiful') {
             // Add experience to character
-            const possibleFish = await getFishByAreaName(fishing.area.name, character.fishing_level);
+            const possibleFish = await getFishByAreaName(fishing?.area?.name, characterLevels?.fishing_level);
             if (possibleFish.length < 1) {
                 throw new HTTPException(404, { message: 'fish not found' });
             }

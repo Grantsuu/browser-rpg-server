@@ -2,9 +2,13 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
 import type { CombatState } from "../types/types.js";
-import { clearCombatByCharacterId, getCombat, getCharacterCombatStats, getTrainingAreas, getMonstersByArea, getMonsterById, updateCombatByCharacterId, updateCharacterCombatStats } from "../controllers/combat.js";
-import { getCharacter } from "../controllers/characters.js";
-import { assignDamage, assignHealing, checkIsDead, rollDamage } from "../../game/utilities/functions.js";
+import { clearCombatByCharacterId, getCombat, getCharacterCombatStats, getTrainingAreas, updateCombatByCharacterId, updateCharacterCombatStats } from "../controllers/combat.js";
+import { getMonstersByArea, getMonsterById, getMonsterLootById } from "../controllers/monsters.js";
+import { getCharacter, updateCharacterGold } from "../controllers/characters.js";
+import { addExperience } from "../controllers/character_levels.js";
+import { getRandomNumberBetween } from "../utilities/functions.js";
+import { assignDamage, assignHealing, checkIsDead, rollDamage, rollMonsterLoot } from "../../game/utilities/functions.js";
+import { addItemToInventory } from "../controllers/inventory.ts";
 
 type Variables = {
     user: { user: User };
@@ -182,15 +186,17 @@ combat.put('/', async (c) => {
 
                 // Check if monster is dead
                 if (checkIsDead(combat.monster.health)) {
+                    // Roll monster loot
+                    const monsterLootTable = await getMonsterLootById(combat.monster.id);
+                    const monsterLoot = rollMonsterLoot(monsterLootTable);
                     // In this case we can set the outcome to player_wins and add rewards
-                    // TODO: add rewards to the outcome
                     combat.state.outcome = {
                         status: 'player_wins',
-                        // rewards: {
-                        //     gold: combat.monster.gold,
-                        //     experience: combat.monster.experience,
-                        //     loot: []
-                        // }
+                        rewards: {
+                            gold: getRandomNumberBetween(combat.monster.gold[0], combat.monster.gold[1]),
+                            experience: combat.monster.experience,
+                            loot: [monsterLoot]
+                        }
                     }
 
                     // Make sure to replace the whole last actions with just the player action since the monster is dead
@@ -298,6 +304,15 @@ combat.put('/', async (c) => {
         // TODO: Add dealth penalty to the player
         combat.state.outcome = {
             status: 'player_loses'
+        }
+    }
+
+    // Update character if they won
+    if (combat.state.outcome?.status === 'player_wins') {
+        await updateCharacterGold(character?.id, character.gold + combat?.state?.outcome?.rewards?.gold);
+        await addExperience(character, 'combat', combat?.state?.outcome?.rewards?.experience);
+        if (combat?.state?.outcome?.rewards?.loot?.length > 0) {
+            await addItemToInventory(character.id, combat?.state?.outcome?.rewards?.loot[0]?.item?.id, combat?.state?.outcome?.rewards?.loot[0]?.quantity);
         }
     }
 

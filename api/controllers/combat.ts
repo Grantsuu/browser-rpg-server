@@ -1,6 +1,5 @@
 import { HTTPException } from 'hono/http-exception';
 import { supabase } from '../lib/supabase.js';
-import { type SupabaseCharacter } from '../types/types.js';
 
 export const getTrainingAreas = async () => {
     const { data, error } = await supabase
@@ -10,35 +9,6 @@ export const getTrainingAreas = async () => {
     if (error) {
         console.log(error);
         throw new HTTPException(500, { message: 'unable to retrieve training areas' })
-    }
-
-    return data;
-}
-
-export const getMonstersByArea = async (areaName: string) => {
-    const { data, error } = await supabase
-        .from('monsters')
-        .select('*')
-        .eq('area', areaName);
-
-    if (error) {
-        console.log(error);
-        throw new HTTPException(500, { message: 'unable to retrieve monsters' })
-    }
-
-    return data;
-}
-
-export const getMonsterById = async (monsterId: string) => {
-    const { data, error } = await supabase
-        .from('monsters')
-        .select('*')
-        .eq('id', monsterId)
-        .single();
-
-    if (error) {
-        console.log(error);
-        throw new HTTPException(500, { message: 'unable to retrieve monster' })
     }
 
     return data;

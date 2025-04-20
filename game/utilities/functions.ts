@@ -1,4 +1,4 @@
-import type { FishingGameState, FishingGameTile } from '../../api/types/types.js';
+import type { FishingGameState, FishingGameTile, MonsterLoot } from '../../api/types/types.js';
 import { getRandomNumberBetween } from '../../api/utilities/functions.js';
 
 export const censorFishingTiles = (gameState: FishingGameState) => {
@@ -80,4 +80,21 @@ export const assignHealing = (health: number, maxHealth: number, healing: number
 
 export const checkIsDead = (health: number) => {
     return health <= 0;
+}
+
+export const rollMonsterLoot = (lootTable: MonsterLoot[]) => {
+    const loot = lootTable.filter((loot) => {
+        const roll = getRandomNumberBetween(1, 100);
+        return roll <= loot.drop_probability;
+    });
+
+    if (loot.length === 0) {
+        return null;
+    }
+
+    const randomLoot = loot[Math.floor(Math.random() * loot.length)];
+    return {
+        item: randomLoot.item,
+        quantity: randomLoot.quantity
+    };
 }

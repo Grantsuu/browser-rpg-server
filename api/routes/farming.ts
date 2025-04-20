@@ -2,7 +2,8 @@ import { Hono } from "hono";
 import { HTTPException } from 'hono/http-exception';
 import { type User } from '@supabase/supabase-js';
 import { farm_plot_cost_table } from "../../game/constants/tables.js";
-import { addExperience, getCharacter, updateCharacterGold } from "../controllers/characters.js";
+import { getCharacter, updateCharacterGold } from "../controllers/characters.js";
+import { addExperience, getCharacterLevels } from "../controllers/character_levels.js";
 import { getFarmingPlots, getFarmingPlotById, createFarmingPlot, clearPlot, plantCrop } from "../controllers/farming.js";
 import { getCropBySeedId } from "../controllers/crops.js";
 import { addItemToInventory, removeItemFromInventory } from "../controllers/inventory.js";
@@ -130,7 +131,8 @@ farming.post('/plant', async (c) => {
             throw new HTTPException(500, { message: 'plot does not belong to character' });
         }
         // Check if character has the required level for the crop
-        if (character.farming_level < cropRows[0].required_level) {
+        const characterLevels = await getCharacterLevels();
+        if (characterLevels?.farming_level < cropRows[0].required_level) {
             throw new HTTPException(500, { message: `required level: ${cropRows[0].required_level}` });
         }
         // Remove seed from inventory

@@ -3,7 +3,8 @@ import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
 import { type ClientItem } from '../types/types.js';
 import { combineRecipeRows } from "../utilities/transforms.js";
-import { addExperience, getCharacter } from "../controllers/characters.js";
+import { getCharacter } from "../controllers/characters.js";
+import { addExperience, getCharacterLevels } from "../controllers/character_levels.js";
 import { addItemToInventory, findItemInInventory, removeItemFromInventory } from "../controllers/inventory.js";
 import { getCraftingRecipeByItemId, getCraftingRecipes } from "../controllers/crafting.js";
 
@@ -45,11 +46,11 @@ crafting.post('/', async (c) => {
 
         // Check if character has required level for recipe
         const character = await getCharacter();
-        const characterId = character?.id;
-        if (characterId === "") {
+        if (!character) {
             throw new HTTPException(404, { message: 'character not found' });
         }
-        if (character?.cooking_level < combinedRecipe.required_level) {
+        const characterLevels = await getCharacterLevels();
+        if (characterLevels?.cooking_level < combinedRecipe.required_level) {
             throw new HTTPException(500, { message: `required level: ${combinedRecipe.required_level}` });
         }
         // Check if character has all items in inventory
@@ -70,7 +71,7 @@ crafting.post('/', async (c) => {
         }));
 
         // Add item to inventory if true
-        await addItemToInventory(characterId, combinedRecipe.item.id, Number(amount));
+        await addItemToInventory(character.id, combinedRecipe.item.id, Number(amount));
         const level = await addExperience(character, 'cooking', recipeRows[0].experience * Number(amount));
         return c.json({ amount: Number(amount), experience: recipeRows[0].experience * Number(amount), level: (level > 0) ? level : null });
     } catch (error) {

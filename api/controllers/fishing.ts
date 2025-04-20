@@ -235,7 +235,7 @@ export const getFishByAreaName = async (areaName: string, level: number) => {
         .overrideTypes<Fish[]>();
     if (error) {
         console.log(error);
-        throw new HTTPException(500, { message: 'unable to retrieve fishing area' })
+        throw new HTTPException(500, { message: 'unable to retrieve fish' })
     }
     return data;
 }

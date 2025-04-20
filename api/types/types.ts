@@ -167,3 +167,9 @@ export type PlayerCombat = {
     toughness: number;
 }
 
+export type MonsterLoot = {
+    monster_id: number;
+    item: SupabaseItem;
+    quantity: number;
+    drop_probability: number;
+}
