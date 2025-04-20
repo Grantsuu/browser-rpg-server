@@ -1,8 +1,7 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
-import { type User } from '@supabase/supabase-js';
-import { getCharacterIdByUserId } from "../controllers/characters.js";
-import { getInventoryByCharacterId, removeItemFromInventory } from "../controllers/inventory.js";
+import type { User } from '@supabase/supabase-js';
+import { getInventory, removeItemFromInventory } from "../controllers/inventory.js";
 import { supabaseInventoryItemsToClientItems } from "../utilities/transforms.js";
 
 type Variables = {
@@ -13,12 +12,7 @@ const inventory = new Hono<{ Variables: Variables }>();
 
 inventory.get('/', async (c) => {
     try {
-        const user = c.get('user').user;
-        const characterId = await getCharacterIdByUserId(user.id);
-        if (characterId === "") {
-            throw new HTTPException(404, { message: 'character not found' });
-        }
-        const inventory = await getInventoryByCharacterId(characterId);
+        const inventory = await getInventory();
         const normalizedInventory = supabaseInventoryItemsToClientItems(inventory);
         return c.json(normalizedInventory);
     } catch (error) {
@@ -33,12 +27,7 @@ inventory.delete('/', async (c) => {
             throw new HTTPException(400, { message: `missing query param 'id'` });
         }
         const amount = Number(c.req.query('amount'));
-        const user = c.get('user').user;
-        const characterId = await getCharacterIdByUserId(user.id);
-        if (characterId === "") {
-            throw new HTTPException(404, { message: 'character not found' });
-        }
-        const item = await removeItemFromInventory(characterId, Number(itemId), amount);
+        const item = await removeItemFromInventory(Number(itemId), amount);
 
         return c.json({ item: item, amount: amount ? amount : item.amount });
     } catch (error) {

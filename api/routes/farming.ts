@@ -146,10 +146,8 @@ farming.post('/plant', async (c) => {
         if (character.farming_level < cropRows[0].required_level) {
             throw new HTTPException(500, { message: `required level: ${cropRows[0].required_level}` });
         }
-        // Check if character has the seed in their inventory and has a farm plot available
-        const item = await findItemInInventory(character.id, Number(seedId), 1);
         // Remove seed from inventory
-        await removeItemFromInventory(character.id, Number(seedId), 1);
+        await removeItemFromInventory(Number(seedId), 1);
         // Create a new farm plot for the character with the crop
         await plantCrop(plotId, cropRows[0].id, cropRows[0].grow_time, Number(tzOffset));
         return c.json({ message: 'crop planted succesfully' });

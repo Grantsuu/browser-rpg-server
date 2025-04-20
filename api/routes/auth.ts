@@ -139,7 +139,7 @@ auth.get('/confirm', async (c) => {
         }
     }
 
-    // Need to redirect to an auth error page here
+    // TODO: Need to redirect to an auth error page here
 });
 
 export default auth;

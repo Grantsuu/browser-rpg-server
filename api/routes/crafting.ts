@@ -56,7 +56,7 @@ crafting.post('/', async (c) => {
         // Check if character has all items in inventory
         const insufficientIngredients: ClientItem[] = [];
         await Promise.all(combinedRecipe.ingredients.map(async (ingredient: ClientItem) => {
-            const item = await findItemInInventory(characterId, ingredient.id, Number(ingredient.amount) * Number(amount));
+            const item = await findItemInInventory(ingredient.id, Number(ingredient.amount) * Number(amount));
             if (!item) {
                 insufficientIngredients.push(ingredient);
             }
@@ -67,7 +67,7 @@ crafting.post('/', async (c) => {
 
         // Remove ingredients from inventory
         await Promise.all(combinedRecipe.ingredients.map(async (ingredient: ClientItem) => {
-            await removeItemFromInventory(characterId, ingredient.id, Number(ingredient.amount) * Number(amount));
+            await removeItemFromInventory(ingredient.id, Number(ingredient.amount) * Number(amount));
         }));
 
         // Add item to inventory if true

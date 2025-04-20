@@ -90,7 +90,7 @@ shop.post('/sell', async (c) => {
         }
         const item = await getItemById(itemId);
         const characterGold = await updateCharacterGold(character.id, character.gold + (Math.floor(item.value / 2) * amount));
-        await removeItemFromInventory(character.id, Number(itemId), amount);
+        await removeItemFromInventory(Number(itemId), amount);
 
         return c.json({ characterGold: characterGold, goldGained: (Math.floor(item.value / 2) * amount) });
     } catch (error) {

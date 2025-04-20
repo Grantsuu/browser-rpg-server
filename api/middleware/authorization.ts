@@ -51,6 +51,11 @@ export const authorization = createMiddleware(async (c, next) => {
             }
         )
 
+        supabase.auth.setSession({
+            access_token: refreshData?.session?.access_token as string,
+            refresh_token: refreshData?.session?.refresh_token as string,
+        });
+
         c.set('user', refreshData.user);
     } else {
         const { data, error } = await supabase.auth.getUser(accessToken);
@@ -58,6 +63,11 @@ export const authorization = createMiddleware(async (c, next) => {
         if (error) {
             throw new HTTPException(500, { message: error.message });
         }
+
+        supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken as string,
+        });
 
         c.set('user', data);
     }

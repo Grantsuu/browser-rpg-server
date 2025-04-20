@@ -2,7 +2,7 @@ import { HTTPException } from 'hono/http-exception';
 import { supabase } from '../lib/supabase.js';
 import { type SupabaseInventoryItem } from "../types/types.js";
 
-export const getInventoryByCharacterId = async (characterId: string) => {
+export const getInventory = async () => {
     try {
         const { data, error } = await supabase
             .from('inventories')
@@ -17,7 +17,6 @@ export const getInventoryByCharacterId = async (characterId: string) => {
                     image:lk_item_images(*)
                 )
             `)
-            .eq('character', characterId)
             .overrideTypes<SupabaseInventoryItem[]>();
 
         if (error) {
@@ -31,12 +30,11 @@ export const getInventoryByCharacterId = async (characterId: string) => {
 }
 
 // Returns the inventory item data in an array if found, empty array if not found
-export const findItemInInventory = async (characterId: string, itemId: number, amount?: number) => {
+export const findItemInInventory = async (itemId: number, amount?: number) => {
     try {
         const { data, error } = await supabase
             .from('inventories')
             .select()
-            .eq('character', characterId)
             .eq('item', itemId)
             .select(`
                 amount,
@@ -77,13 +75,12 @@ export const findItemInInventory = async (characterId: string, itemId: number, a
 // If item is already inventory add amount to existing item, otherwise insert a new one
 export const addItemToInventory = async (characterId: string, itemId: number, amount: number) => {
     try {
-        let item = await findItemInInventory(characterId, itemId);
+        let item = await findItemInInventory(itemId);
         // If item is already in inventory, update the amount
         if (item) {
             const { error } = await supabase
                 .from('inventories')
                 .update({ amount: amount + item.amount })
-                .eq('character', characterId)
                 .eq('item', itemId)
                 .select()
                 .overrideTypes<SupabaseInventoryItem[]>();
@@ -115,9 +112,9 @@ export const addItemToInventory = async (characterId: string, itemId: number, am
 
 // If item is in inventory try to remove amount, if removing all remove the item entirely.
 // If item is not found or removing more than in inventory return error.
-export const removeItemFromInventory = async (characterId: string, itemId: number, amount?: number) => {
+export const removeItemFromInventory = async (itemId: number, amount?: number) => {
     try {
-        const item = await findItemInInventory(characterId, itemId, amount);
+        const item = await findItemInInventory(itemId, amount);
         // If the item isn't found in the inventory return an exception
         if (!item) {
             // Maybe this should just return false instead of an error, not sure
@@ -129,7 +126,6 @@ export const removeItemFromInventory = async (characterId: string, itemId: numbe
             const { error } = await supabase
                 .from('inventories')
                 .update({ amount: item.amount - amount })
-                .eq('character', characterId)
                 .eq('item', itemId);
 
             if (error) {
@@ -141,7 +137,6 @@ export const removeItemFromInventory = async (characterId: string, itemId: numbe
             const { error } = await supabase
                 .from('inventories')
                 .delete()
-                .eq('character', characterId)
                 .eq('item', itemId);
 
             if (error) {
