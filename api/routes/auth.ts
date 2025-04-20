@@ -1,9 +1,41 @@
-import { Hono } from "hono";
+import { Hono, type Context } from "hono";
 import { deleteCookie, setCookie } from 'hono/cookie'
 import { HTTPException } from "hono/http-exception";
+import { type EmailOtpType } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase.js';
 
 const auth = new Hono();
+
+const originUrl = process.env.ORIGIN_URL as string;
+
+const setAuthCookies = (c: Context, accessToken: string, refreshToken: string) => {
+    // Set access token
+    setCookie(
+        c,
+        'access_token',
+        accessToken,
+        {
+            httpOnly: true,
+            secure: true,
+            path: '/',
+            sameSite: 'none',
+            expires: new Date(Date.now() + 60 * 60 * 1000), // 1 hour 
+        }
+    );
+
+    // Set refresh token
+    setCookie(
+        c,
+        'refresh_token',
+        refreshToken,
+        {
+            httpOnly: true,
+            secure: true,
+            path: '/',
+            sameSite: 'none',
+        }
+    )
+}
 
 auth.post('/login', async (c) => {
     const { email, password } = await c.req.json();
@@ -21,30 +53,7 @@ auth.post('/login', async (c) => {
         }
     }
 
-    setCookie(
-        c,
-        'access_token',
-        data.session?.access_token || '',
-        {
-            httpOnly: true,
-            secure: true,
-            path: '/',
-            sameSite: 'none',
-            expires: new Date(Date.now() + 60 * 60 * 1000), // 1 hour 
-        }
-    );
-
-    setCookie(
-        c,
-        'refresh_token',
-        data.session?.refresh_token || '',
-        {
-            httpOnly: true,
-            secure: true,
-            path: '/',
-            sameSite: 'none',
-        }
-    )
+    setAuthCookies(c, data.session?.access_token || '', data.session?.refresh_token || '');
 
     return c.json({ message: 'logged in successfully' });
 });
@@ -111,6 +120,26 @@ auth.post('/update-password', async (c) => {
         }
     }
     return c.json({ message: 'password updated successfully' });
+});
+
+auth.get('/confirm', async (c) => {
+    const token_hash = c.req.query('token_hash');
+    const type = c.req.query('type');
+    const next = c.req.query('next') ?? '/';
+
+    if (token_hash && type) {
+        const { data, error } = await supabase.auth.verifyOtp({
+            type: (type as EmailOtpType),
+            token_hash,
+        });
+
+        if (!error) {
+            setAuthCookies(c, data.session?.access_token || '', data.session?.refresh_token || '');
+            return c.redirect(`${originUrl}/${next.slice(1)}`, 303)
+        }
+    }
+
+    // Need to redirect to an auth error page here
 });
 
 export default auth;
