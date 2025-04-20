@@ -60,4 +60,57 @@ auth.get('/logout', async (c) => {
     return c.json({ message: 'logged out' });
 });
 
+auth.post('/register', async (c) => {
+    const { email, password, redirectUrl } = await c.req.json();
+    const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+            emailRedirectTo: redirectUrl
+        }
+    });
+
+    if (error) {
+        console.log(error);
+        if (error.status === 400) {
+            throw new HTTPException(error.status, { message: 'Invalid registration credentials' });
+        } else {
+            throw new HTTPException(500, { message: 'Error registering' });
+        }
+    }
+
+    return c.json({ message: 'registered successfully' });
+});
+
+auth.post('/reset-password', async (c) => {
+    const { email, redirectUrl } = await c.req.json();
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: redirectUrl + '/login-access-token',
+
+    });
+    if (error) {
+        console.log(error);
+        if (error.status === 400) {
+            throw new HTTPException(error.status, { message: 'Invalid email' });
+        } else {
+            throw new HTTPException(500, { message: 'Error sending reset password email' });
+        }
+    }
+    return c.json({ message: 'reset password email sent' });
+});
+
+auth.post('/update-password', async (c) => {
+    const { password } = await c.req.json();
+    const { error } = await supabase.auth.updateUser({ password: password });
+    if (error) {
+        console.log(error);
+        if (error.status === 400) {
+            throw new HTTPException(error.status, { message: 'Invalid password' });
+        } else {
+            throw new HTTPException(500, { message: 'Error updating password' });
+        }
+    }
+    return c.json({ message: 'password updated successfully' });
+});
+
 export default auth;
