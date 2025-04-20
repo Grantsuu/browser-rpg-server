@@ -3,7 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
 import type { CombatState } from "../types/types.js";
 import { clearCombatByCharacterId, createCombatByCharacterId, getCombatByCharacterId, getCharacterCombatStats, getTrainingAreas, getMonstersByArea, getMonsterById, updateCombatByCharacter, updateCharacterCombatStats } from "../controllers/combat.js";
-import { getCharacterByUserId } from "../controllers/characters.js";
+import { getCharacter } from "../controllers/characters.js";
 import { assignDamage, assignHealing, checkIsDead, rollDamage } from "../../game/utilities/functions.js";
 
 type Variables = {
@@ -40,8 +40,7 @@ combat.get('/monsters', async (c) => {
 
 // Get combat data by character ID
 combat.get('/', async (c) => {
-    const user = c.get('user').user;
-    const character = await getCharacterByUserId(user.id);
+    const character = await getCharacter();
     const characterId = character?.id;
     if (characterId === "") {
         throw new HTTPException(404, { message: 'character not found' });
@@ -55,8 +54,7 @@ combat.get('/', async (c) => {
 });
 
 combat.put('/reset', async (c) => {
-    const user = c.get('user').user;
-    const character = await getCharacterByUserId(user.id);
+    const character = await getCharacter();
     const characterId = character?.id;
     if (characterId === "") {
         throw new HTTPException(404, { message: 'character not found' });
@@ -117,8 +115,7 @@ combat.put('/', async (c) => {
     }
 
     // Get the character data
-    const user = c.get('user').user;
-    const character = await getCharacterByUserId(user.id);
+    const character = await getCharacter();
     const characterId = character?.id;
     if (characterId === "") {
         throw new HTTPException(404, { message: 'character not found' });

@@ -3,7 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
 import { type ClientItem } from '../types/types.js';
 import { combineRecipeRows } from "../utilities/transforms.js";
-import { addExperience, getCharacterByUserId } from "../controllers/characters.js";
+import { addExperience, getCharacter } from "../controllers/characters.js";
 import { addItemToInventory, findItemInInventory, removeItemFromInventory } from "../controllers/inventory.js";
 import { getCraftingRecipeByItemId, getCraftingRecipes } from "../controllers/crafting.js";
 
@@ -44,8 +44,7 @@ crafting.post('/', async (c) => {
         const combinedRecipe = combineRecipeRows(recipeRows)[0];
 
         // Check if character has required level for recipe
-        const user = c.get('user').user;
-        const character = await getCharacterByUserId(user.id);
+        const character = await getCharacter();
         const characterId = character?.id;
         if (characterId === "") {
             throw new HTTPException(404, { message: 'character not found' });

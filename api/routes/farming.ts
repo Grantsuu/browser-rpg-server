@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { HTTPException } from 'hono/http-exception';
 import { type User } from '@supabase/supabase-js';
 import { farm_plot_cost_table } from "../../game/constants/tables.js";
-import { addExperience, getCharacterByUserId, getCharacterIdByUserId, updateCharacterGold } from "../controllers/characters.js";
+import { addExperience, getCharacter, updateCharacterGold } from "../controllers/characters.js";
 import { getFarmingPlots, getFarmingPlotById, createFarmingPlot, clearPlot, plantCrop } from "../controllers/farming.js";
 import { getCropBySeedId } from "../controllers/crops.js";
 import { addItemToInventory, findItemInInventory, removeItemFromInventory } from "../controllers/inventory.js";
@@ -17,12 +17,11 @@ const farming = new Hono<{ Variables: Variables }>();
 // Get farm plots for user
 farming.get('/', async (c) => {
     try {
-        const user = c.get('user').user;
-        const characterId = await getCharacterIdByUserId(user.id);
-        if (characterId === "") {
+        const character = await getCharacter();
+        if (!character) {
             throw new HTTPException(404, { message: 'character not found' });
         }
-        const plots = await getFarmingPlots(characterId);
+        const plots = await getFarmingPlots(character.id);
         return c.json(plots);
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
@@ -32,8 +31,7 @@ farming.get('/', async (c) => {
 // Get cost of next farm plot
 farming.get('/plot-cost', async (c) => {
     try {
-        const user = c.get('user').user;
-        const character = await getCharacterByUserId(user.id);
+        const character = await getCharacter();
         if (character.id === "") {
             throw new HTTPException(404, { message: 'character not found' });
         }
@@ -56,8 +54,7 @@ farming.get('/plot-cost', async (c) => {
 // Buy a new farm plot
 farming.post('/buy', async (c) => {
     try {
-        const user = c.get('user').user;
-        const character = await getCharacterByUserId(user.id);
+        const character = await getCharacter();
         if (character.id === "") {
             throw new HTTPException(404, { message: 'character not found' });
         }
@@ -95,12 +92,11 @@ farming.put('/', async (c) => {
         if (plot.length < 1) {
             throw new HTTPException(404, { message: `plot not found` });
         }
-        const user = c.get('user').user;
-        const characterId = await getCharacterIdByUserId(user.id);
-        if (characterId === "") {
+        const character = await getCharacter();
+        if (!character) {
             throw new HTTPException(404, { message: 'character not found' });
         }
-        if (plot[0].character_id !== characterId) {
+        if (plot[0].character_id !== character.id) {
             throw new HTTPException(500, { message: 'plot does not belong to character' });
         }
         await clearPlot(plotId);
@@ -132,8 +128,7 @@ farming.post('/plant', async (c) => {
             throw new HTTPException(404, { message: `crop for given seed not found` });
         }
         // Check if character has required level for seed
-        const user = c.get('user').user;
-        const character = await getCharacterByUserId(user.id);
+        const character = await getCharacter();
         if (character.id === "") {
             throw new HTTPException(404, { message: 'character not found' });
         }
@@ -169,8 +164,7 @@ farming.post('/harvest', async (c) => {
             throw new HTTPException(404, { message: `plot not found` });
         }
         // Check if plot matches the character id
-        const user = c.get('user').user;
-        const character = await getCharacterByUserId(user.id);
+        const character = await getCharacter();
         if (character.id === "") {
             throw new HTTPException(404, { message: 'character not found' });
         }

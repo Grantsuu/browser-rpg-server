@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
-import { getCharacterByUserId, getCharacterIdByUserId, getCharacterLevelsById, postCreateCharacter, postCreateCharacterLevels, postCharacterCombatStats } from '../controllers/characters.js'
+import { getCharacter, getCharacterLevelsById, postCreateCharacter, postCreateCharacterLevels, postCharacterCombatStats } from '../controllers/characters.js'
 import { createFarmingPlot } from "../controllers/farming.js";
 import { createFishingGame } from "../controllers/fishing.js";
 import { createCombatByCharacterId } from "../controllers/combat.js";
@@ -16,7 +16,7 @@ const characters = new Hono<{ Variables: Variables }>();
 characters.get('/', async (c) => {
     try {
         const user = c.get('user').user;
-        const character = await getCharacterByUserId(user.id);
+        const character = await getCharacter();
         if (!character) {
             throw new HTTPException(404, { message: 'character not found' });
         }
@@ -29,7 +29,7 @@ characters.get('/', async (c) => {
 characters.get('/levels', async (c) => {
     try {
         const user = c.get('user').user;
-        const character = await getCharacterByUserId(user.id);
+        const character = await getCharacter();
         if (!character) {
             throw new HTTPException(404, { message: 'character not found' });
         }
@@ -48,22 +48,22 @@ characters.post('/', async (c) => {
         if (!name) {
             throw new HTTPException(400, { message: `missing query param 'name'` });
         }
-        const characterId = await getCharacterIdByUserId(user.id);
-        if (characterId !== "") {
+        const character = await getCharacter();
+        if (character !== "") {
             throw new HTTPException(500, { message: 'character already exists for this user' });
         }
-        const character = await postCreateCharacter(user.id, name);
+        const newCharacter = await postCreateCharacter(user.id, name);
 
         // Create character levels table entry
-        await postCreateCharacterLevels(character.id);
+        await postCreateCharacterLevels(newCharacter.id);
         // Create character combat stats table entry
-        await postCharacterCombatStats(character.id);
+        await postCharacterCombatStats(newCharacter.id);
         // Create combat table entry
-        await createCombatByCharacterId(character.id);
+        await createCombatByCharacterId(newCharacter.id);
         // Create a farm plot for the new character
-        await createFarmingPlot(character.id);
+        await createFarmingPlot(newCharacter.id);
         // Create a fishing game for the new character
-        await createFishingGame(character.id);
+        await createFishingGame(newCharacter.id);
         return c.json({ message: 'character created' });
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });

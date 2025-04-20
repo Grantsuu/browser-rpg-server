@@ -3,7 +3,7 @@ import { HTTPException } from 'hono/http-exception';
 import { type User } from '@supabase/supabase-js';
 import { supabaseShopItemsToClientItems, supabaseCategoriesToArray } from "../utilities/transforms.js";
 import { addItemToInventory, removeItemFromInventory } from "../controllers/inventory.js";
-import { getCharacterByUserId, updateCharacterGold } from "../controllers/characters.js";
+import { getCharacter, updateCharacterGold } from "../controllers/characters.js";
 import { getItemById, getItemCategories } from "../controllers/items.js";
 import { getShopItems, getShopItemsByCategory } from "../controllers/shop.js";
 
@@ -53,8 +53,7 @@ shop.post('/buy', async (c) => {
             throw new HTTPException(400, { message: `missing query param 'amount'` });
         }
 
-        const user = c.get('user').user;
-        const character = await getCharacterByUserId(user.id);
+        const character = await getCharacter();
         if (character.id === "") {
             throw new HTTPException(404, { message: 'character not found' });
         }
@@ -84,7 +83,7 @@ shop.post('/sell', async (c) => {
         }
 
         const user = c.get('user').user;
-        const character = await getCharacterByUserId(user.id);
+        const character = await getCharacter();
         if (character.id === "") {
             throw new HTTPException(404, { message: 'character not found' });
         }

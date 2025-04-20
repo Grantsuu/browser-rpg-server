@@ -3,32 +3,10 @@ import { supabase } from '../lib/supabase.js';
 import { type SupabaseCharacter } from '../types/types.js';
 import { experience_table } from '../../game/constants/tables.js';
 
-export const getCharacterIdByUserId = async (userId: string) => {
+export const getCharacter = async () => {
     const { data, error } = await supabase
         .from('characters')
-        .select('id')
-        .eq('user_id', userId);
-
-    // Error from supabase
-    if (error) {
-        console.log(error);
-        throw new HTTPException(500, { message: 'unable to retrieve character' })
-    }
-
-    // Return empty string if no character found
-    if (data.length < 1) {
-        return "";
-    }
-
-    // For now only one character per user so just return the first one
-    return data[0].id
-}
-
-export const getCharacterByUserId = async (userId: string) => {
-    const { data, error } = await supabase
-        .from('characters')
-        .select('*')
-        .eq('user_id', userId);
+        .select('*');
 
     if (error) {
         console.log(error);
@@ -107,7 +85,7 @@ export const updateCharacterGold = async (characterId: number, gold: number) => 
 
     if (error) {
         console.log(error);
-        throw new HTTPException(500, { message: 'unable to retrieve character' })
+        throw new HTTPException(500, { message: 'unable to update character gold' })
     }
 
     return data[0].gold;

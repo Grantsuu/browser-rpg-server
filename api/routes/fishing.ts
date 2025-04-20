@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { HTTPException } from 'hono/http-exception';
 import { type User } from '@supabase/supabase-js';
-import { addExperience, getCharacterByUserId, getCharacterIdByUserId } from "../controllers/characters.js";
+import { addExperience, getCharacter } from "../controllers/characters.js";
 import { startFishingGame, getFishingState, updateFishingGame, getFishingAreas, getFishingAreaByName, getFishByAreaName } from "../controllers/fishing.js";
 import { censorFishingTiles, generateFishingTiles } from '../../game/utilities/functions.js';
 import type { Fish, FishingGameState, SupabaseFishing } from "../types/types.js";
@@ -16,12 +16,11 @@ const fishing = new Hono<{ Variables: Variables }>();
 // Get fishing game state for user
 fishing.get('/', async (c) => {
     try {
-        const user = c.get('user').user;
-        const characterId = await getCharacterIdByUserId(user.id);
-        if (characterId === "") {
+        const character = await getCharacter();
+        if (!character) {
             throw new HTTPException(404, { message: 'character not found' });
         }
-        const fishing = await getFishingState(characterId);
+        const fishing = await getFishingState(character.id);
         if (fishing === null) {
             throw new HTTPException(404, { message: 'fishing game not found' });
         }
@@ -56,8 +55,7 @@ fishing.put('/start', async (c) => {
         if (!area) {
             throw new HTTPException(404, { message: 'area not found' });
         }
-        const user = c.get('user').user;
-        const character = await getCharacterByUserId(user.id);
+        const character = await getCharacter();
         if (character.id === "") {
             throw new HTTPException(404, { message: 'character not found' });
         }
@@ -89,8 +87,7 @@ fishing.put('/', async (c) => {
         if (col === undefined) {
             throw new HTTPException(400, { message: 'col is required' });
         }
-        const user = c.get('user').user;
-        const character = await getCharacterByUserId(user.id);
+        const character = await getCharacter();
         if (character.id === "") {
             throw new HTTPException(404, { message: 'character not found' });
         }

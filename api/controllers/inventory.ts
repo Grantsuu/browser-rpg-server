@@ -93,7 +93,7 @@ export const addItemToInventory = async (characterId: string, itemId: number, am
             const { error } = await supabase
                 .from('inventories')
                 .insert({
-                    character: characterId,
+                    character_id: characterId,
                     item: itemId,
                     amount: amount
                 })
