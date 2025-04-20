@@ -16,11 +16,7 @@ const fishing = new Hono<{ Variables: Variables }>();
 // Get fishing game state for user
 fishing.get('/', async (c) => {
     try {
-        const character = await getCharacter();
-        if (!character) {
-            throw new HTTPException(404, { message: 'character not found' });
-        }
-        const fishing = await getFishingState(character.id);
+        const fishing = await getFishingState();
         if (fishing === null) {
             throw new HTTPException(404, { message: 'fishing game not found' });
         }
@@ -91,7 +87,7 @@ fishing.put('/', async (c) => {
         if (character.id === "") {
             throw new HTTPException(404, { message: 'character not found' });
         }
-        const fishing = await getFishingState(character.id);
+        const fishing = await getFishingState();
         if (fishing === null) {
             throw new HTTPException(404, { message: 'fishing game not found' });
         }

@@ -5,7 +5,7 @@ import { farm_plot_cost_table } from "../../game/constants/tables.js";
 import { addExperience, getCharacter, updateCharacterGold } from "../controllers/characters.js";
 import { getFarmingPlots, getFarmingPlotById, createFarmingPlot, clearPlot, plantCrop } from "../controllers/farming.js";
 import { getCropBySeedId } from "../controllers/crops.js";
-import { addItemToInventory, findItemInInventory, removeItemFromInventory } from "../controllers/inventory.js";
+import { addItemToInventory, removeItemFromInventory } from "../controllers/inventory.js";
 import { getRandomNumberBetween } from "../utilities/functions.js";
 
 type Variables = {
@@ -14,14 +14,10 @@ type Variables = {
 
 const farming = new Hono<{ Variables: Variables }>();
 
-// Get farm plots for user
+// Get farm plots
 farming.get('/', async (c) => {
     try {
-        const character = await getCharacter();
-        if (!character) {
-            throw new HTTPException(404, { message: 'character not found' });
-        }
-        const plots = await getFarmingPlots(character.id);
+        const plots = await getFarmingPlots();
         return c.json(plots);
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
@@ -31,11 +27,7 @@ farming.get('/', async (c) => {
 // Get cost of next farm plot
 farming.get('/plot-cost', async (c) => {
     try {
-        const character = await getCharacter();
-        if (character.id === "") {
-            throw new HTTPException(404, { message: 'character not found' });
-        }
-        const plots = await getFarmingPlots(character.id);
+        const plots = await getFarmingPlots();
         if (plots.length < 1) {
             throw new HTTPException(500, { message: 'no farm plots found for character' });
         }
@@ -59,7 +51,7 @@ farming.post('/buy', async (c) => {
             throw new HTTPException(404, { message: 'character not found' });
         }
         // Get plots belonging to character
-        const plots = await getFarmingPlots(character.id);
+        const plots = await getFarmingPlots();
         if (plots.length < 1) {
             throw new HTTPException(500, { message: 'no farm plots found for character' });
         }

@@ -35,7 +35,7 @@ export const findItemInInventory = async (itemId: number, amount?: number) => {
         const { data, error } = await supabase
             .from('inventories')
             .select()
-            .eq('item', itemId)
+            .eq('item_id', itemId)
             .select(`
                 amount,
                 item:items(
@@ -81,7 +81,7 @@ export const addItemToInventory = async (characterId: string, itemId: number, am
             const { error } = await supabase
                 .from('inventories')
                 .update({ amount: amount + item.amount })
-                .eq('item', itemId)
+                .eq('item_id', itemId)
                 .select()
                 .overrideTypes<SupabaseInventoryItem[]>();
             if (error) {
@@ -94,7 +94,7 @@ export const addItemToInventory = async (characterId: string, itemId: number, am
                 .from('inventories')
                 .insert({
                     character_id: characterId,
-                    item: itemId,
+                    item_id: itemId,
                     amount: amount
                 })
                 .select()
@@ -126,7 +126,7 @@ export const removeItemFromInventory = async (itemId: number, amount?: number) =
             const { error } = await supabase
                 .from('inventories')
                 .update({ amount: item.amount - amount })
-                .eq('item', itemId);
+                .eq('item_id', itemId);
 
             if (error) {
                 console.log(error);
@@ -137,7 +137,7 @@ export const removeItemFromInventory = async (itemId: number, amount?: number) =
             const { error } = await supabase
                 .from('inventories')
                 .delete()
-                .eq('item', itemId);
+                .eq('item_id', itemId);
 
             if (error) {
                 console.log(error);

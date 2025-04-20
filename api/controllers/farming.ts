@@ -2,7 +2,7 @@ import { HTTPException } from 'hono/http-exception';
 import { supabase } from '../lib/supabase.js';
 import { type SupabaseFarmPlot } from "../types/types.js";
 
-export const getFarmingPlots = async (characterId: string) => {
+export const getFarmingPlots = async () => {
     try {
         const { data, error } = await supabase
             .from('farm_plots')
@@ -58,7 +58,6 @@ export const getFarmingPlots = async (characterId: string) => {
                     amount_produced
                 )
             `)
-            .eq('character_id', characterId)
             .overrideTypes<SupabaseFarmPlot[]>();
         if (error) {
             console.log(error);

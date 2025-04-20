@@ -4,7 +4,7 @@ import { type User } from '@supabase/supabase-js';
 import { getCharacter, getCharacterLevelsById, postCreateCharacter, postCreateCharacterLevels, postCharacterCombatStats } from '../controllers/characters.js'
 import { createFarmingPlot } from "../controllers/farming.js";
 import { createFishingGame } from "../controllers/fishing.js";
-import { createCombatByCharacterId } from "../controllers/combat.js";
+import { createCombat } from "../controllers/combat.js";
 
 type Variables = {
     user: { user: User };
@@ -59,7 +59,7 @@ characters.post('/', async (c) => {
         // Create character combat stats table entry
         await postCharacterCombatStats(newCharacter.id);
         // Create combat table entry
-        await createCombatByCharacterId(newCharacter.id);
+        await createCombat(newCharacter.id);
         // Create a farm plot for the new character
         await createFarmingPlot(newCharacter.id);
         // Create a fishing game for the new character

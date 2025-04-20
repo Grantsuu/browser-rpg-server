@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
 import type { CombatState } from "../types/types.js";
-import { clearCombatByCharacterId, createCombatByCharacterId, getCombatByCharacterId, getCharacterCombatStats, getTrainingAreas, getMonstersByArea, getMonsterById, updateCombatByCharacter, updateCharacterCombatStats } from "../controllers/combat.js";
+import { clearCombatByCharacterId, getCombat, getCharacterCombatStats, getTrainingAreas, getMonstersByArea, getMonsterById, updateCombatByCharacterId, updateCharacterCombatStats } from "../controllers/combat.js";
 import { getCharacter } from "../controllers/characters.js";
 import { assignDamage, assignHealing, checkIsDead, rollDamage } from "../../game/utilities/functions.js";
 
@@ -40,13 +40,8 @@ combat.get('/monsters', async (c) => {
 
 // Get combat data by character ID
 combat.get('/', async (c) => {
-    const character = await getCharacter();
-    const characterId = character?.id;
-    if (characterId === "") {
-        throw new HTTPException(404, { message: 'character not found' });
-    }
     try {
-        const combatData = await getCombatByCharacterId(characterId);
+        const combatData = await getCombat();
         return c.json(combatData);
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
@@ -60,7 +55,7 @@ combat.put('/reset', async (c) => {
         throw new HTTPException(404, { message: 'character not found' });
     }
     try {
-        const combat = await getCombatByCharacterId(character.id);
+        const combat = await getCombat();
         if (!combat) {
             return c.json({ message: 'combat not found' }, 404);
         }
@@ -116,13 +111,12 @@ combat.put('/', async (c) => {
 
     // Get the character data
     const character = await getCharacter();
-    const characterId = character?.id;
-    if (characterId === "") {
+    if (!character) {
         throw new HTTPException(404, { message: 'character not found' });
     }
 
     // Get the combat data for the character
-    const combat = await getCombatByCharacterId(character.id);
+    const combat = await getCombat();
 
     // Check if the outcome is already set and not restarting
     if (action !== "start" && combat?.state?.outcome) {
@@ -158,7 +152,7 @@ combat.put('/', async (c) => {
                 }
 
                 // Get player combat stats
-                const player = await getCharacterCombatStats(character.id);
+                const player = await getCharacterCombatStats();
 
                 // Get monster data
                 const monster = await getMonsterById(monsterId);
@@ -170,7 +164,7 @@ combat.put('/', async (c) => {
                 //     return c.json({ message: 'monster not found' }, 404);
                 // }
 
-                const updatedCombat = await updateCombatByCharacter(character, {} as CombatState, player, monster);
+                const updatedCombat = await updateCombatByCharacterId(character.id, {} as CombatState, player, monster);
                 return c.json(updatedCombat);
             } catch (error) {
                 throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
@@ -307,7 +301,7 @@ combat.put('/', async (c) => {
         }
     }
 
-    return c.json(await updateCombatByCharacter(character, combat.state, combat.player, combat.monster));
+    return c.json(await updateCombatByCharacterId(character.id, combat.state, combat.player, combat.monster));
 });
 
 export default combat;

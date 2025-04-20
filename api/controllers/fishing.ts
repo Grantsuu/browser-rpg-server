@@ -2,7 +2,7 @@ import { HTTPException } from 'hono/http-exception';
 import { supabase } from '../lib/supabase.js';
 import type { Fish, FishingArea, FishingGameState, SupabaseFishing } from "../types/types.js";
 
-export const getFishingState = async (characterId: string) => {
+export const getFishingState = async () => {
     const { data, error } = await supabase
         .from('fishing')
         .select(`
@@ -37,7 +37,6 @@ export const getFishingState = async (characterId: string) => {
                 bountiful_fish
             )  
         `)
-        .eq('character_id', characterId)
         .overrideTypes<SupabaseFishing[]>();
     if (error) {
         console.log(error);

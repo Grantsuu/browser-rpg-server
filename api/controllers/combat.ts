@@ -44,11 +44,10 @@ export const getMonsterById = async (monsterId: string) => {
     return data;
 }
 
-export const getCombatByCharacterId = async (characterId: string) => {
+export const getCombat = async () => {
     const { data, error } = await supabase
         .from('combat')
         .select('*')
-        .eq('character_id', characterId)
         .single()
 
     if (error) {
@@ -59,11 +58,12 @@ export const getCombatByCharacterId = async (characterId: string) => {
     return data;
 }
 
-export const getCharacterCombatStats = async (characterId: string) => {
+// Combat Stats
+
+export const getCharacterCombatStats = async () => {
     const { data, error } = await supabase
         .from('character_combat_stats')
         .select('*')
-        .eq('character_id', characterId)
         .single();
     if (error) {
         console.log(error);
@@ -86,7 +86,7 @@ export const updateCharacterCombatStats = async (characterId: string, stats: obj
     return data;
 }
 
-export const createCombatByCharacterId = async (character_id: string) => {
+export const createCombat = async (character_id: string) => {
     const { data, error } = await supabase
         .from('combat')
         .insert({ character_id: character_id });
@@ -99,7 +99,7 @@ export const createCombatByCharacterId = async (character_id: string) => {
     return data;
 }
 
-export const updateCombatByCharacter = async (character: SupabaseCharacter, state?: object, player?: object, monster?: object) => {
+export const updateCombatByCharacterId = async (character_id: string, state?: object, player?: object, monster?: object) => {
     const { data, error } = await supabase
         .from('combat')
         .update({
@@ -107,7 +107,7 @@ export const updateCombatByCharacter = async (character: SupabaseCharacter, stat
             player: player,
             monster: monster
         })
-        .eq('character_id', character.id)
+        .eq('character_id', character_id)
         .select('*')
         .single();
     if (error) {
