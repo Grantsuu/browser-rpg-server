@@ -5,7 +5,7 @@ import type { CombatState } from "../types/types.js";
 import { clearCombatByCharacterId, getCombat, getCharacterCombatStats, getTrainingAreas, updateCombatByCharacterId, updateCharacterCombatStats } from "../controllers/combat.js";
 import { getMonstersByArea, getMonsterById, getMonsterLootById } from "../controllers/monsters.js";
 import { getCharacter, updateCharacterGold } from "../controllers/characters.js";
-import { addExperience } from "../controllers/character_levels.js";
+import { addExperience, getCharacterLevels } from "../controllers/character_levels.js";
 import { getRandomNumberBetween } from "../utilities/functions.js";
 import { assignDamage, assignHealing, checkIsDead, rollDamage, rollMonsterLoot } from "../../game/utilities/functions.js";
 import { addItemToInventory } from "../controllers/inventory.ts";
@@ -158,6 +158,13 @@ combat.put('/', async (c) => {
                 // Get player combat stats
                 const player = await getCharacterCombatStats();
 
+                // Get player combat lavel
+                const characterLevels = await getCharacterLevels();
+
+                // For now we just add player level - 1 to power and toughness
+                player.toughness = player.toughness + characterLevels?.combat_level - 1;
+                player.power = player.power + characterLevels?.combat_level - 1;
+
                 // Get monster data
                 const monster = await getMonsterById(monsterId);
                 // Remember to set the monster's max health to the current health, maybe we should just add this to the table
@@ -195,7 +202,7 @@ combat.put('/', async (c) => {
                         rewards: {
                             gold: getRandomNumberBetween(combat.monster.gold[0], combat.monster.gold[1]),
                             experience: combat.monster.experience,
-                            loot: [monsterLoot]
+                            loot: monsterLoot ? [monsterLoot] : undefined
                         }
                     }
 
@@ -310,7 +317,10 @@ combat.put('/', async (c) => {
     // Update character if they won
     if (combat.state.outcome?.status === 'player_wins') {
         await updateCharacterGold(character?.id, character.gold + combat?.state?.outcome?.rewards?.gold);
-        await addExperience(character, 'combat', combat?.state?.outcome?.rewards?.experience);
+        const level = await addExperience(character, 'combat', combat?.state?.outcome?.rewards?.experience);
+        if (level > 0) {
+            combat.state.outcome.rewards.level = level;
+        }
         if (combat?.state?.outcome?.rewards?.loot?.length > 0) {
             await addItemToInventory(character.id, combat?.state?.outcome?.rewards?.loot[0]?.item?.id, combat?.state?.outcome?.rewards?.loot[0]?.quantity);
         }
