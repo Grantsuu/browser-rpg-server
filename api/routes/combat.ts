@@ -8,7 +8,7 @@ import { getCharacter, updateCharacterGold } from "../controllers/characters.js"
 import { addExperience, getCharacterLevels } from "../controllers/character_levels.js";
 import { getRandomNumberBetween } from "../utilities/functions.js";
 import { assignDamage, assignHealing, checkIsDead, rollDamage, rollMonsterLoot } from "../../game/utilities/functions.js";
-import { addItemToInventory } from "../controllers/inventory.ts";
+import { addItemToInventory } from "../controllers/inventory.js";
 
 type Variables = {
     user: { user: User };

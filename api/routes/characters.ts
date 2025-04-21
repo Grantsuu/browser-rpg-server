@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
 import { getCharacter, postCreateCharacter, postCharacterCombatStats } from '../controllers/characters.js'
-import { getCharacterLevels, postCreateCharacterLevels } from "../controllers/character_levels.ts";
+import { getCharacterLevels, postCreateCharacterLevels } from "../controllers/character_levels.js";
 import { createFarmingPlot } from "../controllers/farming.js";
 import { createFishingGame } from "../controllers/fishing.js";
 import { createCombat } from "../controllers/combat.js";
