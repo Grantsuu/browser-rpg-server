@@ -23,9 +23,9 @@ export const authorization = createMiddleware(async (c, next) => {
             // If refreshing the session fails, redirect to login
             return c.redirect('/login');
         }
-        console.log('Refreshed session:', refreshData);
-        // Set new access token and refresh token in cookies
+        // console.log('Refreshed session:', refreshData);
 
+        // Set new access token and refresh token in cookies
         setCookie(
             c,
             'access_token',

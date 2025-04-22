@@ -1,0 +1,47 @@
+import { Hono } from "hono";
+import { HTTPException } from 'hono/http-exception';
+import { getItemEffectsById } from "../controllers/items.js";
+import { useItem } from "../../game/features/items.js";
+import { findItemInInventory, getInventory, removeItemFromInventory } from "../controllers/inventory.js";
+import type { ItemEffectReturnData } from "../types/types.js";
+
+const items = new Hono();
+
+items.put('/use', async (c) => {
+    try {
+        // Get item id from query params
+        const itemId = c.req.query('id');
+        if (!itemId) {
+            throw new HTTPException(400, { message: `missing query param 'id'` });
+        }
+        // Ensure the player has the item in their inventory
+        const item = await findItemInInventory(Number(itemId));
+        if (!item) {
+            throw new HTTPException(404, { message: 'item not found in inventory' });
+        }
+        // Get the item effects for the given id
+        const itemEffects = await getItemEffectsById(Number(itemId));
+        if (!itemEffects) {
+            throw new HTTPException(404, { message: 'item effects not found' });
+        }
+        // Process the item effects
+        const returnJson: ItemEffectReturnData = {
+            character_combat: undefined,
+            inventory_item: undefined
+        };
+        try {
+            await useItem(itemEffects, returnJson);
+        } catch (error) {
+            throw error;
+        }
+        // Remove the item from the player's inventory
+        const updatedItem = await removeItemFromInventory(Number(itemId), 1);
+        returnJson.inventory_item = updatedItem;
+        // Return the result of the item's removal
+        return c.json(returnJson);
+    } catch (error) {
+        throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
+    }
+});
+
+export default items;

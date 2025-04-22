@@ -13,6 +13,7 @@ import farming from './routes/farming.js';
 import crops from './routes/crops.js';
 import fishing from './routes/fishing.js';
 import combat from './routes/combat.js';
+import items from './routes/items.js';
 
 const app = new Hono()
 
@@ -42,6 +43,8 @@ app.route('/farming', farming);
 app.route('/crops', crops);
 // Fishing
 app.route('/fishing', fishing);
+// Items
+app.route('/items', items);
 
 // Error handling
 app.onError(async (err, c) => {

@@ -1,5 +1,6 @@
 import { HTTPException } from 'hono/http-exception';
 import { supabase } from '../lib/supabase.js';
+import type { ItemEffectData } from '../types/types.js';
 
 export const getItemById = async (id: string) => {
     const { data, error } = await supabase
@@ -31,6 +32,22 @@ export const getItemCategories = async () => {
     if (error) {
         console.log(error);
         throw new HTTPException(500, { message: 'unable to retrieve item categories' })
+    }
+
+    return data;
+}
+
+export const getItemEffectsById = async (item_id: number) => {
+    const { data, error } = await supabase
+        .from('item_effects')
+        .select()
+        .eq('item_id', item_id)
+        .overrideTypes<ItemEffectData[]>();
+
+    // Error from supabase
+    if (error) {
+        console.log(error);
+        throw new HTTPException(500, { message: 'unable to retrieve item effects' })
     }
 
     return data;

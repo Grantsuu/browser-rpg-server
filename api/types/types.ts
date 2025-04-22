@@ -173,3 +173,20 @@ export type MonsterLoot = {
     quantity: number;
     drop_probability: number;
 }
+
+export type ItemEffectType = "restore_health";
+
+export type ItemEffectUnit = "integer" | "second";
+
+export type ItemEffectData = {
+    id: number;
+    item_id: number;
+    effect: ItemEffectType;
+    effect_value: number;
+    effect_unit: ItemEffectUnit;
+}
+
+export type ItemEffectReturnData = {
+    character_combat: PlayerCombat | undefined,
+    inventory_item: SupabaseInventoryItem | undefined
+}
