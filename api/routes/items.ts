@@ -4,6 +4,7 @@ import { getItemEffectsById } from "../controllers/items.js";
 import { useItem } from "../../game/features/items.js";
 import { findItemInInventory, getInventory, removeItemFromInventory } from "../controllers/inventory.js";
 import type { ItemEffectReturnData } from "../types/types.js";
+import { getCombat } from "../controllers/combat.js";
 
 const items = new Hono();
 
@@ -13,6 +14,11 @@ items.put('/use', async (c) => {
         const itemId = c.req.query('id');
         if (!itemId) {
             throw new HTTPException(400, { message: `missing query param 'id'` });
+        }
+        // Check if player is in combat
+        const combat = await getCombat();
+        if (combat?.state && !combat?.state?.outcome) {
+            throw new HTTPException(400, { message: 'cannot use items from inventory screen while in combat' });
         }
         // Ensure the player has the item in their inventory
         const item = await findItemInInventory(Number(itemId));

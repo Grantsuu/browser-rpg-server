@@ -2,6 +2,7 @@ import { HTTPException } from 'hono/http-exception';
 import { supabase } from '../lib/supabase.js';
 import { type SupabaseCharacter } from '../types/types.js';
 import { experience_table } from '../../game/constants/tables.js';
+import { updateCharacterCombatStats } from './combat.js';
 
 export const getCharacterLevels = async () => {
     const { data, error } = await supabase
@@ -64,6 +65,15 @@ export const addExperience = async (character: SupabaseCharacter, skillName: str
         throw new HTTPException(500, { message: 'unable to add combat experience' })
     }
 
+    // If combat level changed, update player combat stats
+    if (skillName === 'combat' && updatedLevel > 0) {
+        await updateCharacterCombatStats(character.id, {
+            health: 10 + updatedLevel - 1,
+            max_health: 10 + updatedLevel - 1,
+            power: updatedLevel - 1,
+            toughness: updatedLevel - 1
+        });
+    }
     // Return -1 if level did not change
     return Number(updatedLevel) !== characterLevels[skillLevelKey as keyof typeof character] ? updatedLevel : -1;
 }

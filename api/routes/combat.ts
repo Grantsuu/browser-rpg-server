@@ -158,13 +158,6 @@ combat.put('/', async (c) => {
                 // Get player combat stats
                 const player = await getCharacterCombatStats();
 
-                // Get player combat lavel
-                const characterLevels = await getCharacterLevels();
-
-                // For now we just add player level - 1 to power and toughness
-                player.toughness = player.toughness + characterLevels?.combat_level - 1;
-                player.power = player.power + characterLevels?.combat_level - 1;
-
                 // Get monster data
                 const monster = await getMonsterById(monsterId);
                 // Remember to set the monster's max health to the current health, maybe we should just add this to the table
