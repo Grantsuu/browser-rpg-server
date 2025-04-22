@@ -114,7 +114,7 @@ export const addItemToInventory = async (characterId: string, itemId: number, am
 // If item is not found or removing more than in inventory return error.
 export const removeItemFromInventory = async (itemId: number, amount?: number) => {
     try {
-        const item = await findItemInInventory(itemId, amount);
+        let item = await findItemInInventory(itemId, amount);
         // If the item isn't found in the inventory return an exception
         if (!item) {
             // Maybe this should just return false instead of an error, not sure
@@ -128,6 +128,7 @@ export const removeItemFromInventory = async (itemId: number, amount?: number) =
                 .update({ amount: item.amount - amount })
                 .eq('item_id', itemId);
 
+            item.amount = item.amount - amount;
             if (error) {
                 console.log(error);
                 throw new HTTPException(500, { message: 'unable to update item in inventory' });
@@ -139,6 +140,7 @@ export const removeItemFromInventory = async (itemId: number, amount?: number) =
                 .delete()
                 .eq('item_id', itemId);
 
+            item = undefined;
             if (error) {
                 console.log(error);
                 throw new HTTPException(500, { message: 'unable to delete item from inventory' });

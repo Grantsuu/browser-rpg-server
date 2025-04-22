@@ -29,7 +29,7 @@ inventory.delete('/', async (c) => {
         const amount = Number(c.req.query('amount'));
         const item = await removeItemFromInventory(Number(itemId), amount);
 
-        return c.json({ item: item, amount: amount ? amount : item.amount });
+        return c.json(item ? { item: item, amount: amount ? amount : item.amount } : {});
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }

@@ -16,7 +16,6 @@ const processItemEffect = async (effect: ItemEffectData, returnJson: ItemEffectR
                 {
                     health: newHealth
                 });
-            console.log('updated stats', updatedStats);
             returnJson.character_combat = updatedStats;
             break;
         }
