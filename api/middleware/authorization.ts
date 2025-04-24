@@ -15,7 +15,7 @@ export const authorization = createMiddleware(async (c, next) => {
     console.log('request headers', c.req.header());
 
     if (!accessToken && !refreshToken) {
-        throw new HTTPException(401, { message: 'Unauthorized' });
+        // throw new HTTPException(401, { message: 'Unauthorized' });
     }
 
     if (!accessToken) {
