@@ -15,7 +15,7 @@ const setAuthCookies = (c: Context, accessToken: string, refreshToken: string) =
         'access_token',
         accessToken,
         {
-            // httpOnly: true,
+            httpOnly: true,
             secure: true,
             path: '/',
             sameSite: 'none',
@@ -29,7 +29,7 @@ const setAuthCookies = (c: Context, accessToken: string, refreshToken: string) =
         'refresh_token',
         refreshToken,
         {
-            // httpOnly: true,
+            httpOnly: true,
             secure: true,
             path: '/',
             sameSite: 'none',
