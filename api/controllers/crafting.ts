@@ -1,6 +1,6 @@
 import { HTTPException } from 'hono/http-exception';
 import { supabase } from '../lib/supabase.js';
-import { type SupabaseRecipe } from "../types/types.js";
+import { type RecipeData } from "../types/types.js";
 
 export const getCraftingRecipes = async (itemId?: number) => {
     try {
@@ -13,7 +13,8 @@ export const getCraftingRecipes = async (itemId?: number) => {
         }
 
         const { data, error } = await supabaseQuery
-            .overrideTypes<SupabaseRecipe[]>();
+            .overrideTypes<RecipeData[]>();
+
         if (error) {
             console.log(error);
             throw new HTTPException(500, { message: 'unable to retrieve crafting recipes' })

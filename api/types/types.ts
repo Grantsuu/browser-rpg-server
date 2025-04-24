@@ -1,37 +1,23 @@
-type ItemImageData = {
-    base64: string,
-    alt: string
-}
-
-export type ClientItem = {
-    id: number
-    image: ImageData,
-    name: string,
-    category: string,
-    value: number,
-    description: string,
-    amount?: number
-}
-
-export type ClientRecipe = {
-    item: ClientItem
-    ingredients: ClientItem[],
-    amount: number,
-    category: string,
-    experience: number,
-    required_level: number
-}
-
 export type SupabaseCharacter = {
     id: string,
     user: string,
     created_at: string,
     name: string,
-    gold: number,
-    farming_level: number,
-    farming_experience: number,
-    cooking_level: number,
-    cooking_experience: number
+    gold: number
+}
+
+type ItemImageData = {
+    base64: string,
+    alt: string
+}
+
+export type ItemEffectType = "restore_health";
+
+export type ItemEffectUnit = "integer" | "second";
+
+export type ItemEffectReturnData = {
+    character_combat: PlayerCombat | undefined,
+    inventory_item: ItemData | undefined
 }
 
 export type ItemEffectData = {
@@ -57,21 +43,12 @@ export type ItemData = ItemImageData & {
     effects?: ItemEffectData[],
 }
 
-export type SupabaseInventoryItem = {
-    amount: number,
-    item: ItemData,
-    item_effect?: ItemEffectData
-}
-
 export type SupabaseCategory = {
     type_category: string
 }
 
-export type SupabaseShopItem = {
-    item: ItemData;
-}
-
-export type SupabaseRecipe = {
+export type RecipeData = {
+    id: number,
     item: ItemData,
     ingredients: ItemData[],
     category: string,
@@ -151,7 +128,7 @@ export type CombatState = {
         rewards: {
             gold: number,
             experience: number,
-            loot: ClientItem[]
+            loot: ItemEffectData[]
         }
     },
     last_actions: {
@@ -186,13 +163,4 @@ export type MonsterLoot = {
     item: ItemData;
     quantity: number;
     drop_probability: number;
-}
-
-export type ItemEffectType = "restore_health";
-
-export type ItemEffectUnit = "integer" | "second";
-
-export type ItemEffectReturnData = {
-    character_combat: PlayerCombat | undefined,
-    inventory_item: ItemData | undefined
 }
