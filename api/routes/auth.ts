@@ -16,10 +16,9 @@ const setAuthCookies = (c: Context, accessToken: string, refreshToken: string) =
         accessToken,
         {
             httpOnly: true,
-            secure: true,
+            // secure: true,
             path: '/',
             sameSite: 'none',
-            domain: 'vercel.app',
             expires: new Date(Date.now() + 60 * 60 * 1000), // 1 hour 
         }
     );
@@ -31,9 +30,8 @@ const setAuthCookies = (c: Context, accessToken: string, refreshToken: string) =
         refreshToken,
         {
             httpOnly: true,
-            secure: true,
+            // secure: true,
             path: '/',
-            domain: 'vercel.app',
             sameSite: 'none',
         }
     )
