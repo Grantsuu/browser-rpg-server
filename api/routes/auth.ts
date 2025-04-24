@@ -19,7 +19,7 @@ const setAuthCookies = (c: Context, accessToken: string, refreshToken: string) =
             secure: true,
             path: '/',
             sameSite: 'none',
-            domain: originUrl.split('/')[2],
+            domain: '.browser-rpg.vercel.app',
             expires: new Date(Date.now() + 60 * 60 * 1000), // 1 hour 
         }
     );
@@ -34,7 +34,7 @@ const setAuthCookies = (c: Context, accessToken: string, refreshToken: string) =
             secure: true,
             path: '/',
             sameSite: 'none',
-            domain: originUrl.split('/')[2]
+            domain: '.browser-rpg.vercel.app'
         }
     )
 }
