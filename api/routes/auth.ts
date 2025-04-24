@@ -35,8 +35,6 @@ const setAuthCookies = (c: Context, accessToken: string, refreshToken: string) =
             sameSite: 'none',
         }
     )
-
-    console.log(c.res.headers);
 }
 
 auth.post('/login', async (c) => {
