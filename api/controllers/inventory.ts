@@ -1,23 +1,13 @@
 import { HTTPException } from 'hono/http-exception';
 import { supabase } from '../lib/supabase.js';
-import { type SupabaseInventoryItem } from "../types/types.js";
+import type { ItemData } from "../types/types.js";
 
 export const getInventory = async () => {
     try {
         const { data, error } = await supabase
-            .from('inventories')
-            .select(`
-                amount,
-                item:items(
-                    id,
-                    name,
-                    category,
-                    value,
-                    description,
-                    image:lk_item_images(*)
-                )
-            `)
-            .overrideTypes<SupabaseInventoryItem[]>();
+            .from('inventory_items_images_effects')
+            .select(`*`)
+            .overrideTypes<ItemData[]>();
 
         if (error) {
             console.log(error);
@@ -33,21 +23,10 @@ export const getInventory = async () => {
 export const findItemInInventory = async (itemId: number, amount?: number) => {
     try {
         const { data, error } = await supabase
-            .from('inventories')
+            .from('inventory_items_images_effects')
             .select()
-            .eq('item_id', itemId)
-            .select(`
-                amount,
-                item:items(
-                    id,
-                    name,
-                    category,
-                    value,
-                    description,
-                    image:lk_item_images(*)
-                )
-            `)
-            .overrideTypes<SupabaseInventoryItem[]>();
+            .eq('id', itemId)
+            .overrideTypes<ItemData[]>();
 
         if (error) {
             console.log(error);
@@ -60,7 +39,7 @@ export const findItemInInventory = async (itemId: number, amount?: number) => {
         }
 
         // If the amount we're trying to find is greater than the amount of items in inventory return empty array
-        if (amount) {
+        if (amount && data[0].amount) {
             if (amount > data[0].amount) {
                 return undefined;
             }
@@ -77,34 +56,44 @@ export const addItemToInventory = async (characterId: string, itemId: number, am
     try {
         let item = await findItemInInventory(itemId);
         // If item is already in inventory, update the amount
-        if (item) {
-            const { error } = await supabase
+        if (item && item.amount) {
+            item.amount = item.amount + amount;
+            const { data, error } = await supabase
                 .from('inventories')
-                .update({ amount: amount + item.amount })
+                .update({ amount: item.amount })
                 .eq('item_id', itemId)
-                .select()
-                .overrideTypes<SupabaseInventoryItem[]>();
+                .select(
+                    `amount,
+                    item:items!inventories_item_id_fkey(*)`
+                )
+                .single();
+
             if (error) {
                 console.log(error);
                 throw new HTTPException(500, { message: 'unable to update item in inventory' })
             }
+            return data;
         } else {
             // If item isn't already in the inventory just add a new one with the given amount
-            const { error } = await supabase
+            const { data, error } = await supabase
                 .from('inventories')
                 .insert({
                     character_id: characterId,
                     item_id: itemId,
                     amount: amount
                 })
-                .select()
-                .overrideTypes<SupabaseInventoryItem[]>();
+                .select(
+                    `amount,
+                    item:items!inventories_item_id_fkey(*)`
+                )
+                .single();
+
             if (error) {
                 console.log(error);
                 throw new HTTPException(500, { message: 'unable to add item to inventory' })
             }
+            return data;
         }
-        return item;
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }
@@ -122,13 +111,13 @@ export const removeItemFromInventory = async (itemId: number, amount?: number) =
         }
 
         // If removing less than the amount in the inventory, update the amount
-        if (amount && amount < item.amount) {
+        if (amount && item.amount && amount < item.amount) {
+            item.amount = item.amount - amount;
             const { error } = await supabase
                 .from('inventories')
-                .update({ amount: item.amount - amount })
+                .update({ amount: item.amount })
                 .eq('item_id', itemId);
 
-            item.amount = item.amount - amount;
             if (error) {
                 console.log(error);
                 throw new HTTPException(500, { message: 'unable to update item in inventory' });

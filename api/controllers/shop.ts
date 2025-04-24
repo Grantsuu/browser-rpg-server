@@ -1,50 +1,22 @@
 import { HTTPException } from 'hono/http-exception';
 import { supabase } from '../lib/supabase.js';
-import { type SupabaseShopItem } from "../types/types.js";
+import type { ItemCategoryType, ItemData } from "../types/types.js";
 
-export const getShopItems = async () => {
+export const getShopItems = async (item_id?: number, category?: ItemCategoryType) => {
     try {
-        const { data, error } = await supabase
-            .from('shop_inventory')
-            .select(`
-                item:items(
-                    id,
-                    name,
-                    category,
-                    value,
-                    description,
-                    image:lk_item_images(*)
-                )
-            `)
-            .overrideTypes<SupabaseShopItem[]>();
+        let supabaseQuery = supabase
+            .from('shop_inventory_images_effects')
+            .select(`*`);
 
-        if (error) {
-            console.log(error);
-            throw new HTTPException(500, { message: 'unable to retrieve shop inventory' })
+        if (category) {
+            supabaseQuery = supabaseQuery.eq('category', category)
         }
 
-        return data;
-    } catch (error) {
-        throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
-    }
-}
+        if (item_id) {
+            supabaseQuery = supabaseQuery.eq('id', item_id)
+        }
 
-export const getShopItemsByCategory = async (category: string) => {
-    try {
-        const { data, error } = await supabase
-            .from('shop_inventory')
-            .select(`
-                item:items!inner(
-                    id,
-                    name,
-                    category,
-                    value,
-                    description,
-                    image:lk_item_images(*)
-                )
-            `)
-            .eq('item.category', category)
-            .overrideTypes<SupabaseShopItem[]>();
+        const { data, error } = await supabaseQuery.overrideTypes<ItemData[]>();
 
         if (error) {
             console.log(error);

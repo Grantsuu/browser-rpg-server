@@ -5,7 +5,7 @@ import type { CombatState } from "../types/types.js";
 import { clearCombatByCharacterId, getCombat, getCharacterCombatStats, getTrainingAreas, updateCombatByCharacterId, updateCharacterCombatStats } from "../controllers/combat.js";
 import { getMonstersByArea, getMonsterById, getMonsterLootById } from "../controllers/monsters.js";
 import { getCharacter, updateCharacterGold } from "../controllers/characters.js";
-import { addExperience, getCharacterLevels } from "../controllers/character_levels.js";
+import { addExperience } from "../controllers/character_levels.js";
 import { getRandomNumberBetween } from "../utilities/functions.js";
 import { assignDamage, assignHealing, checkIsDead, rollDamage, rollMonsterLoot } from "../../game/utilities/functions.js";
 import { addItemToInventory } from "../controllers/inventory.js";

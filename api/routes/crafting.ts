@@ -1,12 +1,11 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
-import { type ClientItem } from '../types/types.js';
-import { combineRecipeRows } from "../utilities/transforms.js";
+import type { ItemData } from '../types/types.js';
 import { getCharacter } from "../controllers/characters.js";
 import { addExperience, getCharacterLevels } from "../controllers/character_levels.js";
 import { addItemToInventory, findItemInInventory, removeItemFromInventory } from "../controllers/inventory.js";
-import { getCraftingRecipeByItemId, getCraftingRecipes } from "../controllers/crafting.js";
+import { getCraftingRecipes } from "../controllers/crafting.js";
 
 type Variables = {
     user: { user: User };
@@ -17,9 +16,8 @@ const crafting = new Hono<{ Variables: Variables }>();
 // Get Crafting Recipes
 crafting.get('/', async (c) => {
     try {
-        const recipeRows = await getCraftingRecipes();
-        const combinedRecipes = combineRecipeRows(recipeRows);
-        return c.json(combinedRecipes);
+        const recipes = await getCraftingRecipes();
+        return c.json(recipes);
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }
@@ -38,11 +36,10 @@ crafting.post('/', async (c) => {
         if (!itemId) {
             throw new HTTPException(400, { message: `missing query param 'amount'` });
         }
-        const recipeRows = await getCraftingRecipeByItemId(itemId);
-        if (recipeRows.length < 1) {
+        const recipe = await getCraftingRecipes(Number(itemId));
+        if (recipe.length < 1) {
             throw new HTTPException(404, { message: `recipe for given item id not found` });
         }
-        const combinedRecipe = combineRecipeRows(recipeRows)[0];
 
         // Check if character has required level for recipe
         const character = await getCharacter();
@@ -50,12 +47,12 @@ crafting.post('/', async (c) => {
             throw new HTTPException(404, { message: 'character not found' });
         }
         const characterLevels = await getCharacterLevels();
-        if (characterLevels?.cooking_level < combinedRecipe.required_level) {
-            throw new HTTPException(500, { message: `required level: ${combinedRecipe.required_level}` });
+        if (characterLevels?.cooking_level < recipe[0].required_level) {
+            throw new HTTPException(500, { message: `required level: ${recipe[0].required_level}` });
         }
         // Check if character has all items in inventory
-        const insufficientIngredients: ClientItem[] = [];
-        await Promise.all(combinedRecipe.ingredients.map(async (ingredient: ClientItem) => {
+        const insufficientIngredients: ItemData[] = [];
+        await Promise.all(recipe[0].ingredients.map(async (ingredient: ItemData) => {
             const item = await findItemInInventory(ingredient.id, Number(ingredient.amount) * Number(amount));
             if (!item) {
                 insufficientIngredients.push(ingredient);
@@ -66,14 +63,14 @@ crafting.post('/', async (c) => {
         }
 
         // Remove ingredients from inventory
-        await Promise.all(combinedRecipe.ingredients.map(async (ingredient: ClientItem) => {
+        await Promise.all(recipe[0].ingredients.map(async (ingredient: ItemData) => {
             await removeItemFromInventory(ingredient.id, Number(ingredient.amount) * Number(amount));
         }));
 
         // Add item to inventory if true
-        await addItemToInventory(character.id, combinedRecipe.item.id, Number(amount));
-        const level = await addExperience(character, 'cooking', recipeRows[0].experience * Number(amount));
-        return c.json({ amount: Number(amount), experience: recipeRows[0].experience * Number(amount), level: (level > 0) ? level : null });
+        await addItemToInventory(character.id, recipe[0].item.id, Number(amount));
+        const level = await addExperience(character, 'cooking', recipe[0].experience * Number(amount));
+        return c.json({ amount: Number(amount), experience: recipe[0].experience * Number(amount), level: (level > 0) ? level : null });
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }

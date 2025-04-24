@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase.js';
 export const getCharacter = async () => {
     const { data, error } = await supabase
         .from('characters')
-        .select('*');
+        .select();
 
     if (error) {
         console.log(error);
@@ -18,7 +18,7 @@ export const postCreateCharacter = async (userId: string, name: string) => {
     const { data, error } = await supabase
         .from('characters')
         .insert({ user: userId, name: name, gold: 100 })
-        .select('*')
+        .select()
         .single();
 
     if (error) {
@@ -35,7 +35,7 @@ export const postCharacterCombatStats = async (characterId: string) => {
         .insert({
             character_id: characterId
         })
-        .select('*')
+        .select()
         .single();
     if (error) {
         console.log(error);

@@ -7,7 +7,7 @@ import { updateCharacterCombatStats } from './combat.js';
 export const getCharacterLevels = async () => {
     const { data, error } = await supabase
         .from('character_levels')
-        .select('*')
+        .select()
         .single();
 
     if (error) {
@@ -24,7 +24,7 @@ export const postCreateCharacterLevels = async (characterId: string) => {
         .insert({
             character_id: characterId
         })
-        .select('*')
+        .select()
         .single();
     if (error) {
         console.log(error);
@@ -36,7 +36,7 @@ export const postCreateCharacterLevels = async (characterId: string) => {
 export const addExperience = async (character: SupabaseCharacter, skillName: string, experience: number) => {
     const { data: characterLevels, error: characterError } = await supabase
         .from('character_levels')
-        .select('*')
+        .select()
         .eq('character_id', character.id)
         .single();
     if (characterError) {

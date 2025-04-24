@@ -6,7 +6,7 @@ import { getMonsterLoot } from './queryStrings.js';
 export const getMonstersByArea = async (areaName: string) => {
     const { data, error } = await supabase
         .from('monsters')
-        .select('*')
+        .select()
         .eq('area', areaName);
 
     if (error) {
@@ -20,7 +20,7 @@ export const getMonstersByArea = async (areaName: string) => {
 export const getMonsterById = async (monsterId: string) => {
     const { data, error } = await supabase
         .from('monsters')
-        .select('*')
+        .select()
         .eq('id', monsterId)
         .single();
 

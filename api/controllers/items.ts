@@ -25,8 +25,8 @@ export const getItemById = async (id: string) => {
 
 export const getItemCategories = async () => {
     const { data, error } = await supabase
-        .from('lk_item_categories')
-        .select('*');
+        .from('vw_item_category')
+        .select();
 
     // Error from supabase
     if (error) {

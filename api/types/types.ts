@@ -1,11 +1,11 @@
-type Image = {
+type ItemImageData = {
     base64: string,
     alt: string
 }
 
 export type ClientItem = {
     id: number
-    image: Image,
+    image: ImageData,
     name: string,
     category: string,
     value: number,
@@ -34,32 +34,46 @@ export type SupabaseCharacter = {
     cooking_experience: number
 }
 
-export type SupabaseItem = {
+export type ItemEffectData = {
     id: number,
-    category: string,
-    description: string,
-    image: Image,
+    item_id: number,
+    effect: ItemEffectType,
+    effect_value: number,
+    effect_unit: ItemEffectUnit
+}
+
+export type ItemCategoryType = "material" | "consumable" | "weapon" | "armor" | "accessory";
+
+export type ItemSubcategoryType = "food" | "seed" | "ingredient" | "fish";
+
+export type ItemData = ItemImageData & {
+    id: number,
+    amount?: number,
     name: string,
-    value: number
+    category: ItemCategoryType,
+    subcategory?: ItemSubcategoryType,
+    value: number,
+    description: string,
+    effects?: ItemEffectData[],
 }
 
 export type SupabaseInventoryItem = {
     amount: number,
-    item: SupabaseItem
+    item: ItemData,
+    item_effect?: ItemEffectData
 }
 
 export type SupabaseCategory = {
-    name: string
+    type_category: string
 }
 
 export type SupabaseShopItem = {
-    item: SupabaseItem;
+    item: ItemData;
 }
 
 export type SupabaseRecipe = {
-    item: SupabaseItem,
-    ingredient: SupabaseItem,
-    amount: number,
+    item: ItemData,
+    ingredients: ItemData[],
     category: string,
     experience: number,
     required_level: number
@@ -68,7 +82,7 @@ export type SupabaseRecipe = {
 export type SupabaseCrop = {
     id: number,
     seed_id: number,
-    product: SupabaseItem,
+    product: ItemData,
     required_level: number,
     grow_time: number,
     experience: number,
@@ -123,7 +137,7 @@ export type FishingGameTile = {
 export type Fish = {
     id: number,
     name: string,
-    item: SupabaseItem,
+    item: ItemData,
     required_level: number,
     experience: number,
     area: FishingArea
@@ -169,7 +183,7 @@ export type PlayerCombat = {
 
 export type MonsterLoot = {
     monster_id: number;
-    item: SupabaseItem;
+    item: ItemData;
     quantity: number;
     drop_probability: number;
 }
@@ -178,15 +192,7 @@ export type ItemEffectType = "restore_health";
 
 export type ItemEffectUnit = "integer" | "second";
 
-export type ItemEffectData = {
-    id: number;
-    item_id: number;
-    effect: ItemEffectType;
-    effect_value: number;
-    effect_unit: ItemEffectUnit;
-}
-
 export type ItemEffectReturnData = {
     character_combat: PlayerCombat | undefined,
-    inventory_item: SupabaseInventoryItem | undefined
+    inventory_item: ItemData | undefined
 }

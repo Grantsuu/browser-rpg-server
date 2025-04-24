@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase.js';
 export const getTrainingAreas = async () => {
     const { data, error } = await supabase
         .from('training_areas')
-        .select('*');
+        .select();
 
     if (error) {
         console.log(error);
@@ -17,7 +17,7 @@ export const getTrainingAreas = async () => {
 export const getCombat = async () => {
     const { data, error } = await supabase
         .from('combat')
-        .select('*')
+        .select()
         .single()
 
     if (error) {
@@ -33,7 +33,7 @@ export const getCombat = async () => {
 export const getCharacterCombatStats = async () => {
     const { data, error } = await supabase
         .from('character_combat_stats')
-        .select('*')
+        .select()
         .single();
     if (error) {
         console.log(error);
@@ -47,7 +47,7 @@ export const updateCharacterCombatStats = async (characterId: string, stats: obj
         .from('character_combat_stats')
         .update(stats)
         .eq('character_id', characterId)
-        .select('*')
+        .select()
         .single();
     if (error) {
         console.log(error);
@@ -78,7 +78,7 @@ export const updateCombatByCharacterId = async (character_id: string, state?: ob
             monster: monster
         })
         .eq('character_id', character_id)
-        .select('*')
+        .select()
         .single();
     if (error) {
         console.log(error);
@@ -96,7 +96,7 @@ export const clearCombatByCharacterId = async (character_id: string) => {
             monster: null
         })
         .eq('character_id', character_id)
-        .select('*')
+        .select()
         .single();
 
     if (error) {

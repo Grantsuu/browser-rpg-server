@@ -1,11 +1,12 @@
 import { Hono } from "hono";
 import { HTTPException } from 'hono/http-exception';
 import { type User } from '@supabase/supabase-js';
-import { supabaseShopItemsToClientItems, supabaseCategoriesToArray } from "../utilities/transforms.js";
+import { supabaseCategoriesToArray } from "../utilities/transforms.js";
 import { addItemToInventory, removeItemFromInventory } from "../controllers/inventory.js";
 import { getCharacter, updateCharacterGold } from "../controllers/characters.js";
 import { getItemById, getItemCategories } from "../controllers/items.js";
-import { getShopItems, getShopItemsByCategory } from "../controllers/shop.js";
+import { getShopItems } from "../controllers/shop.js";
+import type { ItemCategoryType } from "../types/types.js";
 
 type Variables = {
     user: { user: User };
@@ -15,18 +16,9 @@ const shop = new Hono<{ Variables: Variables }>();
 
 shop.get('/', async (c) => {
     try {
-        const category = c.req.query('category');
-        if (category) {
-            const categories = await getItemCategories();
-            if (!categories.find((c) => c.name === category)) {
-                throw new HTTPException(400, { message: 'invalid category' });
-            }
-            const shopItems = await getShopItemsByCategory(category);
-            return c.json(supabaseShopItemsToClientItems(shopItems));
-        } else {
-            const shopItems = await getShopItems();
-            return c.json(supabaseShopItemsToClientItems(shopItems));
-        }
+        const category: ItemCategoryType = c.req.query('category') as ItemCategoryType;
+        const shopItems = await getShopItems(undefined, category);
+        return c.json(shopItems);
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }
@@ -57,14 +49,20 @@ shop.post('/buy', async (c) => {
         if (character.id === "") {
             throw new HTTPException(404, { message: 'character not found' });
         }
-        const item = await getItemById(itemId);
-        if (item.value * amount > character.gold) {
+
+        const item = await getShopItems(Number(itemId));
+        if (!item) {
+            throw new HTTPException(404, { message: 'item not found in shop inventory' });
+        }
+        if (item[0].value * amount > character.gold) {
             throw new HTTPException(400, { message: 'not enough gold' });
         }
-        const characterGold = await updateCharacterGold(character.id, character.gold - (item.value * amount));
-        await addItemToInventory(character.id, Number(itemId), amount);
 
-        return c.json({ characterGold: characterGold, goldSpent: (item.value * amount) });
+        const characterGold = await updateCharacterGold(character.id, character.gold - (item[0].value * amount));
+
+        const newItem = await addItemToInventory(character.id, Number(itemId), amount);
+
+        return c.json({ characterGold: characterGold, goldSpent: (item[0].value * amount), inventory: newItem });
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }
@@ -89,9 +87,9 @@ shop.post('/sell', async (c) => {
         }
         const item = await getItemById(itemId);
         const characterGold = await updateCharacterGold(character.id, character.gold + (Math.floor(item.value / 2) * amount));
-        await removeItemFromInventory(Number(itemId), amount);
+        const newItem = await removeItemFromInventory(Number(itemId), amount);
 
-        return c.json({ characterGold: characterGold, goldGained: (Math.floor(item.value / 2) * amount) });
+        return c.json({ characterGold: characterGold, goldGained: (Math.floor(item.value / 2) * amount), 'item': newItem });
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }
