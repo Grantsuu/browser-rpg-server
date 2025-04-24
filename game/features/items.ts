@@ -14,6 +14,7 @@ const processItemEffect = async (effect: ItemEffectData, returnJson: ItemEffectR
             const updatedStats = await updateCharacterCombatStats(
                 characterStats.character_id,
                 {
+                    ...characterStats,
                     health: newHealth
                 });
             returnJson.character_combat = updatedStats;
