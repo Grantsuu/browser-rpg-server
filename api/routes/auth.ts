@@ -53,7 +53,15 @@ auth.post('/login', async (c) => {
         }
     }
 
-    setAuthCookies(c, data.session?.access_token || '', data.session?.refresh_token || '');
+    // setAuthCookies(c, data.session?.access_token || '', data.session?.refresh_token || '');
+    c.header(
+        'Set-Cookie',
+        `access_token=${data.session?.access_token}; HttpOnly; Secure; Path=/; SameSite=None; Expires=${new Date(Date.now() + 60 * 60 * 1000).toUTCString()}`
+    );
+    c.header(
+        'Set-Cookie',
+        `refresh_token=${data.session?.refresh_token}; HttpOnly; Secure; Path=/; SameSite=None; Expires=${new Date(Date.now() + 60 * 60 * 1000).toUTCString()}`
+    );
 
     return c.json({ message: 'logged in successfully' });
 });
