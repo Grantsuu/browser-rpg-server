@@ -13,7 +13,7 @@ export const getShopItems = async (item_id?: number, category?: ItemCategoryType
         }
 
         if (item_id) {
-            supabaseQuery = supabaseQuery.eq('id', item_id)
+            supabaseQuery = supabaseQuery.eq('item_id', item_id)
         }
 
         const { data, error } = await supabaseQuery.overrideTypes<ItemData[]>();

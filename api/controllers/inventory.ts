@@ -25,7 +25,7 @@ export const findItemInInventory = async (itemId: number, amount?: number) => {
         const { data, error } = await supabase
             .from('inventory_items_images_effects')
             .select()
-            .eq('id', itemId)
+            .eq('item_id', itemId)
             .overrideTypes<ItemData[]>();
 
         if (error) {
