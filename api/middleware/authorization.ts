@@ -12,8 +12,6 @@ export const authorization = createMiddleware(async (c, next) => {
     const accessToken = getCookie(c, 'access_token');
     const refreshToken = getCookie(c, 'refresh_token');
 
-    console.log('request headers', c.req.header());
-
     if (!accessToken && !refreshToken) {
         throw new HTTPException(401, { message: 'Unauthorized' });
     }

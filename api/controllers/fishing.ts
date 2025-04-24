@@ -212,7 +212,7 @@ export const getFishByAreaName = async (areaName: string, level: number) => {
                 category,
                 value,
                 description,
-                image:lk_item_images(*)
+                ...lk_item_images(*)
             ),
             required_level,
             experience,

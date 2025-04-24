@@ -9,18 +9,18 @@ export const getShopItems = async (item_id?: number, category?: ItemCategoryType
             .select(`*`);
 
         if (category) {
-            supabaseQuery = supabaseQuery.eq('category', category)
+            supabaseQuery = supabaseQuery.eq('category', category);
         }
 
         if (item_id) {
-            supabaseQuery = supabaseQuery.eq('item_id', item_id)
+            supabaseQuery = supabaseQuery.eq('item_id', item_id);
         }
 
         const { data, error } = await supabaseQuery.overrideTypes<ItemData[]>();
 
         if (error) {
             console.log(error);
-            throw new HTTPException(500, { message: 'unable to retrieve shop inventory' })
+            throw new HTTPException(500, { message: 'unable to retrieve shop inventory' });
         }
 
         return data;
