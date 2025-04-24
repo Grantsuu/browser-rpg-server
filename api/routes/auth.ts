@@ -15,8 +15,8 @@ const setAuthCookies = (c: Context, accessToken: string, refreshToken: string) =
         'access_token',
         accessToken,
         {
-            httpOnly: true,
-            // secure: true,
+            // httpOnly: true,
+            secure: true,
             path: '/',
             sameSite: 'none',
             expires: new Date(Date.now() + 60 * 60 * 1000), // 1 hour 
@@ -29,8 +29,8 @@ const setAuthCookies = (c: Context, accessToken: string, refreshToken: string) =
         'refresh_token',
         refreshToken,
         {
-            httpOnly: true,
-            // secure: true,
+            // httpOnly: true,
+            secure: true,
             path: '/',
             sameSite: 'none',
         }
