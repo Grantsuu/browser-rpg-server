@@ -270,6 +270,7 @@ combat.put('/', async (c) => {
             }
             // Process the item effects
             const returnJson: ItemEffectReturnData = {
+                results: [],
                 character_combat: undefined,
                 inventory_item: undefined
             };
@@ -293,7 +294,7 @@ combat.put('/', async (c) => {
                 player: {
                     action: 'use_item',
                     item: returnJson.inventory_item,
-                    amount: 1
+                    results: returnJson.results
                 }
             };
             // console.log(returnJson);

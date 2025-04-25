@@ -3,7 +3,7 @@ import { HTTPException } from 'hono/http-exception';
 import { getItemEffectsById } from "../controllers/items.js";
 import { useItem } from "../../game/features/items.js";
 import { findItemInInventory, getInventory, removeItemFromInventory } from "../controllers/inventory.js";
-import type { ItemEffectReturnData } from "../types/types.js";
+import type { ItemEffectData, ItemEffectReturnData } from "../types/types.js";
 import { getCombat } from "../controllers/combat.js";
 
 const items = new Hono();
@@ -25,18 +25,14 @@ items.put('/use', async (c) => {
         if (!item) {
             throw new HTTPException(404, { message: 'item not found in inventory' });
         }
-        // Get the item effects for the given id
-        const itemEffects = await getItemEffectsById(Number(itemId));
-        if (!itemEffects) {
-            throw new HTTPException(404, { message: 'item effects not found' });
-        }
         // Process the item effects
         const returnJson: ItemEffectReturnData = {
+            results: [],
             character_combat: undefined,
             inventory_item: undefined
         };
         try {
-            await useItem(itemEffects, returnJson);
+            await useItem(item.effects as ItemEffectData[], returnJson);
         } catch (error) {
             throw error;
         }

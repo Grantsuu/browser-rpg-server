@@ -9,6 +9,10 @@ const processItemEffect = async (effect: ItemEffectData, returnJson: ItemEffectR
             if (!characterStats) {
                 throw new Error('Character combat stats not found');
             }
+            // Cannot eat food if health is full
+            if (characterStats.health >= characterStats.max_health) {
+                throw new Error('Character health is already full');
+            }
             const newHealth = assignHealing(characterStats.health, characterStats.max_health, effect.effect_value);
             // Update character health in the database
             const updatedStats = await updateCharacterCombatStats(
@@ -17,6 +21,10 @@ const processItemEffect = async (effect: ItemEffectData, returnJson: ItemEffectR
                     ...characterStats,
                     health: newHealth
                 });
+            returnJson.results = [
+                ...returnJson.results,
+                `restored ${newHealth - characterStats.health} health`
+            ];
             returnJson.character_combat = updatedStats;
             break;
         }

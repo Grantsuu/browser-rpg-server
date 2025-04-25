@@ -16,6 +16,7 @@ export type ItemEffectType = "restore_health";
 export type ItemEffectUnit = "integer" | "second";
 
 export type ItemEffectReturnData = {
+    results: string[],
     character_combat: PlayerCombat | undefined,
     inventory_item: ItemData | undefined
 }
