@@ -9,7 +9,7 @@ import { addExperience } from "../controllers/character_levels.js";
 import { getRandomNumberBetween } from "../utilities/functions.js";
 import { assignDamage, assignHealing, checkIsDead, rollDamage, rollMonsterLoot } from "../../game/utilities/functions.js";
 import { addItemToInventory, findItemInInventory, removeItemFromInventory } from "../controllers/inventory.js";
-import { useItem } from "../../game/features/items.ts";
+import { useItem } from "../../game/features/items.js";
 
 type Variables = {
     user: { user: User };
