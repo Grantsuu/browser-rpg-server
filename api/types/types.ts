@@ -6,11 +6,6 @@ export type SupabaseCharacter = {
     gold: number
 }
 
-type ItemImageData = {
-    base64: string,
-    alt: string
-}
-
 export type ItemEffectType = "restore_health";
 
 export type ItemEffectUnit = "integer" | "second";
@@ -33,7 +28,7 @@ export type ItemCategoryType = "material" | "consumable" | "weapon" | "armor" | 
 
 export type ItemSubcategoryType = "food" | "seed" | "ingredient" | "fish";
 
-export type ItemData = ItemImageData & {
+export type ItemData = {
     id: number,
     amount?: number,
     name: string,
@@ -41,6 +36,7 @@ export type ItemData = ItemImageData & {
     subcategory?: ItemSubcategoryType,
     value: number,
     description: string,
+    image: string,
     effects?: ItemEffectData[],
 }
 

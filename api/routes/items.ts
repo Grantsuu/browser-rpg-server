@@ -1,8 +1,7 @@
 import { Hono } from "hono";
 import { HTTPException } from 'hono/http-exception';
-import { getItemEffectsById } from "../controllers/items.js";
 import { useItem } from "../../game/features/items.js";
-import { findItemInInventory, getInventory, removeItemFromInventory } from "../controllers/inventory.js";
+import { findItemInInventory, removeItemFromInventory } from "../controllers/inventory.js";
 import type { ItemEffectData, ItemEffectReturnData } from "../types/types.js";
 import { getCombat } from "../controllers/combat.js";
 

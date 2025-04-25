@@ -5,7 +5,7 @@ import type { ItemCategoryType, ItemData } from "../types/types.js";
 export const getShopItems = async (item_id?: number, category?: ItemCategoryType) => {
     try {
         let supabaseQuery = supabase
-            .from('shop_inventory_images_effects')
+            .from('vw_shop_inventory_items_effects')
             .select(`*`);
 
         if (category) {

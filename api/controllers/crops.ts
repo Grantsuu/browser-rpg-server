@@ -13,7 +13,7 @@ export const getCrops = async () => {
                         category,
                         value,
                         description,
-                        ...lk_item_images(*)
+                        image
                     ),
                 product_id,
                 grow_time,

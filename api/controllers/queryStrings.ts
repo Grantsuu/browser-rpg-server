@@ -4,7 +4,7 @@ export const getItem = `
     category,
     value,
     description,
-    image:lk_item_images(*)
+    image
 `;
 
 export const getMonsterLoot = `

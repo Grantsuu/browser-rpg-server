@@ -5,7 +5,7 @@ import type { ItemData } from "../types/types.js";
 export const getInventory = async () => {
     try {
         const { data, error } = await supabase
-            .from('inventory_items_images_effects')
+            .from('vw_inventory_items_effects')
             .select(`*`)
             .overrideTypes<ItemData[]>();
 
@@ -23,7 +23,7 @@ export const getInventory = async () => {
 export const findItemInInventory = async (itemId: number, amount?: number) => {
     try {
         const { data, error } = await supabase
-            .from('inventory_items_images_effects')
+            .from('vw_inventory_items_effects')
             .select()
             .eq('item_id', itemId)
             .overrideTypes<ItemData[]>();
