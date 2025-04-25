@@ -1,14 +1,15 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
-import type { CombatState } from "../types/types.js";
+import type { CombatState, ItemEffectData, ItemEffectReturnData } from "../types/types.js";
 import { clearCombatByCharacterId, getCombat, getCharacterCombatStats, getTrainingAreas, updateCombatByCharacterId, updateCharacterCombatStats } from "../controllers/combat.js";
 import { getMonstersByArea, getMonsterById, getMonsterLootById } from "../controllers/monsters.js";
 import { getCharacter, updateCharacterGold } from "../controllers/characters.js";
 import { addExperience } from "../controllers/character_levels.js";
 import { getRandomNumberBetween } from "../utilities/functions.js";
 import { assignDamage, assignHealing, checkIsDead, rollDamage, rollMonsterLoot } from "../../game/utilities/functions.js";
-import { addItemToInventory } from "../controllers/inventory.js";
+import { addItemToInventory, findItemInInventory, removeItemFromInventory } from "../controllers/inventory.js";
+import { useItem } from "../../game/features/items.ts";
 
 type Variables = {
     user: { user: User };
@@ -144,9 +145,9 @@ combat.put('/', async (c) => {
     switch (action) {
         case "start": {
             // Start a new combat
-            const monsterId = c.req.query('monster_id');
-            if (!monsterId) {
-                return c.json({ message: 'monster_id query parameter is required to start combat' }, 400);
+            const id = c.req.query('id');
+            if (!id) {
+                return c.json({ message: 'id query parameter is required to start combat' }, 400);
             }
             try {
                 // console.log(combat.state)
@@ -159,7 +160,7 @@ combat.put('/', async (c) => {
                 const player = await getCharacterCombatStats();
 
                 // Get monster data
-                const monster = await getMonsterById(monsterId);
+                const monster = await getMonsterById(id);
                 // Remember to set the monster's max health to the current health, maybe we should just add this to the table
                 monster.max_health = monster.health;
 
@@ -257,6 +258,46 @@ combat.put('/', async (c) => {
         }
         case "use_item": {
             // Handle use_item action
+            const id = c.req.query('id');
+            if (!id) {
+                return c.json({ message: 'id query parameter is required to use item' }, 400);
+            }
+
+            // Ensure the player has the item in their inventory
+            const item = await findItemInInventory(Number(id));
+            if (!item) {
+                throw new HTTPException(404, { message: 'item not found in inventory' });
+            }
+            // Process the item effects
+            const returnJson: ItemEffectReturnData = {
+                character_combat: undefined,
+                inventory_item: undefined
+            };
+            try {
+                await useItem(item.effects as ItemEffectData[], returnJson);
+            } catch (error) {
+                throw error;
+            }
+
+            // Remove the item from the player's inventory
+            const updatedItem = await removeItemFromInventory(Number(id), 1);
+            returnJson.inventory_item = updatedItem;
+
+            combat.player = {
+                ...combat.player,
+                health: returnJson.character_combat?.health
+            }
+
+            combat.state.last_actions = {
+                ...combat.state.last_actions,
+                player: {
+                    action: 'use_item',
+                    item: returnJson.inventory_item,
+                    amount: 1
+                }
+            };
+            // console.log(returnJson);
+
             break;
         }
         case "flee": {
