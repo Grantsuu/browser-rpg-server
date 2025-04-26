@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
-import { getCharacter, postCreateCharacter, postCharacterCombatStats } from '../controllers/characters.js'
+import { getCharacter, getCharacterCombatStats, postCreateCharacter, postCharacterCombatStats } from '../controllers/characters.js'
 import { getCharacterLevels, postCreateCharacterLevels } from "../controllers/character_levels.js";
 import { createFarmingPlot } from "../controllers/farming.js";
 import { createFishingGame } from "../controllers/fishing.js";
@@ -32,6 +32,16 @@ characters.get('/levels', async (c) => {
     try {
         const characterLevels = await getCharacterLevels();
         return c.json(characterLevels);
+    } catch (error) {
+        throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
+    }
+});
+
+// Get combat stats
+characters.get('/combat', async (c) => {
+    try {
+        const characterCombatStats = await getCharacterCombatStats();
+        return c.json(characterCombatStats);
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }
