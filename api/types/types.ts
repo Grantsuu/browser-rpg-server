@@ -40,6 +40,19 @@ export type ItemData = {
     effects?: ItemEffectData[],
 }
 
+export type EquipmentCategoryType = "weapon" | "armor" | "accessory";
+
+export type EquipmentSubcategoryType = "head" | "body" | "legs" | "hands" | "feet" | "neck" | "ring" | "sword";
+
+export type EquipmentData = ItemData & {
+    category: EquipmentCategoryType,
+    subcategory: EquipmentSubcategoryType,
+    required_level: number,
+    health: number,
+    power: number,
+    toughness: number,
+}
+
 export type SupabaseCategory = {
     type_category: string
 }
