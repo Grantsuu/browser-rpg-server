@@ -56,7 +56,7 @@ characters.post('/', async (c) => {
             throw new HTTPException(400, { message: `missing query param 'name'` });
         }
         const character = await getCharacter();
-        if (character !== "") {
+        if (character) {
             throw new HTTPException(500, { message: 'character already exists for this user' });
         }
         const newCharacter = await postCreateCharacter(user.id, name);

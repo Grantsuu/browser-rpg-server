@@ -29,7 +29,7 @@ export const getCharacterCombatStats = async () => {
 export const postCreateCharacter = async (userId: string, name: string) => {
     const { data, error } = await supabase
         .from('characters')
-        .insert({ user: userId, name: name, gold: 100 })
+        .insert({ user_id: userId, name: name, gold: 10 })
         .select()
         .single();
 

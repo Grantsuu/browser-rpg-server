@@ -2,6 +2,7 @@ import { getCookie, setCookie } from 'hono/cookie'
 import { createMiddleware } from 'hono/factory';
 import { HTTPException } from 'hono/http-exception';
 import { supabase } from '../lib/supabase.js';
+import { env } from 'process';
 
 export const authorization = createMiddleware(async (c, next) => {
     if (c.req.path.startsWith('/auth')) {
@@ -21,7 +22,7 @@ export const authorization = createMiddleware(async (c, next) => {
         const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession({ refresh_token: refreshToken as string });
         if (refreshError) {
             // If refreshing the session fails, redirect to login
-            return c.redirect('/login');
+            throw new HTTPException(401, { message: 'Unauthorized' });
         }
         // console.log('Refreshed session:', refreshData);
 
