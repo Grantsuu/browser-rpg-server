@@ -8,7 +8,8 @@ export const getCharacterEquipment = async (category?: EquipmentCategoryType) =>
             .from('character_equipment')
             .select(`
             ...vw_equipment_effects(
-                id: item_id,
+                id,
+                item_id,
                 health,
                 power,
                 toughness,
