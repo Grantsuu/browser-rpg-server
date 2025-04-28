@@ -160,3 +160,22 @@ export const findEquipmentInInventoryByCategory = async (category: EquipmentCate
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }
 }
+
+export const findEquipmentInInventoryById = async (id: number) => {
+    try {
+        const { data, error } = await supabase
+            .from('vw_inventory_equipment_effects')
+            .select()
+            .eq('id', id)
+            .single();
+
+        if (error) {
+            console.log(error);
+            throw new HTTPException(500, { message: 'unable to search inventory' })
+        }
+
+        return data;
+    } catch (error) {
+        throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
+    }
+}
