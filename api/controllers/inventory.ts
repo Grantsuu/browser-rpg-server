@@ -1,6 +1,6 @@
 import { HTTPException } from 'hono/http-exception';
 import { supabase } from '../lib/supabase.js';
-import type { ItemData } from "../types/types.js";
+import type { EquipmentCategoryType, EquipmentData, ItemData } from "../types/types.js";
 
 export const getInventory = async () => {
     try {
@@ -137,6 +137,25 @@ export const removeItemFromInventory = async (itemId: number, amount?: number) =
         }
 
         return item;
+    } catch (error) {
+        throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
+    }
+}
+
+export const findEquipmentInInventoryByCategory = async (category: EquipmentCategoryType) => {
+    try {
+        const { data, error } = await supabase
+            .from('vw_inventory_equipment_effects')
+            .select()
+            .eq('category', category)
+            .overrideTypes<EquipmentData[]>();
+
+        if (error) {
+            console.log(error);
+            throw new HTTPException(500, { message: 'unable to search inventory' })
+        }
+
+        return data;
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }
