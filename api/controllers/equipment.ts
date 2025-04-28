@@ -73,7 +73,6 @@ export const removeEquipmentById = async (id: number) => {
             console.log(error);
             throw new HTTPException(500, { message: 'unable to remove equipment' })
         }
-        console.log(data);
         return data;
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
