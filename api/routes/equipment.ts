@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { getCharacter } from '../controllers/characters.js'
+import { getCharacterLevels } from '../controllers/character_levels.js';
 import { addEqipment, getCharacterEquipment, removeEquipmentById } from "../controllers/equipment.js";
 import { addItemToInventory, findEquipmentInInventoryById, removeItemFromInventory } from "../controllers/inventory.js";
 import { getCharacterCombatStats, updateCharacterCombatStats } from "../controllers/combat.js";
@@ -28,20 +29,23 @@ equipment.post('/', async (c) => {
         if (!inventoryEquipment) {
             throw new HTTPException(404, { message: 'equipment not found in inventory' });
         }
-        const character = await getCharacter();
+        const character = await getCharacterLevels();
         if (!character) {
             throw new HTTPException(404, { message: 'character not found' });
         }
+        if (character.combat_level < inventoryEquipment[0].required_level) {
+            throw new HTTPException(500, { message: `character level ${character.combat_level} is not high enough to equip this item` });
+        }
         // Check if character is already wearing equipment of this category
-        const equipped = await getCharacterEquipment(inventoryEquipment.category as EquipmentCategoryType);
+        const equipped = await getCharacterEquipment(inventoryEquipment[0].category as EquipmentCategoryType);
         if (equipped && equipped.length > 0) {
             // If they are then remove it
-            await removeEquipment(character.id, parseInt(id));
+            await removeEquipment(character.character_id, parseInt(id));
         }
         // Remove equipment from inventory
-        await removeItemFromInventory(parseInt(inventoryEquipment.item_id), 1);
+        await removeItemFromInventory(parseInt(inventoryEquipment[0].item_id), 1);
         // Add stats to character combat stats
-        const equipment = await addEqipment(character.id, parseInt(id));
+        const equipment = await addEqipment(character.character_id, parseInt(id));
         if (!equipment) {
             throw new HTTPException(500, { message: 'unable to add equipment' });
         }
@@ -51,12 +55,12 @@ equipment.post('/', async (c) => {
         }
         const updatedStats = {
             ...stats,
-            max_health: stats.max_health + inventoryEquipment.health,
-            power: stats.power + inventoryEquipment.power,
-            toughness: stats.toughness + inventoryEquipment.toughness
+            max_health: stats.max_health + inventoryEquipment[0].health,
+            power: stats.power + inventoryEquipment[0].power,
+            toughness: stats.toughness + inventoryEquipment[0].toughness
         }
-        const updatedCombatStats = await updateCharacterCombatStats(character.id, updatedStats);
-        return c.json({ inventoryEquipment, updatedCombatStats });
+        const updatedCombatStats = await updateCharacterCombatStats(character.character_id, updatedStats);
+        return c.json({ inventoryEquipment: inventoryEquipment[0], updatedCombatStats });
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }

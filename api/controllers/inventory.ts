@@ -167,7 +167,7 @@ export const findEquipmentInInventoryById = async (id: number) => {
             .from('vw_inventory_equipment_effects')
             .select()
             .eq('id', id)
-            .single();
+            .overrideTypes<EquipmentData[]>();
         if (error) {
             console.log(error);
             throw new HTTPException(500, { message: 'unable to search inventory' })
