@@ -56,7 +56,7 @@ equipment.post('/', async (c) => {
             toughness: stats.toughness + inventoryEquipment.toughness
         }
         const updatedCombatStats = await updateCharacterCombatStats(character.id, updatedStats);
-        return c.json({ equipment, updatedCombatStats });
+        return c.json({ inventoryEquipment, updatedCombatStats });
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }

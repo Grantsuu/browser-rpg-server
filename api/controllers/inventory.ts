@@ -168,12 +168,10 @@ export const findEquipmentInInventoryById = async (id: number) => {
             .select()
             .eq('id', id)
             .single();
-
         if (error) {
             console.log(error);
             throw new HTTPException(500, { message: 'unable to search inventory' })
         }
-
         return data;
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });

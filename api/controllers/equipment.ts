@@ -5,29 +5,11 @@ import type { EquipmentCategoryType, EquipmentData } from '../types/types.js';
 export const getCharacterEquipment = async (category?: EquipmentCategoryType) => {
     try {
         const supabaseQuery = supabase
-            .from('character_equipment')
-            .select(`
-            ...vw_equipment_effects(
-                id,
-                item_id,
-                health,
-                power,
-                toughness,
-                category,
-                subcategory,
-                required_level,
-                effects,
-                ...items(
-                    name,
-                    value,
-                    description,
-                    image
-                )
-            )
-        `);
+            .from('vw_character_equipment_effects')
+            .select();
 
         if (category) {
-            supabaseQuery.eq('vw_equipment_effects.category', category);
+            supabaseQuery.eq('category', category);
         }
 
         const { data, error } = await supabaseQuery
