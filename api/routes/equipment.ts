@@ -37,7 +37,7 @@ equipment.post('/', async (c) => {
             throw new HTTPException(500, { message: `character level ${character.combat_level} is not high enough to equip this item` });
         }
         // Check if character is already wearing equipment of this category
-        const equipped = await getCharacterEquipment(inventoryEquipment[0].category as EquipmentCategoryType);
+        const equipped = await getCharacterEquipment(inventoryEquipment[0].equipment_category as EquipmentCategoryType);
         if (equipped && equipped.length > 0) {
             // If they are then remove it
             await removeEquipment(character.character_id, parseInt(id));

@@ -2,18 +2,18 @@ import { HTTPException } from 'hono/http-exception';
 import { supabase } from '../lib/supabase.js';
 import type { ItemCategoryType, ItemData } from "../types/types.js";
 
-export const getShopItems = async (item_id?: number, category?: ItemCategoryType) => {
+export const getShopItems = async (itemId?: number, category?: ItemCategoryType) => {
     try {
         let supabaseQuery = supabase
-            .from('vw_shop_inventory_items_effects')
+            .from('vw_shop_inventory_everything')
             .select(`*`);
 
         if (category) {
-            supabaseQuery = supabaseQuery.eq('category', category);
+            supabaseQuery = supabaseQuery.eq('item_category', category);
         }
 
-        if (item_id) {
-            supabaseQuery = supabaseQuery.eq('item_id', item_id);
+        if (itemId) {
+            supabaseQuery = supabaseQuery.eq('id', itemId);
         }
 
         const { data, error } = await supabaseQuery.overrideTypes<ItemData[]>();

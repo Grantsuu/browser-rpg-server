@@ -13,7 +13,7 @@ export type ItemEffectUnit = "integer" | "second";
 export type ItemEffectReturnData = {
     results: string[],
     character_combat: PlayerCombat | undefined,
-    inventory_item: ItemData | undefined
+    inventory_item: Item | undefined
 }
 
 export type ItemEffectData = {
@@ -40,9 +40,33 @@ export type ItemData = {
     effects?: ItemEffectData[],
 }
 
+export type Item = {
+    id: number
+    amount?: number
+    name: string
+    item_category: ItemCategoryType
+    item_subcategory?: ItemSubcategoryType
+    equipment_category?: EquipmentCategoryType
+    equipment_subcategory?: EquipmentSubcategoryType
+    value: number
+    description: string
+    image: string
+    item_effects?: ItemEffectData[]
+    equipment_id?: number
+    required_level?: number
+    health?: number
+    power?: number
+    toughness?: number
+    equipment_effects?: EquipmentEffectData[]
+}
+
 export type EquipmentCategoryType = "weapon" | "armor" | "accessory";
 
 export type EquipmentSubcategoryType = "head" | "body" | "legs" | "hands" | "feet" | "neck" | "ring" | "sword";
+
+export type EquipmentEffectData = {
+
+}
 
 export type EquipmentData = ItemData & {
     category: EquipmentCategoryType,
@@ -59,8 +83,8 @@ export type SupabaseCategory = {
 
 export type RecipeData = {
     id: number,
-    item: ItemData,
-    ingredients: ItemData[],
+    item: Item,
+    ingredients: Item[],
     category: string,
     experience: number,
     required_level: number

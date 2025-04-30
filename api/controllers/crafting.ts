@@ -5,7 +5,7 @@ import { type RecipeData } from "../types/types.js";
 export const getCraftingRecipes = async (itemId?: number) => {
     try {
         const supabaseQuery = supabase
-            .from('vw_recipes_ingredients_effects')
+            .from('vw_recipes_everything')
             .select()
 
         if (itemId) {

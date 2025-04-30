@@ -1,13 +1,13 @@
 import { HTTPException } from 'hono/http-exception';
 import { supabase } from '../lib/supabase.js';
-import type { EquipmentCategoryType, EquipmentData, ItemData } from "../types/types.js";
+import type { EquipmentCategoryType, EquipmentData, Item, ItemData } from "../types/types.js";
 
 export const getInventory = async () => {
     try {
         const { data, error } = await supabase
-            .from('vw_inventory_items_effects')
-            .select(`*`)
-            .overrideTypes<ItemData[]>();
+            .from('vw_inventory_everything')
+            .select()
+            .overrideTypes<Item[]>();
 
         if (error) {
             console.log(error);
@@ -23,10 +23,10 @@ export const getInventory = async () => {
 export const findItemInInventory = async (itemId: number, amount?: number) => {
     try {
         const { data, error } = await supabase
-            .from('vw_inventory_items_effects')
+            .from('vw_inventory_everything')
             .select()
-            .eq('item_id', itemId)
-            .overrideTypes<ItemData[]>();
+            .eq('id', itemId)
+            .overrideTypes<Item[]>();
 
         if (error) {
             console.log(error);
@@ -145,10 +145,10 @@ export const removeItemFromInventory = async (itemId: number, amount?: number) =
 export const findEquipmentInInventoryByCategory = async (category: EquipmentCategoryType) => {
     try {
         const { data, error } = await supabase
-            .from('vw_inventory_equipment_effects')
+            .from('vw_inventory_everything')
             .select()
-            .eq('category', category)
-            .overrideTypes<EquipmentData[]>();
+            .eq('equipment_category', category)
+            .overrideTypes<Item[]>();
 
         if (error) {
             console.log(error);
@@ -164,9 +164,9 @@ export const findEquipmentInInventoryByCategory = async (category: EquipmentCate
 export const findEquipmentInInventoryById = async (id: number) => {
     try {
         const { data, error } = await supabase
-            .from('vw_inventory_equipment_effects')
+            .from('vw_inventory_everything')
             .select()
-            .eq('id', id)
+            .eq('equipment_id', id)
             .overrideTypes<EquipmentData[]>();
         if (error) {
             console.log(error);

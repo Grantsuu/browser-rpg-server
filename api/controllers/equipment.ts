@@ -1,19 +1,19 @@
 import { HTTPException } from 'hono/http-exception';
 import { supabase } from '../lib/supabase.js';
-import type { EquipmentCategoryType, EquipmentData } from '../types/types.js';
+import type { EquipmentCategoryType, EquipmentData, Item } from '../types/types.js';
 
 export const getCharacterEquipment = async (category?: EquipmentCategoryType) => {
     try {
         const supabaseQuery = supabase
-            .from('vw_character_equipment_effects')
+            .from('vw_character_equipment_everything')
             .select();
 
         if (category) {
-            supabaseQuery.eq('category', category);
+            supabaseQuery.eq('equipment_category', category);
         }
 
         const { data, error } = await supabaseQuery
-            .overrideTypes<EquipmentData[]>();
+            .overrideTypes<Item[]>();
 
         if (error) {
             console.log(error);

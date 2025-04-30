@@ -31,7 +31,7 @@ items.put('/use', async (c) => {
             inventory_item: undefined
         };
         try {
-            await useItem(item.effects as ItemEffectData[], returnJson);
+            await useItem(item.item_effects as ItemEffectData[], returnJson);
         } catch (error) {
             throw error;
         }
