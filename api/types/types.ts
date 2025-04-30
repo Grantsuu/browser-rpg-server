@@ -28,16 +28,12 @@ export type ItemCategoryType = "material" | "consumable" | "weapon" | "armor" | 
 
 export type ItemSubcategoryType = "food" | "seed" | "ingredient" | "fish";
 
-export type ItemData = {
-    id: number,
-    amount?: number,
-    name: string,
-    category: ItemCategoryType,
-    subcategory?: ItemSubcategoryType,
-    value: number,
-    description: string,
-    image: string,
-    effects?: ItemEffectData[],
+export type EquipmentCategoryType = "weapon" | "armor" | "accessory";
+
+export type EquipmentSubcategoryType = "head" | "body" | "legs" | "hands" | "feet" | "neck" | "ring" | "sword";
+
+export type EquipmentEffectData = {
+
 }
 
 export type Item = {
@@ -60,23 +56,6 @@ export type Item = {
     equipment_effects?: EquipmentEffectData[]
 }
 
-export type EquipmentCategoryType = "weapon" | "armor" | "accessory";
-
-export type EquipmentSubcategoryType = "head" | "body" | "legs" | "hands" | "feet" | "neck" | "ring" | "sword";
-
-export type EquipmentEffectData = {
-
-}
-
-export type EquipmentData = ItemData & {
-    category: EquipmentCategoryType,
-    subcategory: EquipmentSubcategoryType,
-    required_level: number,
-    health: number,
-    power: number,
-    toughness: number,
-}
-
 export type SupabaseCategory = {
     type_category: string
 }
@@ -93,7 +72,7 @@ export type RecipeData = {
 export type SupabaseCrop = {
     id: number,
     seed_id: number,
-    product: ItemData,
+    product: Item,
     required_level: number,
     grow_time: number,
     experience: number,
@@ -148,7 +127,7 @@ export type FishingGameTile = {
 export type Fish = {
     id: number,
     name: string,
-    item: ItemData,
+    item: Item,
     required_level: number,
     experience: number,
     area: FishingArea
@@ -194,7 +173,7 @@ export type PlayerCombat = {
 
 export type MonsterLoot = {
     monster_id: number;
-    item: ItemData;
+    item: Item;
     quantity: number;
     drop_probability: number;
 }

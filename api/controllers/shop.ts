@@ -1,6 +1,6 @@
 import { HTTPException } from 'hono/http-exception';
 import { supabase } from '../lib/supabase.js';
-import type { ItemCategoryType, ItemData } from "../types/types.js";
+import type { ItemCategoryType, Item } from "../types/types.js";
 
 export const getShopItems = async (itemId?: number, category?: ItemCategoryType) => {
     try {
@@ -16,7 +16,7 @@ export const getShopItems = async (itemId?: number, category?: ItemCategoryType)
             supabaseQuery = supabaseQuery.eq('id', itemId);
         }
 
-        const { data, error } = await supabaseQuery.overrideTypes<ItemData[]>();
+        const { data, error } = await supabaseQuery.overrideTypes<Item[]>();
 
         if (error) {
             console.log(error);

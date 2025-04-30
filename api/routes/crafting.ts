@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
-import type { ItemData } from '../types/types.js';
+import type { Item } from '../types/types.js';
 import { getCharacter } from "../controllers/characters.js";
 import { addExperience, getCharacterLevels } from "../controllers/character_levels.js";
 import { addItemToInventory, findItemInInventory, removeItemFromInventory } from "../controllers/inventory.js";
@@ -51,8 +51,8 @@ crafting.post('/', async (c) => {
             throw new HTTPException(500, { message: `required level: ${recipe[0].required_level}` });
         }
         // Check if character has all items in inventory
-        const insufficientIngredients: ItemData[] = [];
-        await Promise.all(recipe[0].ingredients.map(async (ingredient: ItemData) => {
+        const insufficientIngredients: Item[] = [];
+        await Promise.all(recipe[0].ingredients.map(async (ingredient: Item) => {
             const item = await findItemInInventory(ingredient.id, Number(ingredient.amount) * Number(amount));
             if (!item) {
                 insufficientIngredients.push(ingredient);
@@ -63,7 +63,7 @@ crafting.post('/', async (c) => {
         }
 
         // Remove ingredients from inventory
-        await Promise.all(recipe[0].ingredients.map(async (ingredient: ItemData) => {
+        await Promise.all(recipe[0].ingredients.map(async (ingredient: Item) => {
             await removeItemFromInventory(ingredient.id, Number(ingredient.amount) * Number(amount));
         }));
 

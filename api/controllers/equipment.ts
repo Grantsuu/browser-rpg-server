@@ -1,6 +1,6 @@
 import { HTTPException } from 'hono/http-exception';
 import { supabase } from '../lib/supabase.js';
-import type { EquipmentCategoryType, EquipmentData, Item } from '../types/types.js';
+import type { EquipmentCategoryType, Item } from '../types/types.js';
 
 export const getCharacterEquipment = async (category?: EquipmentCategoryType) => {
     try {
@@ -31,7 +31,7 @@ export const addEqipment = async (characterId: number, equipmentId: number) => {
             .from('character_equipment')
             .insert({ character_id: characterId, equipment_id: equipmentId })
             .select()
-            .overrideTypes<EquipmentData[]>()
+            .overrideTypes<Item[]>()
         if (error) {
             console.log(error);
             throw new HTTPException(500, { message: 'unable to add equipment' })
@@ -51,7 +51,7 @@ export const removeEquipmentById = async (id: number) => {
             .select(`
                 ...equipment(*)   
             `)
-            .overrideTypes<EquipmentData[]>()
+            .overrideTypes<Item[]>()
         if (error) {
             console.log(error);
             throw new HTTPException(500, { message: 'unable to remove equipment' })

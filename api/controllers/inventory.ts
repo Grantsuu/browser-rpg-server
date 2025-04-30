@@ -1,6 +1,6 @@
 import { HTTPException } from 'hono/http-exception';
 import { supabase } from '../lib/supabase.js';
-import type { EquipmentCategoryType, EquipmentData, Item, ItemData } from "../types/types.js";
+import type { EquipmentCategoryType, Item } from "../types/types.js";
 
 export const getInventory = async () => {
     try {
@@ -167,7 +167,7 @@ export const findEquipmentInInventoryById = async (id: number) => {
             .from('vw_inventory_everything')
             .select()
             .eq('equipment_id', id)
-            .overrideTypes<EquipmentData[]>();
+            .overrideTypes<Item[]>();
         if (error) {
             console.log(error);
             throw new HTTPException(500, { message: 'unable to search inventory' })

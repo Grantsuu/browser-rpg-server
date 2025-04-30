@@ -33,7 +33,7 @@ equipment.post('/', async (c) => {
         if (!character) {
             throw new HTTPException(404, { message: 'character not found' });
         }
-        if (character.combat_level < inventoryEquipment[0].required_level) {
+        if (character.combat_level < (inventoryEquipment[0].required_level as number)) {
             throw new HTTPException(500, { message: `character level ${character.combat_level} is not high enough to equip this item` });
         }
         // Check if character is already wearing equipment of this category
@@ -96,13 +96,13 @@ const removeEquipment = async (characterId: string, equipmentId: number) => {
         if (!stats) {
             throw new HTTPException(404, { message: 'character combat stats not found' });
         }
-        const newMaxHealth = stats.max_health - equipment[0].health;
+        const newMaxHealth = stats.max_health - (equipment[0].health as number);
         const updatedStats = {
             ...stats,
             max_health: newMaxHealth,
             health: newMaxHealth < stats.health ? newMaxHealth : stats.health,
-            power: stats.power - equipment[0].power,
-            toughness: stats.toughness - equipment[0].toughness
+            power: stats.power - (equipment[0].power as number),
+            toughness: stats.toughness - (equipment[0].toughness as number)
         }
         const updatedCombatStats = await updateCharacterCombatStats(characterId, updatedStats);
         return { equipment, updatedCombatStats };

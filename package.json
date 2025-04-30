@@ -3,6 +3,7 @@
     "type": "module",
     "scripts": {
         "build": "tsc -b",
+        "clean": "tsc -b --clean",
         "dev": "tsx watch api/index.ts"
     },
     "dependencies": {
