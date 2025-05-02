@@ -15,6 +15,7 @@ import fishing from './routes/fishing.js';
 import combat from './routes/combat.js';
 import items from './routes/items.js';
 import equipment from './routes/equipment.js';
+import bounty from './routes/bounty.js';
 
 const app = new Hono()
 
@@ -48,6 +49,8 @@ app.route('/fishing', fishing);
 app.route('/items', items);
 // Equipment
 app.route('/equipment', equipment);
+// Bounty
+app.route('/bounty', bounty);
 
 // Error handling
 app.onError(async (err, c) => {
