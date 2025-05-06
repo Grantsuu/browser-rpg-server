@@ -5,7 +5,11 @@ import type { Bounty } from '../types/types.js';
 export const getCharacterBounties = async () => {
     const { data, error } = await supabase
         .from('character_bounties')
-        .select()
+        .select(`
+            *,
+            required_item:items!character_bounties_required_item_id_fkey(*),
+            required_monster:monsters!character_bounties_required_monster_id_fkey(*)
+        `)
         .overrideTypes<Bounty[]>();
     if (error) {
         console.log(error);
