@@ -8,7 +8,8 @@ export const getCharacterBounties = async () => {
         .select(`
             *,
             required_item:items!character_bounties_required_item_id_fkey(*),
-            required_monster:monsters!character_bounties_required_monster_id_fkey(*)
+            required_monster:monsters!character_bounties_required_monster_id_fkey(*),
+            reward_item:items!character_bounties_reward_item_id_fkey(*)
         `)
         .overrideTypes<Bounty[]>();
     if (error) {
