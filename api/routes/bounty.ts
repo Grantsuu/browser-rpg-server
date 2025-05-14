@@ -26,7 +26,23 @@ bounty.patch('/:id', async (c) => {
 
 bounty.post('/', async (c) => {
     const bounty = await c.req.json();
+    if (!bounty) {
+        throw new HTTPException(400, { message: 'Bounty not found' });
+    }
     try {
+        // Add required item id
+        if (bounty.required_item) {
+            bounty.required_item_id = bounty.required_item.id;
+            bounty.required_item = undefined; // Remove the item object from the bounty
+        }
+        if (bounty.required_monster) {
+            bounty.required_monster_id = bounty.required_monster.id;
+            bounty.required_monster = undefined; // Remove the monster object from the bounty
+        }
+        if (bounty.reward_item) {
+            bounty.reward_item_id = bounty.reward_item.id;
+            bounty.reward_item = undefined; // Remove the item object from the bounty
+        }
         const newBounty = await insertBounty(bounty);
         return c.json(newBounty);
     } catch (error) {
