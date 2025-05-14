@@ -3,7 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import { type User } from '@supabase/supabase-js';
 import type { CombatState, ItemEffectData, ItemEffectReturnData } from "../types/types.js";
 import { clearCombatByCharacterId, getCombat, getCharacterCombatStats, getTrainingAreas, updateCombatByCharacterId, updateCharacterCombatStats } from "../controllers/combat.js";
-import { getMonstersByArea, getMonsterById, getMonsterLootById } from "../controllers/monsters.js";
+import { getMonsters, getMonsterById, getMonsterLootById } from "../controllers/monsters.js";
 import { getCharacter, updateCharacterGold } from "../controllers/characters.js";
 import { addExperience } from "../controllers/character_levels.js";
 import { getRandomNumberBetween } from "../utilities/functions.js";
@@ -29,14 +29,11 @@ combat.get('/training/areas', async (c) => {
     }
 });
 
-// Get monsters by area
+// Get monsters
 combat.get('/monsters', async (c) => {
-    const areaName = c.req.query('area');
-    if (!areaName) {
-        return c.json({ message: 'area query parameter is required' }, 400);
-    }
+    const area = c.req.query('area');
     try {
-        const monsters = await getMonstersByArea(areaName);
+        const monsters = await getMonsters(area);
         return c.json(monsters);
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });

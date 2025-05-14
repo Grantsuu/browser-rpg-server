@@ -3,7 +3,7 @@ import { HTTPException } from 'hono/http-exception';
 import { type User } from '@supabase/supabase-js';
 import { getCharacter } from "../controllers/characters.js";
 import { addExperience, getCharacterLevels } from "../controllers/character_levels.js";
-import { startFishingGame, getFishingState, updateFishingGame, getFishingAreas, getFishingAreaByName, getFishByAreaName } from "../controllers/fishing.js";
+import { getFish, startFishingGame, getFishingState, updateFishingGame, getFishingAreas, getFishingAreaByName, getFishByAreaName } from "../controllers/fishing.js";
 import { censorFishingTiles, generateFishingTiles } from '../../game/utilities/functions.js';
 import type { Fish, FishingGameState, SupabaseFishing } from "../types/types.js";
 import { addItemToInventory } from "../controllers/inventory.js";
@@ -13,6 +13,16 @@ type Variables = {
 }
 
 const fishing = new Hono<{ Variables: Variables }>();
+
+// Get all fish
+fishing.get('/fish', async (c) => {
+    try {
+        const fish = await getFish();
+        return c.json(fish);
+    } catch (error) {
+        throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
+    }
+});
 
 // Get fishing game state for user
 fishing.get('/', async (c) => {

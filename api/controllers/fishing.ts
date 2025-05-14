@@ -2,6 +2,21 @@ import { HTTPException } from 'hono/http-exception';
 import { supabase } from '../lib/supabase.js';
 import type { Fish, FishingArea, FishingGameState, SupabaseFishing } from "../types/types.js";
 
+export const getFish = async () => {
+    const { data, error } = await supabase
+        .from('fish')
+        .select(`
+            *,
+            item:items!fish_item_id_fkey(*),
+            area:fishing_areas!fish_area_fkey(*)
+            `);
+    if (error) {
+        console.log(error);
+        throw new HTTPException(500, { message: 'unable to retrieve fish' })
+    }
+    return data;
+}
+
 export const getFishingState = async () => {
     const { data, error } = await supabase
         .from('fishing')
