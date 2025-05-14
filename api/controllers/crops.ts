@@ -7,15 +7,8 @@ export const getCrops = async () => {
             .from('crops')
             .select(`
                 id,
-                seed:items!crops_seed_id_fkey(
-                        id,
-                        name,
-                        category,
-                        value,
-                        description,
-                        image
-                    ),
-                product_id,
+                seed:items!crops_seed_id_fkey(*),
+                product:items!crops_product_id_fkey(*),
                 grow_time,
                 experience,
                 required_level,

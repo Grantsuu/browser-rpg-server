@@ -32,3 +32,28 @@ export const updateBounty = async (bountyId: number, updateJson: object) => {
 
     return data;
 }
+
+export const insertBounty = async (bounty: Bounty) => {
+    const { data, error } = await supabase
+        .from('character_bounties')
+        .insert(bounty)
+        .select()
+        .single();
+    if (error) {
+        console.log(error);
+        throw new HTTPException(500, { message: 'unable to insert bounty' })
+    }
+    return data;
+}
+
+export const deleteBounty = async (bountyId: number) => {
+    const { data, error } = await supabase
+        .from('character_bounties')
+        .delete()
+        .eq('id', bountyId)
+    if (error) {
+        console.log(error);
+        throw new HTTPException(500, { message: 'unable to delete bounty' })
+    }
+    return data;
+}
