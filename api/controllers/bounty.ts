@@ -20,7 +20,7 @@ export const getCharacterBounties = async () => {
     return data;
 }
 
-export const updateBounty = async (bountyId: number, updateJson: object) => {
+export const updateBounty = async (bountyId: string, updateJson: object) => {
     const { data, error } = await supabase
         .from('character_bounties')
         .update(updateJson)

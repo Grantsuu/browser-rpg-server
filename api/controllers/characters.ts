@@ -56,6 +56,22 @@ export const postCharacterCombatStats = async (characterId: string) => {
     return data;
 }
 
+export const updateCharacter = async (characterId: number, characterData: object) => {
+    const { data, error } = await supabase
+        .from('characters')
+        .update(characterData)
+        .eq('id', characterId)
+        .select()
+        .single();
+
+    if (error) {
+        console.log(error);
+        throw new HTTPException(500, { message: 'unable to update character' })
+    }
+
+    return data;
+}
+
 export const updateCharacterGold = async (characterId: number, gold: number) => {
     const { data, error } = await supabase
         .from('characters')

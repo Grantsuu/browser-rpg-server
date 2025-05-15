@@ -55,7 +55,7 @@ shop.post('/buy', async (c) => {
             throw new HTTPException(404, { message: 'item not found in shop inventory' });
         }
         if (item[0].value * amount > character.gold) {
-            throw new HTTPException(400, { message: 'not enough gold' });
+            throw new HTTPException(500, { message: 'not enough gold' });
         }
 
         const characterGold = await updateCharacterGold(character.id, character.gold - (item[0].value * amount));
