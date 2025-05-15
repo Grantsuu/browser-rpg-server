@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
-import { getCharacterBounties, insertBounty, updateBounty } from "../controllers/bounty.js";
+import { deleteBounty, getCharacterBounties, insertBounty, updateBounty } from "../controllers/bounty.js";
+import { error } from "console";
 
 const bounty = new Hono();
 
@@ -53,7 +54,7 @@ bounty.post('/', async (c) => {
 bounty.delete('/:id', async (c) => {
     const bountyId = c.req.param('id');
     try {
-        const deletedBounty = await updateBounty(parseInt(bountyId), { active: false });
+        const deletedBounty = await deleteBounty(bountyId);
         return c.json(deletedBounty);
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });

@@ -46,7 +46,7 @@ export const insertBounty = async (bounty: Bounty) => {
     return data;
 }
 
-export const deleteBounty = async (bountyId: number) => {
+export const deleteBounty = async (bountyId: string) => {
     const { data, error } = await supabase
         .from('character_bounties')
         .delete()
