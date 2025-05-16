@@ -9,6 +9,7 @@ import { addExperience } from "../controllers/character_levels.js";
 import { getRandomNumberBetween } from "../utilities/functions.js";
 import { assignDamage, assignHealing, checkIsDead, rollDamage, rollMonsterLoot } from "../../game/utilities/functions.js";
 import { addItemToInventory, findItemInInventory, removeItemFromInventory } from "../controllers/inventory.js";
+import { getCharacterBounties, updateBounty } from "../controllers/bounty.js";
 import { useItem } from "../../game/features/items.js";
 
 type Variables = {
@@ -355,6 +356,14 @@ combat.put('/', async (c) => {
         }
         if (combat?.state?.outcome?.rewards?.loot?.length > 0) {
             await addItemToInventory(character.id, combat?.state?.outcome?.rewards?.loot[0]?.item?.id, combat?.state?.outcome?.rewards?.loot[0]?.quantity);
+        }
+        // Update bounty progress
+        const bounties = await getCharacterBounties();
+        if (bounties) {
+            const bounty = bounties.find((bounty) => bounty.required_monster && bounty.required_monster.id === combat.monster.id);
+            if (bounty) {
+                await updateBounty(bounty.id, { required_progress: bounty.required_progress + 1 });
+            }
         }
     }
 
