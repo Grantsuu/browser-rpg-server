@@ -179,7 +179,7 @@ export type MonsterLoot = {
 }
 
 export type Bounty = {
-    id: number;
+    id: string;
     active: boolean;
     character_id: string;
     name: string;

@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { getCharacter, updateCharacter, updateCharacterGold } from "../controllers/characters.js";
 import { deleteBounty, getCharacterBounties, insertBounty, updateBounty } from "../controllers/bounty.js";
+import { addExperience } from "../controllers/character_levels.js";
 
 const bounty = new Hono();
 
@@ -86,7 +87,6 @@ bounty.post('/reroll', async (c) => {
             bounty.reward_item_id = bounty.reward_item.id;
             bounty.reward_item = undefined; // Remove the item object from the bounty
         }
-        console.log(bounty);
         const updatedBounty = await updateBounty(bountyId, bounty);
         await updateCharacter(character.id, { bounty_tokens: character.bounty_tokens - 1 });
         return c.json(updatedBounty);
@@ -97,6 +97,9 @@ bounty.post('/reroll', async (c) => {
 
 bounty.delete('/:id', async (c) => {
     const bountyId = c.req.param('id');
+    if (!bountyId) {
+        throw new HTTPException(400, { message: 'missing query param `id`' });
+    }
     try {
         const character = await getCharacter();
         if (!character) {
@@ -110,6 +113,39 @@ bounty.delete('/:id', async (c) => {
         const updatedCharacter = await updateCharacterGold(character.id, character.gold - 1000);
         const deletedBounty = await deleteBounty(bountyId);
         return c.json(deletedBounty);
+    } catch (error) {
+        throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
+    }
+});
+
+bounty.post('/complete', async (c) => {
+    const bountyId = c.req.query('id');
+    if (!bountyId) {
+        throw new HTTPException(400, { message: 'missing query param `id`' });
+    }
+    try {
+        const character = await getCharacter();
+        if (!character) {
+            throw new HTTPException(404, { message: 'Character not found' });
+        }
+        const bounties = await getCharacterBounties();
+        if (!bounties) {
+            throw new HTTPException(404, { message: 'Bounty not found' });
+        }
+        const bounty = bounties.find((bounty) => bounty.id === bountyId);
+        if (!bounty) {
+            throw new HTTPException(404, { message: 'Bounty not found' });
+        }
+        if (bounty.required_progress < bounty.required_quantity) {
+            throw new HTTPException(500, { message: 'Bounty not completed' });
+        }
+        // Update gold and bounty tokens
+        const updatedCharacter = await updateCharacter(character.id, { gold: character.gold + bounty.gold, bounty_tokens: character.bounty_tokens + bounty.bounty_tokens });
+        // Update experience
+        const experience = await addExperience(character, bounty.skill, bounty.experience);
+        // Delete bounty
+        const deletedBounty = await deleteBounty(bountyId);
+        return c.json({ message: 'Bounty completed' });
     } catch (error) {
         throw new HTTPException((error as HTTPException).status, { message: (error as HTTPException).message });
     }
